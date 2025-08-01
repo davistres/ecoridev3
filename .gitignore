@@ -27,5 +27,4 @@ a/
 .env.cloud
 ecoride.sql
 app.yaml
-ecoride.sql
 .gcloudignore
