@@ -10,9 +10,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const navLinks = document.querySelectorAll('.nav-link');
 
     navLinks.forEach(link => {
+        if (link.classList.contains('font-bold')) {
+            link.style.pointerEvents = 'none';
+        }
+
         link.addEventListener('mouseenter', () => {
             if (!link.classList.contains('font-bold')) {
-                link.classList.add('border-b-2', 'border-green-500');
+                link.classList.add('transition', 'duration-1000', 'ease-in-out', 'border-b-2', 'border-green-500');
             }
         });
 

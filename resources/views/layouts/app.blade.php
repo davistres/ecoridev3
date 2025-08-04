@@ -14,16 +14,15 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased flex flex-col min-h-screen">
-        <div class="min-h-screen bg-gray-100 flex-grow">
-            @include('layouts.partials.header')
+    <body class="font-sans antialiased bg-gray-100 flex flex-col min-h-screen" x-data="{ open: false }">
+        @include('layouts.partials.header')
 
-            <!-- Page Content -->
-            <main class="flex-grow">
-                {{ $slot }}
-            </main>
+        <!-- Page Content -->
+        <main class="flex-grow">
+            {{ $slot }}
+        </main>
 
-            @include('layouts.partials.footer')
-        </div>
+        @include('layouts.partials.footer')
+        @include('layouts.partials.mobile-menu')
     </body>
 </html>
