@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CovoitController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -18,6 +19,8 @@ Route::get('/covoiturage', function () {
 Route::get('/contact', function () {
     return view('contact');
 })->name('contact');
+
+Route::get('/covoiturage/recherche', [CovoitController::class, 'search'])->name('covoiturage.search');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
