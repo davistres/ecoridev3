@@ -3,7 +3,7 @@
     x-transition:enter-end="opacity-100 transform translate-x-0" x-transition:leave="transition ease-in duration-300"
     x-transition:leave-start="opacity-100 transform translate-x-0"
     x-transition:leave-end="opacity-0 transform translate-x-full" @click.away="open = false"
-    class="fixed right-0 bg-green-500 text-white w-2/3 md:hidden p-4 z-40 mt-16">
+    class="fixed right-0 bg-green-500 text-white md:hidden p-4 z-40 mt-16">
     <a href="{{ route('welcome') }}"
         class="block py-2 px-4 text-sm hover:bg-green-600 hover:font-bold hover:shadow-lg transition duration-300 ease-in-out">Accueil</a>
     <a href="{{ route('covoiturage') }}"
