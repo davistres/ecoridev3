@@ -45,10 +45,10 @@
                             x-transition:leave-start="opacity-100 transform scale-100"
                             x-transition:leave-end="opacity-0 transform scale-90">
                             <a href="{{ route('login') }}"
-                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-green-500 hover:text-white">Se
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-500 hover:text-white">Se
                                 connecter</a>
                             <a href="{{ route('register') }}"
-                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-green-500 hover:text-white">S'enregistrer</a>
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-500 hover:text-white">S'enregistrer</a>
                         </div>
                     </div>
                 @endguest

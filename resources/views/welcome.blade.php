@@ -31,7 +31,8 @@
                     <div class="lg:col-span-2">
                         <label for="date" class="block text-sm font-medium text-gray-700 text-left">Date</label>
                         <input type="date" id="date" name="date"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            required>
                     </div>
 
                     <!-- n place -->
@@ -56,8 +57,8 @@
                     </div>
 
                 </form>
-                <div id="seats-warning" class="text-red-500 text-sm mt-2 text-left" style="display: none;">
-                    En moyenne, les trajets proposés sur la plateforme n’ont que entre 2 et 4 places de libres. Les
+                <div id="seats-warning" class="text-red-500 text-sm mt-2 text-justify" style="display: none;">
+                    La majorité des trajets proposés sur la plateforme n’ont que entre 1 et 4 places de libres. Les
                     véhicules standards n’ont généralement pas plus de 6 places (hors siège du chauffeur). Pour
                     maximiser vos chances, nous vous invitons à chercher plusieurs trajets vers votre destination.
                 </div>
