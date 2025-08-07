@@ -55,6 +55,7 @@
 
                 @auth
                     <!-- TODO: lien vers dashboards -->
+                    <!-- Ne pas oublié les employés -->
                     <a href="#" class="text-gray-800 hover:text-blue-600 pb-1">
                         @if (auth()->user()->isAdmin())
                             ADMIN
@@ -64,7 +65,7 @@
                     </a>
                     <!-- TODO: le panier si je l'utilise -->
                     <!-- Chercher un logo de panier pour que les utilisateurs retrouvent les trajets qu'ils ont sélectionnés. -->
-                    <form method="POST" action="{{ route('logout') }}">
+                    <form method="POST" action="{{ route('logout') }}" class="flex items-center">
                         @csrf
                         <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();"
                             class="text-gray-800 hover:text-blue-600 pb-1">

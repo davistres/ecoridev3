@@ -23,7 +23,7 @@ env.local
 Homestead.json
 Homestead.yaml
 Thumbs.db
-a/
+/a
 .env.cloud
 ecoride.sql
 app.yaml

@@ -9,8 +9,15 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    /** Ici aussi, faire les DocBlock!!!!!!!!!!!!!!!!!!!!!!!!!!!! Suivre le modèle de ce qui a été fait automatiqquement par Laravel!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
+
+    /** Par défaut, la clé primaire est id. Donc je dois spécifier que la mienne est user_id. */
+    protected $primaryKey = 'user_id';
+
+    /** Dans ma base de données, la table users n'a pas de colonnes created_at et updated_at. Donc, je dois mettre:*/
+    public $timestamps = false;
 
     /**
      * The attributes that are mass assignable.
@@ -45,4 +52,11 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /** Dans le header j'ai déjà implémenté isAdmin() pour afficher ADMIN à la place de name... Je dois donc ajouter cette fonction.*/
+    public function isAdmin(): bool
+    {
+        return $this->role === 'Admin';
+    }
+    /** TODO: si c'est un employé qui se connecte!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 }

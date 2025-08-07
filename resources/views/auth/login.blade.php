@@ -31,6 +31,13 @@
                             <x-input-error :messages="$errors->get('password')" class="mt-2" />
                         </div>
 
+                        <!-- Honeypot => voir Honeypot.php (app/Rules) -->
+                        <div class="hidden">
+                            <label for="raison_sociale">Raison Sociale</label>
+                            <input type="text" id="raison_sociale" name="raison_sociale" tabindex="-1"
+                                autocomplete="off">
+                        </div>
+
                         <!-- Btn -->
                         <div class="text-center">
                             <button type="submit"
