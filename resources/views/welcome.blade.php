@@ -7,8 +7,7 @@
             <p class="text-lg text-gray-600 mb-8">Économique, écologique et convivial.</p>
 
             <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 max-w-4xl mx-auto">
-                <form action="{{ route('covoiturage.search') }}" method="GET"
-                    class="grid grid-cols-1 lg:grid-cols-10 gap-4 items-end">
+                <form action="{{ route('covoiturage') }}" method="GET" class="grid grid-cols-1 lg:grid-cols-10 gap-4 items-end">
                     @csrf
 
                     <!-- Départ -->

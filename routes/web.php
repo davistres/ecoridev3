@@ -13,9 +13,7 @@ Route::get('/accueil', function () {
     return view('welcome');
 })->name('accueil');
 
-Route::get('/covoiturage', function () {
-    return view('covoiturage');
-})->name('covoiturage');
+Route::get('/covoiturage', [CovoitController::class, 'index'])->name('covoiturage');
 
 Route::get('/contact', function () {
     return view('contact');
@@ -23,7 +21,7 @@ Route::get('/contact', function () {
 
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 
-Route::get('/covoiturage/recherche', [CovoitController::class, 'search'])->name('covoiturage.search');
+// Route::get('/covoiturage/recherche', [CovoitController::class, 'search'])->name('covoiturage.search');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
