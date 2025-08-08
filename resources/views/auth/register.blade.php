@@ -3,7 +3,11 @@
         <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                 <div class="p-8">
-                    <h2 class="text-2xl font-bold text-center text-gray-800 mb-8">Inscription</h2>
+                    <h2 class="text-2xl font-bold text-center text-gray-800 mb-3">Inscription</h2>
+
+                    <div class="bg-blue-500 text-gray-100 p-4 rounded-md text-center mb-12">
+                        <p class="font-extrabold">20 crédits vous seront offerts à votre première inscription !!!</p>
+                    </div>
 
                     <form method="POST" action="{{ route('register') }}">
                         @csrf

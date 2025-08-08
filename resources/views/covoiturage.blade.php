@@ -2,8 +2,61 @@
     <div class="covoiturage-container max-w-7xl mx-auto py-12 sm:px-6 lg:px-8">
         <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Rechercher un covoiturage</h1>
 
-        <section class="search-section bg-white rounded-lg shadow-md p-8 mb-12">
-            <!-- Le formulaire de recherche sera ici -->
+        <section class="search-section bg-white rounded-xl shadow-lg p-6 md:p-8 max-w-4xl mx-auto mb-12">
+            <form action="{{ route('covoiturage') }}" method="GET"
+                class="grid grid-cols-1 lg:grid-cols-10 gap-4 items-end">
+                @csrf
+
+                <!-- Départ -->
+                <div class="lg:col-span-3">
+                    <label for="departure" class="block text-sm font-medium text-gray-700 text-left">Départ</label>
+                    <input type="text" id="departure" name="departure"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        placeholder="Adresse de départ" required>
+                </div>
+
+                <!-- Arrivée -->
+                <div class="lg:col-span-3">
+                    <label for="arrival" class="block text-sm font-medium text-gray-700 text-left">Arrivée</label>
+                    <input type="text" id="arrival" name="arrival"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        placeholder="Adresse d'arrivée" required>
+                </div>
+
+                <!-- Date -->
+                <div class="lg:col-span-2">
+                    <label for="date" class="block text-sm font-medium text-gray-700 text-left">Date</label>
+                    <input type="date" id="date" name="date"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        required>
+                </div>
+
+                <!-- n place -->
+                <div class="lg:col-span-1">
+                    <label for="seats" class="block text-sm font-medium text-gray-700 text-left">Places</label>
+                    <input type="number" id="seats" name="seats" min="1" max="8"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        placeholder="1" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                </div>
+
+                <!-- btn recherche -->
+                <div class="lg:col-span-1">
+                    <button type="submit"
+                        class="w-full flex items-center justify-center bg-green-600 text-white font-bold py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 lg:w-auto">
+                        <span class="lg:hidden mr-2">RECHERCHER</span>
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+            <div id="seats-warning" class="text-red-500 text-sm mt-2 text-justify" style="display: none;">
+                La majorité des trajets proposés sur la plateforme n’ont que entre 1 et 4 places de libres. Les
+                véhicules standards n’ont généralement pas plus de 6 places (hors siège du chauffeur). Pour
+                maximiser vos chances, nous vous invitons à chercher plusieurs trajets vers votre destination.
+            </div>
         </section>
 
         @if (isset($covoiturages) && count($covoiturages) > 0)
@@ -27,7 +80,7 @@
                                 <span
                                     class="rating-value font-bold text-yellow-500">{{ $covoiturage['note_chauffeur'] }}</span>
                                 <span class="rating-stars text-yellow-500">
-                                    
+
                                 </span>
                             </div>
                         </div>
@@ -92,8 +145,28 @@
                 @endforeach
             </section>
         @else
-            <div class="no-results bg-white rounded-lg shadow-md p-8 text-center">
-                <p class="text-xl text-gray-600">Aucun covoiturage disponible pour le moment.</p>
+            <div class="text-center mt-12">
+                <div
+                    class="inline-block bg-green-50 border-2 border-green-200 rounded-2xl p-8 shadow-sm max-w-2xl mx-auto">
+                    <img src="https://img.icons8.com/color/96/000000/carpool.png" alt="Icône de covoiturage"
+                        class="mx-auto mb-6 h-20 w-20">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-4">
+                        Bienvenue sur la page de covoiturage
+                    </h2>
+                    <p class="text-gray-600 text-lg mb-6">
+                        Utilisez le formulaire ci-dessus pour trouver votre prochain trajet écologique et
+                        économique.
+                    </p>
+                    <div class="bg-white rounded-lg p-6 text-left text-gray-700">
+                        <h3 class="font-semibold text-xl mb-3 text-green-700">Conseils pour votre recherche :
+                        </h3>
+                        <ul class="list-disc list-inside space-y-2">
+                            <li>Soyez précis sur les noms de villes</li>
+                            <li>Essayez différentes dates pour plus d'options</li>
+                            <li>Les voyages écologiques sont indiqués par un badge vert</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         @endif
     </div>
@@ -185,6 +258,26 @@
                     const rating = parseFloat(starContainer.previousElementSibling.textContent);
                     if (!isNaN(rating)) {
                         starContainer.innerHTML = generateStars(rating);
+                    }
+                });
+
+                // Choix de la date => à partir de la date d'aujourd'hui
+                const dateInput = document.getElementById('date');
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = ('0' + (today.getMonth() + 1)).slice(-2);
+                const day = ('0' + today.getDate()).slice(-2);
+                dateInput.min = `${year}-${month}-${day}`;
+
+                // Avertissement utilisateur si ils choissisent moins de 5 places
+                const seatsInput = document.getElementById('seats');
+                const seatsWarning = document.getElementById('seats-warning');
+                seatsInput.addEventListener('input', function() {
+                    const seats = parseInt(this.value, 10);
+                    if (seats >= 5) {
+                        seatsWarning.style.display = 'block';
+                    } else {
+                        seatsWarning.style.display = 'none';
                     }
                 });
             });
