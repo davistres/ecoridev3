@@ -5,9 +5,11 @@
                 <div class="p-8">
                     <h2 class="text-2xl font-bold text-center text-gray-800 mb-3">Inscription</h2>
 
-                    <div class="bg-blue-500 text-gray-100 p-4 rounded-md text-center mb-12">
+                    <div class="bg-blue-500 text-gray-100 p-4 rounded-md text-center mb-8">
                         <p class="font-extrabold">20 crédits vous seront offerts à votre première inscription !!!</p>
                     </div>
+
+                    <p class="text-sm text-gray-500 text-center mb-12">* Champs obligatoires</p>
 
                     <form method="POST" action="{{ route('register') }}">
                         @csrf

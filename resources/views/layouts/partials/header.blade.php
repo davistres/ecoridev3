@@ -56,7 +56,7 @@
                 @auth
                     <!-- TODO: lien vers dashboards -->
                     <!-- Ne pas oublié les employés -->
-                    <a href="#" class="text-gray-800 hover:text-blue-600 pb-1">
+                    <a href="{{ route('dashboard') }}" class="text-gray-800 hover:text-blue-600 pb-1">
                         @if (auth()->user()->isAdmin())
                             ADMIN
                         @else

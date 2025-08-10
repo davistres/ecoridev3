@@ -19,7 +19,7 @@
             class="block py-2 px-4 text-sm hover:bg-green-600 hover:font-bold hover:shadow-lg transition duration-300 ease-in-out">S'enregistrer</a>
     @endguest
     @auth
-        <a href="#"
+        <a href="{{ route('dashboard') }}"
             class="block py-2 px-4 text-sm hover:bg-green-600 hover:font-bold hover:shadow-lg transition duration-300 ease-in-out">
             @if (auth()->user()->isAdmin())
                 ADMIN

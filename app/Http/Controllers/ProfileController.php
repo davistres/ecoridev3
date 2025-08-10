@@ -2,59 +2,99 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
+use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
-    public function edit(Request $request): View
+    public function edit()
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
+        return redirect()->route('home');
     }
 
-    /**
-     * Update the user's profile information.
-     */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(Request $request)
     {
-        $request->user()->fill($request->validated());
+        $user = Auth::user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $request->validate([
+            'name' => ['required', 'string', 'max:18'],
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($user->user_id, 'user_id'),
+            ],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
         }
 
-        $request->user()->save();
+        DB::table('users')
+            ->where('user_id', $user->user_id)
+            ->update([
+                'name' => $user->name,
+                'email' => $user->email,
+                'password' => $user->password
+            ]);
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->route('dashboard')->with('success', 'Votre profil a été mis à jour avec succès!');
     }
 
-    /**
-     * Delete the user's account.
-     */
-    public function destroy(Request $request): RedirectResponse
+    /** Changement de role */
+    public function newRole(Request $request): RedirectResponse
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
+        $request->validate([
+            'role' => ['required', 'string', 'in:Passager,Conducteur,Les deux'],
         ]);
 
         $user = $request->user();
+        $user->role = $request->input('role');
+        $user->save();
 
-        Auth::logout();
+        return Redirect::route('dashboard')->with('status', 'role-updated');
+    }
 
-        $user->delete();
+    /** Photo de profil */
+    public function updatePhoto(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'profile_photo' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+        ]);
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $user = $request->user();
+        $photo = $request->file('profile_photo');
 
-        return Redirect::to('/');
+        $user->photo = file_get_contents($photo->getRealPath());
+        $user->phototype = $photo->getMimeType();
+        $user->save();
+
+        return Redirect::route('dashboard')->with('status', 'photo-updated');
+    }
+
+    /** Suppr photo de profil*/
+    public function destroyPhoto(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        $user->photo = null;
+        $user->phototype = null;
+        $user->save();
+
+        return Redirect::route('dashboard')->with('status', 'photo-deleted');
     }
 }
