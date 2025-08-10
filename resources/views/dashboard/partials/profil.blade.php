@@ -35,10 +35,10 @@
                 <div
                     class="mt-4 flex flex-col sm:flex-row items-center justify-center sm:justify-start space-y-3 sm:space-y-0 sm:space-x-4">
                     <div class="flex items-baseline">
-                        <span class="text-4xl font-bold text-[#2ecc71]">{{ $user->n_credit }}</span>
+                        <span id="credit-balance" class="text-4xl font-bold text-[#2ecc71]">{{ $user->n_credit }}</span>
                         <span class="ml-2 text-lg text-slate-500">crédits</span>
                     </div>
-                    <button
+                    <button id="recharge-btn"
                         class="px-5 py-2 bg-[#3498db] text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg transition-all duration-300 transform hover:scale-105">
                         Recharger
                     </button>
