@@ -16,19 +16,19 @@
             @method('PATCH')
             <div class="space-y-2">
                 <label for="role_passager" class="flex items-center">
-                    <input type="radio" id="role_passager" name="role" value="Passager"
+                    <input type="radio" name="role" value="Passager"
                         class="h-5 w-5 text-[#2ecc71] focus:ring-[#27ae60]"
                         {{ $user->role == 'Passager' ? 'checked' : '' }}>
                     <span class="ml-3 text-slate-700">Passager</span>
                 </label>
                 <label for="role_conducteur" class="flex items-center">
-                    <input type="radio" id="role_conducteur" name="role" value="Conducteur"
+                    <input type="radio" name="role" value="Conducteur"
                         class="h-5 w-5 text-[#2ecc71] focus:ring-[#27ae60]"
                         {{ $user->role == 'Conducteur' ? 'checked' : '' }}>
                     <span class="ml-3 text-slate-700">Conducteur</span>
                 </label>
                 <label for="role_les_deux" class="flex items-center">
-                    <input type="radio" id="role_les_deux" name="role" value="Les deux"
+                    <input type="radio" name="role" value="Les deux"
                         class="h-5 w-5 text-[#2ecc71] focus:ring-[#27ae60]"
                         {{ $user->role == 'Les deux' ? 'checked' : '' }}>
                     <span class="ml-3 text-slate-700">Les deux</span>

@@ -33,6 +33,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile/role', [ProfileController::class, 'newRole'])->name('profile.role.update');
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo.update');
     Route::delete('/profile/photo', [ProfileController::class, 'destroyPhoto'])->name('profile.photo.destroy');
+    Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
 });
 
 require __DIR__.'/auth.php';

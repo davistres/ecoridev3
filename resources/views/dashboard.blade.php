@@ -116,18 +116,18 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            const rechargeBtn = document.getElementById('recharge-btn');
+            const rechargeBtns = document.querySelectorAll('.recharge-btn');
             const validatePaymentBtn = document.getElementById('validate-payment-btn');
             const creditBalanceEl = document.getElementById('credit-balance');
             const amountOptions = document.querySelectorAll('input[name="recharge_amount"]');
             const fakeInputs = document.querySelectorAll('#recharge-modal input[readonly]');
 
-            // openModal
-            if (rechargeBtn) {
-                rechargeBtn.addEventListener('click', function() {
+            // btn pour ouvrir openModal
+            rechargeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
                     openModal(rechargeModalId);
                 });
-            }
+            });
 
             // Message au clic "Ceci est une version TEST du projet ! Pour recharger votre crédit, sélectionnez juste un montant et validez juste le paiement."
             fakeInputs.forEach(input => {

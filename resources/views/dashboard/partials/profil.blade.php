@@ -15,7 +15,7 @@
             <!-- Place pour la photo -->
             <div class="flex-shrink-0">
                 <button onclick="openModal('photoModal')"
-                    class="h-28 w-28 rounded-full bg-slate-200 flex items-center justify-center border-4 border-[#2ecc71] shadow-md overflow-hidden">
+                    class="h-28 w-28 rounded-full bg-slate-200 flex items-center justify-center border-4 border-[#2ecc71] shadow-md overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-lg">
                     @if (Auth::user()->photo && Auth::user()->phototype)
                         <img src="data:{{ Auth::user()->phototype }};base64,{{ base64_encode(Auth::user()->photo) }}"
                             alt="Photo de profil" class="h-full w-full object-cover">
@@ -38,8 +38,8 @@
                         <span id="credit-balance" class="text-4xl font-bold text-[#2ecc71]">{{ $user->n_credit }}</span>
                         <span class="ml-2 text-lg text-slate-500">crédits</span>
                     </div>
-                    <button id="recharge-btn"
-                        class="px-5 py-2 bg-[#3498db] text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg transition-all duration-300 transform hover:scale-105">
+                    <button
+                        class="recharge-btn px-5 py-2 bg-[#3498db] text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg transition-all duration-300 transform hover:scale-105">
                         Recharger
                     </button>
                 </div>

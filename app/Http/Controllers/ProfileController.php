@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
 {
@@ -96,5 +98,23 @@ class ProfileController extends Controller
         $user->save();
 
         return Redirect::route('dashboard')->with('status', 'photo-deleted');
+    }
+
+    public function updatePassword(Request $request): JsonResponse|RedirectResponse
+    {
+        $validated = $request->validateWithBag('updatePassword', [
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', Password::defaults(), 'confirmed'],
+        ]);
+
+        $request->user()->update([
+            'password' => $validated['password'],
+        ]);
+
+        if ($request->expectsJson()) {
+            return response()->json(['status' => 'password-updated']);
+        }
+
+        return Redirect::route('dashboard')->with('status', 'password-updated');
     }
 }
