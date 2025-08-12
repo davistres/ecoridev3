@@ -39,9 +39,11 @@
     </div>
 
     @include('dashboard.partials.popup')
+    @include('dashboard.partials.driverinfo-modal')
 
     <!-- Recharge Modal -->
     <div id="recharge-modal"
+        data-recharge-url="{{ route('credits.recharge') }}"
         class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden"
         onclick="closeModal('recharge-modal')">
         <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4" onclick="event.stopPropagation()">
@@ -104,101 +106,5 @@
         </div>
     </div>
 
-    <script>
-        const rechargeModalId = 'recharge-modal';
-        const warningEl = document.getElementById('payment-warning');
-
-        function closeAndResetRechargeModal() {
-            closeModal(rechargeModalId);
-            if (warningEl) {
-                warningEl.classList.add('hidden');
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const rechargeBtns = document.querySelectorAll('.recharge-btn');
-            const validatePaymentBtn = document.getElementById('validate-payment-btn');
-            const creditBalanceEl = document.getElementById('credit-balance');
-            const amountOptions = document.querySelectorAll('input[name="recharge_amount"]');
-            const fakeInputs = document.querySelectorAll('#recharge-modal input[readonly]');
-
-            // btn pour ouvrir openModal
-            rechargeBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    openModal(rechargeModalId);
-                });
-            });
-
-            // Message au clic "Ceci est une version TEST du projet ! Pour recharger votre crédit, sélectionnez juste un montant et validez juste le paiement."
-            fakeInputs.forEach(input => {
-                input.addEventListener('click', function() {
-                    if (warningEl) {
-                        warningEl.classList.remove('hidden');
-                    }
-                });
-            });
-
-            // btn activé quand un montant est sélectionné
-            amountOptions.forEach(option => {
-                option.addEventListener('change', function() {
-                    if (this.checked) {
-                        validatePaymentBtn.disabled = false;
-                        // css pour le sélectionné
-                        document.querySelectorAll('.credit-option').forEach(label => label.classList
-                            .remove('bg-green-100', 'border-green-500'));
-                        this.parentElement.classList.add('bg-green-100', 'border-green-500');
-                    }
-                });
-            });
-
-            // validatePayment
-            if (validatePaymentBtn) {
-                validatePaymentBtn.addEventListener('click', function() {
-                    const selectedAmount = document.querySelector('input[name="recharge_amount"]:checked');
-                    if (!selectedAmount) return;
-
-                    const amount = selectedAmount.value;
-                    this.disabled = true;
-
-                    fetch('{{ route('credits.recharge') }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                amount: amount
-                            })
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                return response.json().then(err => {
-                                    throw err;
-                                });
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (creditBalanceEl) {
-                                creditBalanceEl.textContent = data.new_credit_balance;
-                            }
-                            closeAndResetRechargeModal();
-
-                            // Réinit
-                            validatePaymentBtn.disabled = true;
-                            if (selectedAmount) selectedAmount.checked = false;
-                            document.querySelectorAll('.credit-option').forEach(label => label.classList
-                                .remove('bg-green-100', 'border-green-500'));
-                        })
-                        .catch(error => {
-                            console.error('There has been a problem with your fetch operation:', error);
-                            alert(
-                                'Une erreur est survenue. Veuillez vérifier la console pour plus de détails.'
-                            );
-                            this.disabled = false;
-                        });
-                });
-            }
-        });
-    </script>
+    
 </x-app-layout>

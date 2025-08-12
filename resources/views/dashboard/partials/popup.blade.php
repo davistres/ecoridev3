@@ -91,6 +91,10 @@
                 <form id="profileEditForm" action="{{ route('profile.update') }}" method="POST">
                     @csrf
                     @method('PATCH')
+                    <div class="hidden">
+                        <label for="honeypot">Honeypot</label>
+                        <input id="honeypot" type="text" name="honeypot" value="">
+                    </div>
                     <div class="space-y-4">
                         <div class="form-group">
                             <label for="name" class="block font-semibold text-gray-700">Pseudo</label>

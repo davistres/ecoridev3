@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RechargeRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -18,12 +19,8 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function recharge(Request $request): JsonResponse
+    public function recharge(RechargeRequest $request): JsonResponse
     {
-        $request->validate([
-            'amount' => ['required', 'numeric', Rule::in([10, 20, 50, 100, 200])],
-        ]);
-
         $user = Auth::user();
         $user->n_credit += (int) $request->input('amount');
         $user->save();

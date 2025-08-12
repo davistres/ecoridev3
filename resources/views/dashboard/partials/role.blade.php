@@ -11,7 +11,7 @@
                 class="px-4 py-1 text-base font-semibold text-white bg-[#3498db] rounded-full">{{ $user->role }}</span>
         </div>
 
-        <form action="{{ route('profile.role.update') }}" method="POST">
+        <form class="role-change-form" action="{{ route('profile.role.update') }}" method="POST" data-current-role="{{ $user->role }}">
             @csrf
             @method('PATCH')
             <div class="space-y-2">
@@ -34,6 +34,7 @@
                     <span class="ml-3 text-slate-700">Les deux</span>
                 </label>
             </div>
+            <div id="role-change-warning" class="hidden bg-[#3b82f6] text-[#f1f8e9] p-3 my-2 rounded-lg text-sm text-center">Vous devez d’abord sélectionner un nouveau rôle !</div>
             <button type="submit"
                 class="mt-4 w-full px-5 py-2 bg-[#2ecc71] text-white font-semibold rounded-md hover:bg-[#27ae60] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 shadow-lg transition-all duration-300 transform hover:scale-105">
                 Valider
