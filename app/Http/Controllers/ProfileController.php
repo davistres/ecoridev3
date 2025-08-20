@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfilePhotoRequest;
+use App\Http\Requests\UpdatePreferencesRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
@@ -138,8 +139,8 @@ class ProfileController extends Controller
         $validated = $request->validated();
 
         // Sécu en plus mais normalement pas nécessaire
-        if ($user->role !== 'Passager') {
-            return redirect()->back()->withErrors(['role' => 'Seuls les passagers peuvent devenir conducteurs.']);
+        if ($user->role !== 'Passager' && $user->role !== 'Conducteur') {
+            return redirect()->back()->withErrors(['role' => 'Action non autorisée pour votre rôle actuel.']);
         }
 
         try {
@@ -176,5 +177,15 @@ class ProfileController extends Controller
         }
 
         return Redirect::route('dashboard')->with('status', 'role-updated-to-driver');
+    }
+
+    public function updatePreferences(UpdatePreferencesRequest $request): RedirectResponse
+    {
+        $user = $request->user();
+        $validated = $request->validated();
+
+        $user->update($validated);
+
+        return Redirect::route('dashboard')->with('status', 'preferences-updated');
     }
 }

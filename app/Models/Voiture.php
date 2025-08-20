@@ -8,9 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Voiture extends Model
 {
-    use HasFactory, SoftDeletes;
-
-    /** Ce Model est lié à la base de donnée via la table 'voiture'  */
+    use HasFactory;
     protected $table = 'voiture';
 
     protected $primaryKey = 'voiture_id';

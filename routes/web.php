@@ -35,6 +35,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile/photo', [ProfileController::class, 'destroyPhoto'])->name('profile.photo.destroy');
     Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
     Route::post('/profile/driverinfo', [ProfileController::class, 'driverInfo'])->name('profile.driverinfo.store');
+    Route::patch('/profile/preferences', [ProfileController::class, 'updatePreferences'])->name('profile.preferences.update');
+    
+    Route::resource('voitures', \App\Http\Controllers\VoitureController::class)->only([
+        'store', 'update', 'destroy'
+    ]);
 });
 
 require __DIR__.'/auth.php';

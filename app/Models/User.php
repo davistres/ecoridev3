@@ -32,6 +32,9 @@ class User extends Authenticatable
         'n_credit',
         'photo',
         'phototype',
+        'pref_smoke',
+        'pref_pet',
+        'pref_libre',
     ];
 
     /**

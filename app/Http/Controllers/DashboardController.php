@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RechargeRequest;
+use App\Models\Voiture;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -14,8 +15,12 @@ class DashboardController extends Controller
     /** Dashboard utilisateur */
     public function index(Request $request): View
     {
+        $user = $request->user();
+        $voitures = Voiture::where('user_id', $user->user_id)->get();
+
         return view('dashboard', [
-            'user' => $request->user(),
+            'user' => $user,
+            'voitures' => $voitures,
         ]);
     }
 

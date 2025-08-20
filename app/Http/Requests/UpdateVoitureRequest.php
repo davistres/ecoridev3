@@ -1,0 +1,27 @@
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class UpdateVoitureRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'brand' => ['required', 'string', 'max:12'],
+            'model' => ['required', 'string', 'max:24'],
+            'immat' => ['required', 'string', 'max:10', Rule::unique('voiture', 'immat')->ignore($this->voiture->voiture_id, 'voiture_id')],
+            'date_first_immat' => ['required', 'date', 'before_or_equal:today'],
+            'color' => ['required', 'string', 'max:12'],
+            'n_place' => ['required', 'integer', 'min:2', 'max:9'],
+            'energie' => ['required', 'string', Rule::in(['Electrique', 'Hybride', 'Diesel/Gazole', 'Essence', 'GPL'])],
+        ];
+    }
+}

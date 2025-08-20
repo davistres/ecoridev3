@@ -5,7 +5,7 @@
     </div>
     <div class="p-6 text-center text-slate-500">
         <div class="text-5xl mb-4 text-[#2ecc71]">
-            <i class="fas fa-car-side"></i>
+            <i class="fas fa-route"></i>
         </div>
         <p class="mb-4 text-lg">Vous n'avez pas encore de trajet réservé.</p>
         <a href="{{ route('covoiturage') }}"
