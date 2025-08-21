@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\Honeypot;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ProfilePhotoRequest extends FormRequest
@@ -18,6 +19,7 @@ class ProfilePhotoRequest extends FormRequest
     {
         return [
             'profile_photo' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'], // 2MB Max
+            'photo_description' => ['nullable', new Honeypot],
         ];
     }
 }

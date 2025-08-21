@@ -14,6 +14,12 @@
         <form id="addVehicleForm" action="{{ route('voitures.store') }}" method="POST">
             @csrf
 
+            <!--Honeypot-->
+            <div class="hidden">
+                <label for="vehicle_details">Vehicle Details</label>
+                <input type="text" id="vehicle_details" name="vehicle_details" tabindex="-1" autocomplete="off">
+            </div>
+
             <h3 class="text-xl font-semibold text-gray-700 mb-2">Informations véhicule</h3>
             <p class="text-sm text-slate-600 mb-4">Veuillez remplir tous les champs correctement.</p>
 

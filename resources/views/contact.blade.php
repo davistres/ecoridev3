@@ -15,6 +15,13 @@
                     <form action="{{ route('contact.store') }}" method="POST">
                         @csrf
 
+                        <!--Honeypot-->
+                        <div class="hidden">
+                            <label for="raison_sociale">Raison Sociale</label>
+                            <input type="text" id="raison_sociale" name="raison_sociale" tabindex="-1"
+                                autocomplete="off">
+                        </div>
+
                         <!-- Nom -->
                         <div class="mb-4">
                             <label for="nom" class="block text-sm font-medium text-gray-700">Nom *</label>

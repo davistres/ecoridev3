@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\Honeypot;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -22,6 +23,7 @@ class StoreVoitureRequest extends FormRequest
             'color' => ['required', 'string', 'max:12'],
             'n_place' => ['required', 'integer', 'min:2', 'max:9'],
             'energie' => ['required', 'string', Rule::in(['Electrique', 'Hybride', 'Diesel/Gazole', 'Essence', 'GPL'])],
+            'vehicle_details' => ['nullable', new Honeypot],
         ];
     }
 }

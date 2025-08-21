@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\Honeypot;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ContactFormRequest extends FormRequest
@@ -20,6 +21,7 @@ class ContactFormRequest extends FormRequest
             'email' => 'required|email|max:255',
             'sujet' => 'required|string|in:Support technique,Problème lié à une réservation,Autre',
             'message' => 'required|string',
+            'raison_sociale' => ['nullable', new Honeypot],
         ];
     }
 }

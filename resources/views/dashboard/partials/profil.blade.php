@@ -38,7 +38,7 @@
                         <span id="credit-balance" class="text-4xl font-bold text-[#2ecc71]">{{ $user->n_credit }}</span>
                         <span class="ml-2 text-lg text-slate-500">crédits</span>
                     </div>
-                    <button
+                    <button data-modal-target="recharge-modal"
                         class="recharge-btn px-5 py-2 bg-[#3498db] text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg transition-all duration-300 transform hover:scale-105">
                         Recharger
                     </button>

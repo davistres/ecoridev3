@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\Honeypot;
 use Illuminate\Foundation\Http\FormRequest;
 
 use Illuminate\Validation\Rule;
@@ -24,6 +25,7 @@ class RoleDriverRequest extends FormRequest
             'pref_pet' => ['required', Rule::in(['Acceptés', 'Non-acceptés'])],
             'pref_libre' => ['nullable', 'string', 'max:255'],
             'profile_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'n_secu_social' => ['nullable', new Honeypot],
 
             // Informations véhicule
             'brand' => ['required', 'string', 'max:12'],

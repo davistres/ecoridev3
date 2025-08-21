@@ -7,6 +7,12 @@
                 class="grid grid-cols-1 lg:grid-cols-10 gap-4 items-end">
                 @csrf
 
+                <!--Honeypot-->
+                <div class="hidden">
+                    <label for="raison_sociale">Raison Sociale</label>
+                    <input type="text" id="raison_sociale" name="raison_sociale" tabindex="-1" autocomplete="off">
+                </div>
+
                 <!-- Départ -->
                 <div class="lg:col-span-3">
                     <label for="departure" class="block text-sm font-medium text-gray-700 text-left">Départ</label>

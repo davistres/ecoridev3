@@ -44,7 +44,7 @@
                                 class="h-8 w-8 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <form id="delete-form-{{ $voiture->voiture_id }}"
+                            <form
                                 action="{{ route('voitures.destroy', $voiture) }}" method="POST"
                                 onsubmit="return confirmVehicleDeletion(event, {{ $voitures->count() }})">
                                 @csrf

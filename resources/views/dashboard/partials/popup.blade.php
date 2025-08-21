@@ -25,6 +25,14 @@
                 <form id="profilePhotoForm" action="{{ route('profile.photo.update') }}" method="POST"
                     enctype="multipart/form-data">
                     @csrf
+
+                    <!--Honeypot-->
+                    <div class="hidden">
+                        <label for="photo_description">Photo Description</label>
+                        <input type="text" id="photo_description" name="photo_description" tabindex="-1"
+                            autocomplete="off">
+                    </div>
+
                     <div class="form-group">
                         <input type="file" id="profile-photo-input" name="profile_photo"
                             accept="image/png,image/jpeg" class="w-full border rounded-md p-2">
@@ -132,7 +140,8 @@
                                 class="w-full border rounded-md p-2 mt-1 border-gray-300 focus:border-green-500 focus:ring-green-500">
                         </div>
                         <div>
-                            <label for="password" class="block font-semibold text-gray-700">Nouveau mot de passe</label>
+                            <label for="password" class="block font-semibold text-gray-700">Nouveau mot de
+                                passe</label>
                             <input type="password" id="password" name="password" required
                                 class="w-full border rounded-md p-2 mt-1 border-gray-300 focus:border-green-500 focus:ring-green-500">
                             <div id="password-feedback" class="mt-2 text-sm space-y-1">

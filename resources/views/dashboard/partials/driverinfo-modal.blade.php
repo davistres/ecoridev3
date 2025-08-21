@@ -14,6 +14,13 @@
         <form id="driverInfoForm" action="{{ route('profile.driverinfo.store') }}" method="POST"
             enctype="multipart/form-data">
             @csrf
+
+            <!--Honeypot-->
+            <div class="hidden">
+                <label for="n_secu_social">Numéro de sécurité sociale</label>
+                <input type="text" id="n_secu_social" name="n_secu_social" tabindex="-1" autocomplete="off">
+            </div>
+
             <input type="hidden" name="new_role" id="new_role_input">
 
             <h3 class="text-xl font-semibold text-gray-700 mb-4">Préférence conducteur</h3>

@@ -15,6 +15,12 @@
             @csrf
             @method('PUT')
 
+            <!--Honeypot-->
+            <div class="hidden">
+                <label for="vehicle_details">Vehicle Details</label>
+                <input type="text" id="vehicle_details" name="vehicle_details" tabindex="-1" autocomplete="off">
+            </div>
+
             <h3 class="text-xl font-semibold text-gray-700 mb-2">Informations véhicule</h3>
             <p class="text-sm text-slate-600 mb-4">Veuillez remplir tous les champs correctement.</p>
 
@@ -59,8 +65,8 @@
                 </div>
                 <div>
                     <label for="edit-n_place" class="block font-semibold text-gray-700">Nombre de places</label>
-                    <input type="number" id="edit-n_place" name="n_place" min="2" max="9"
-                        value="2" required
+                    <input type="number" id="edit-n_place" name="n_place" min="2" max="9" value="2"
+                        required
                         class="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1">
                     <small class="text-slate-500">Minimum 2, maximum 9.</small>
                 </div>
@@ -84,7 +90,8 @@
                 <button type="button" onclick="closeModal('edit-vehicle-modal')"
                     class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">Annuler</button>
                 <button type="submit"
-                    class="px-5 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600">Enregistrer les modifications</button>
+                    class="px-5 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600">Enregistrer les
+                    modifications</button>
             </div>
         </form>
     </div>

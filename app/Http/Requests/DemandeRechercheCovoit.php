@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\Honeypot;
 use Illuminate\Foundation\Http\FormRequest;
 
 class DemandeRechercheCovoit extends FormRequest
@@ -20,6 +21,7 @@ class DemandeRechercheCovoit extends FormRequest
             'arrival' => 'required|string|max:255',
             'date' => 'required|date',
             'seats' => 'required|integer|min:1|max:8',
+            'raison_sociale' => ['nullable', new Honeypot],
         ];
     }
 }
