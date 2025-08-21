@@ -95,34 +95,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // Modale Changement de Rôle (role.blade.php)               --
-    const roleChangeForm = document.getElementById('role-change-form');
-    if (roleChangeForm) {
-        roleChangeForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const currentRole = this.dataset.currentRole;
-            const newRole = this.querySelector('input[name="role"]:checked').value;
-            const warningElement = document.getElementById('role-change-warning');
+    // Modale Changement de Rôle (role.blade.php)
+    const roleChangeForms = document.querySelectorAll('.role-change-form');
+    if (roleChangeForms.length > 0) {
+        roleChangeForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const currentRole = this.dataset.currentRole;
+                const newRole = this.querySelector('input[name="role"]:checked').value;
+                const warningElement = document.getElementById('role-change-warning');
 
-            if (currentRole === newRole) {
-                if (warningElement) warningElement.classList.remove('hidden');
-                return;
-            }
+                if (currentRole === newRole) {
+                    if (warningElement) warningElement.classList.remove('hidden');
+                    return;
+                }
 
-            if (warningElement) warningElement.classList.add('hidden');
+                if (warningElement) warningElement.classList.add('hidden');
 
-            if (currentRole === 'Passager' && (newRole === 'Conducteur' || newRole === 'Les deux')) {
-                const newRoleInput = document.getElementById('new_role_input');
-                if (newRoleInput) newRoleInput.value = newRole;
-                openModal('driverinfo-modal');
-            } else if ((currentRole === 'Conducteur' || currentRole === 'Les deux') && newRole === 'Passager') {
-                openModal('confirm-delete-all-for-change-role-to-passenger-modal');
-                document.getElementById('confirm-role-change-btn').onclick = () => {
+                if (currentRole === 'Passager' && (newRole === 'Conducteur' || newRole === 'Les deux')) {
+                    const newRoleInput = document.getElementById('new_role_input');
+                    if (newRoleInput) newRoleInput.value = newRole;
+                    openModal('driverinfo-modal');
+                } else if ((currentRole === 'Conducteur' || currentRole === 'Les deux') && newRole === 'Passager') {
+                    openModal('confirm-delete-all-for-change-role-to-passenger-modal');
+                    document.getElementById('confirm-role-change-btn').onclick = () => {
+                        this.submit();
+                    };
+                } else {
                     this.submit();
-                };
-            } else {
-                this.submit();
-            }
+                }
+            });
         });
     }
 

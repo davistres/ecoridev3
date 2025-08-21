@@ -30,7 +30,7 @@ class RoleDriverRequest extends FormRequest
             // Informations véhicule
             'brand' => ['required', 'string', 'max:12'],
             'model' => ['required', 'string', 'max:24'],
-            'immat' => ['required', 'string', 'max:10', Rule::unique('voiture', 'immat')],
+            'immat' => ['required', 'string', 'size:7', Rule::unique('voiture', 'immat')],
             'date_first_immat' => ['required', 'date', 'before_or_equal:today'],
             'color' => ['required', 'string', 'max:12'],
             'n_place' => ['required', 'integer', 'min:2', 'max:9'],

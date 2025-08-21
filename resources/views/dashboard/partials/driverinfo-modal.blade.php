@@ -100,9 +100,9 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label for="immat" class="block font-semibold text-gray-700">Immatriculation</label>
-                    <input type="text" id="immat" name="immat" maxlength="10" required
+                    <input type="text" id="immat" name="immat" maxlength="7" required
                         class="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1">
-                    <small class="text-slate-500">Maximum 10 caractères. Doit être unique.</small>
+                    <small class="text-slate-500">Doit contenir 7 caractères. Doit être unique.</small>
                 </div>
                 <div>
                     <label for="date_first_immat" class="block font-semibold text-gray-700">Date de la 1ère
