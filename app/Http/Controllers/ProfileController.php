@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfilePhotoRequest;
 use App\Http\Requests\UpdatePreferencesRequest;
+use App\Models\Covoiturage;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
@@ -74,13 +75,23 @@ class ProfileController extends Controller
         // Si un chauffeur redevient un simple passager, on doit effacer toutes ses données conducteur
         if (($user->role === 'Conducteur' || $user->role === 'Les deux') && $newRole === 'Passager') {
             DB::transaction(function () use ($user) {
-                // Réini les préférences
+                // On récupére tous les IDs de toutes les voitures de l'utilisateur
+                $voitureIds = Voiture::where('user_id', $user->user_id)->pluck('voiture_id');
+
+                // Suppr tous les covoit futurs liés à ces voitures
+                if ($voitureIds->isNotEmpty()) {
+                    Covoiturage::whereIn('voiture_id', $voitureIds)
+                        ->where('departure_date', '>=', now()->toDateString())
+                        ->delete();
+                }
+
+                // Suppr toutes les voitures
+                Voiture::where('user_id', $user->user_id)->delete();
+
+                // Réinit les préférences
                 $user->pref_smoke = null;
                 $user->pref_pet = null;
                 $user->pref_libre = null;
-
-                // Et supprimer toutes ses voitures
-                Voiture::where('user_id', $user->user_id)->delete();
             });
         }
 

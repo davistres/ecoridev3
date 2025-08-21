@@ -33,4 +33,10 @@ class Voiture extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
+
+    /** Récupérer les covoit liés à la voiture*/
+    public function covoiturages()
+    {
+        return $this->hasMany(Covoiturage::class, 'voiture_id', 'voiture_id');
+    }
 }

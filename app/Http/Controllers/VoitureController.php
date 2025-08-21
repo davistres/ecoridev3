@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreVoitureRequest;
 use App\Http\Requests\UpdateVoitureRequest;
+use App\Models\Covoiturage;
 use App\Models\Voiture;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
 class VoitureController extends Controller
@@ -45,22 +47,29 @@ class VoitureController extends Controller
             abort(403, 'Action non autorisée.');
         }
 
-        $voiture->delete();
+        DB::transaction(function () use ($voiture, $user) {
+            // Suppr tous les covoits futurs liés à cette voiture
+            Covoiturage::where('voiture_id', $voiture->voiture_id)
+                ->where('departure_date', '>=', now()->toDateString())
+                ->delete();
 
-        // C'est le dernier véhicule?
-        $remainingVehicles = Voiture::where('user_id', $user->user_id)->count();
+            // Suppr la voiture
+            $voiture->delete();
 
-        if ($remainingVehicles === 0 && in_array($user->role, ['Conducteur', 'Les deux'])) {
-            $user->role = 'Passager';
-            // Réinit les préférences conducteur
-            $user->pref_smoke = null;
-            $user->pref_pet = null;
-            $user->pref_libre = null;
-            $user->save();
+            // C'est le dernier véhicule?
+            $remainingVehicles = Voiture::where('user_id', $user->user_id)->count();
 
-            return Redirect::route('dashboard')->with('status', 'last-vehicle-deleted');
-        }
+            if ($remainingVehicles === 0 && in_array($user->role, ['Conducteur', 'Les deux'])) {
+                $user->role = 'Passager';
+                // Réinit les préférences conducteur
+                $user->pref_smoke = null;
+                $user->pref_pet = null;
+                $user->pref_libre = null;
+                $user->save();
+            }
+        });
 
+        // Message géré par Js
         return Redirect::route('dashboard')->with('status', 'vehicle-deleted');
     }
 }

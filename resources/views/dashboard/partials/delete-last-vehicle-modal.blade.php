@@ -3,26 +3,23 @@
     onclick="closeModal('delete-last-vehicle-modal')">
     <div class="bg-white rounded-lg p-8 max-w-lg w-full mx-4" onclick="event.stopPropagation()">
         <!-- Header -->
-        <div class="flex items-start mb-4">
-            <div class="mr-4 text-red-500">
-                <i class="fas fa-exclamation-triangle fa-2x"></i>
-            </div>
-            <div>
-                <h2 class="text-2xl font-bold text-gray-800">Attention, dernière chance !</h2>
-            </div>
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold text-red-700">Attention !</h2>
+            <button onclick="closeModal('delete-last-vehicle-modal')"
+                class="text-gray-500 hover:text-gray-800 text-3xl leading-none">&times;</button>
         </div>
 
         <!-- Body -->
-        <div class="text-slate-600 space-y-3">
-            <p>
+        <div>
+            <p class="text-slate-700 mb-4">
                 Vous êtes sur le point de supprimer votre dernier véhicule.
             </p>
-            <p>
-                Si vous confirmez, votre rôle sera automatiquement changé en
-                <span class="font-bold text-slate-800">"Passager"</span>.
-                Vous ne pourrez plus proposer de covoiturages et toutes les informations liées à votre statut de conducteur seront définitivement supprimées.
+            <p class="text-slate-700 mb-4">
+                Si vous confirmez, votre rôle sera automatiquement changé en <span
+                    class="font-bold">Passager</span> et toutes les informations liées à votre statut de conducteur
+                seront définitivement supprimées.
             </p>
-            <p class="font-semibold mt-4">
+            <p class="font-semibold text-slate-800">
                 Êtes-vous certain de vouloir continuer ?
             </p>
         </div>

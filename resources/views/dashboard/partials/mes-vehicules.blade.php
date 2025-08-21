@@ -46,7 +46,7 @@
                             </button>
                             <form
                                 action="{{ route('voitures.destroy', $voiture) }}" method="POST"
-                                onsubmit="return confirmVehicleDeletion(event, {{ $voitures->count() }})">
+                                onsubmit="return confirmVehicleDeletion(event, {{ $voitures->count() }}, {{ $voiture->voiture_id }})">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"

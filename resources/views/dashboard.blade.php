@@ -95,6 +95,8 @@
     @include('dashboard.partials.add-vehicle-modal')
     @include('dashboard.partials.edit-vehicle-modal')
     @include('dashboard.partials.delete-last-vehicle-modal')
+    @include('dashboard.partials.confirm-delete-vehicule-with-covoit-modal')
+    @include('dashboard.partials.confirm-delete-all-for-change-role-to-passenger-blade')
 
     <!-- Recharge Modal -->
     <div id="recharge-modal" data-recharge-url="{{ route('credits.recharge') }}"

@@ -1,7 +1,9 @@
+//GESTION DES MODALES ////////////////////////////////////////////
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
     }
 }
 
@@ -9,14 +11,53 @@ function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
     }
 }
 
 window.openModal = openModal;
 window.closeModal = closeModal;
 
-// Fermeture en cliquant à l'extérieur de la pop-up
+
+// GESTION DES NOTIFICATIONS ////////////////////////////////////
+function showSuccessNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'fixed bottom-5 right-5 bg-green-500 text-white py-3 px-5 rounded-lg shadow-xl z-50 animate-bounce';
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+function showErrorNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'fixed bottom-5 right-5 bg-red-500 text-white py-3 px-5 rounded-lg shadow-xl z-50 animate-bounce';
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+
+window.showSuccessNotification = showSuccessNotification;
+window.showErrorNotification = showErrorNotification;
+
+
+//Ecouteur d'évent sur toute la page
 document.addEventListener('DOMContentLoaded', () => {
+    // OUVERTURE DES MODALES///////////////////////////////////
+    // Remplace tous les onclick="openModal(...)" pour écouter la tous les clics sur la page
+    // Si un clic est détedté sur un élement data_modal-target, on ouvre la modale correspondante
+    document.body.addEventListener('click', function(e) {
+        const target = e.target.closest('[data-modal-target]');
+        if (target) {
+            const modalId = target.getAttribute('data-modal-target');
+            openModal(modalId);
+        }
+    });
+
+    //Fermeture des modales                             --
     const modals = document.querySelectorAll('.fixed.inset-0');
     modals.forEach(modal => {
         modal.addEventListener('click', (e) => {
@@ -26,7 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Aperçu dela photo de profil
+
+    // Modale Photo de Profil (popup.blade.php)
     const photoInput = document.getElementById('profile-photo-input');
     if (photoInput) {
         photoInput.addEventListener('change', function(event) {
@@ -42,7 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Envoi
     const photoSubmitButton = document.getElementById('profile-photo-submit');
     if (photoSubmitButton) {
         photoSubmitButton.addEventListener('click', function() {
@@ -53,47 +94,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Logique pour changer de rôle
-    const roleChangeForms = document.querySelectorAll('.role-change-form');
-    roleChangeForms.forEach(form => {
-        const warningElement = form.querySelector('#role-change-warning');
 
-        form.addEventListener('submit', function (e) {
+    // Modale Changement de Rôle (role.blade.php)               --
+    const roleChangeForm = document.getElementById('role-change-form');
+    if (roleChangeForm) {
+        roleChangeForm.addEventListener('submit', function(e) {
+            e.preventDefault();
             const currentRole = this.dataset.currentRole;
             const newRole = this.querySelector('input[name="role"]:checked').value;
+            const warningElement = document.getElementById('role-change-warning');
 
             if (currentRole === newRole) {
-                e.preventDefault();
-                if (warningElement) {
-                    warningElement.classList.remove('hidden');
-                }
+                if (warningElement) warningElement.classList.remove('hidden');
                 return;
             }
 
-            if (warningElement) {
-                warningElement.classList.add('hidden');
-            }
+            if (warningElement) warningElement.classList.add('hidden');
 
             if (currentRole === 'Passager' && (newRole === 'Conducteur' || newRole === 'Les deux')) {
-                e.preventDefault();
-
                 const newRoleInput = document.getElementById('new_role_input');
-                if (newRoleInput) {
-                    newRoleInput.value = newRole;
-                }
-
-                if(typeof openModal === 'function') {
-                    openModal('driverinfo-modal');
-                }
+                if (newRoleInput) newRoleInput.value = newRole;
+                openModal('driverinfo-modal');
+            } else if ((currentRole === 'Conducteur' || currentRole === 'Les deux') && newRole === 'Passager') {
+                openModal('confirm-delete-all-for-change-role-to-passenger-modal');
+                document.getElementById('confirm-role-change-btn').onclick = () => {
+                    this.submit();
+                };
+            } else {
+                this.submit();
             }
         });
-    });
+    }
 
-    // Logique pour la modale de rechargement de crédits
+
+    //Modale de Rechargement de Crédits (dashboard.blade.php)
     const rechargeModal = document.getElementById('recharge-modal');
-
     if (rechargeModal) {
-        const rechargeBtns = document.querySelectorAll('.recharge-btn');
         const validatePaymentBtn = document.getElementById('validate-payment-btn');
         const creditBalanceEl = document.getElementById('credit-balance');
         const amountOptions = document.querySelectorAll('input[name="recharge_amount"]');
@@ -102,47 +138,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const rechargeRoute = rechargeModal.dataset.rechargeUrl;
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-        function closeAndResetRechargeModal() {
+        window.closeAndResetRechargeModal = function() {
             closeModal('recharge-modal');
-            if (warningEl) {
-                warningEl.classList.add('hidden');
+            if (warningEl) warningEl.classList.add('hidden');
+            if (validatePaymentBtn) validatePaymentBtn.disabled = true;
+            const selectedOption = document.querySelector('.credit-option.border-green-500');
+            if (selectedOption) {
+                selectedOption.classList.remove('bg-green-100', 'border-green-500');
+                const radio = selectedOption.querySelector('input[type="radio"]');
+                if (radio) radio.checked = false;
             }
-            if (validatePaymentBtn) {
-                validatePaymentBtn.disabled = true;
-            }
-            const selectedAmount = document.querySelector('input[name="recharge_amount"]:checked');
-            if (selectedAmount) {
-                selectedAmount.checked = false;
-            }
-            document.querySelectorAll('.credit-option').forEach(label => label.classList.remove('bg-green-100', 'border-green-500'));
         }
-
-        const cancelButton = rechargeModal.querySelector('button[onclick*="closeAndResetRechargeModal"]');
-        if (cancelButton) {
-            cancelButton.setAttribute('onclick', '');
-            cancelButton.addEventListener('click', closeAndResetRechargeModal);
-        }
-
-        rechargeBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                openModal('recharge-modal');
-            });
-        });
 
         fakeInputs.forEach(input => {
-            input.addEventListener('click', function() {
-                if (warningEl) {
-                    warningEl.classList.remove('hidden');
-                }
+            input.addEventListener('click', () => {
+                if (warningEl) warningEl.classList.remove('hidden');
             });
         });
 
         amountOptions.forEach(option => {
             option.addEventListener('change', function() {
                 if (this.checked) {
-                    if (validatePaymentBtn) {
-                        validatePaymentBtn.disabled = false;
-                    }
+                    if (validatePaymentBtn) validatePaymentBtn.disabled = false;
                     document.querySelectorAll('.credit-option').forEach(label => label.classList.remove('bg-green-100', 'border-green-500'));
                     this.parentElement.classList.add('bg-green-100', 'border-green-500');
                 }
@@ -167,24 +184,87 @@ document.addEventListener('DOMContentLoaded', () => {
                             amount: amount
                         })
                     })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(err => { throw err; });
-                        }
-                        return response.json();
-                    })
+                    .then(response => response.ok ? response.json() : response.json().then(err => Promise.reject(err)))
                     .then(data => {
-                        if (creditBalanceEl) {
-                            creditBalanceEl.textContent = data.new_credit_balance;
+                        if (data.success && creditBalanceEl) {
+                            creditBalanceEl.textContent = data.new_balance;
+                            showSuccessNotification('Crédits rechargés avec succès !');
+                        } else {
+                            showErrorNotification(data.message || 'Une erreur est survenue.');
                         }
                         closeAndResetRechargeModal();
                     })
                     .catch(error => {
-                        console.error('There has been a problem with your fetch operation:', error);
-                        alert('Une erreur est survenue. Veuillez vérifier la console pour plus de détails.');
+                        console.error('Erreur Fetch:', error);
+                        showErrorNotification(error.message || 'Une erreur réseau est survenue.');
                         this.disabled = false;
                     });
             });
         }
     }
+
+    // Modif véhicule////////////////////////////////////
+    document.body.addEventListener('click', function(e) {
+        const editButton = e.target.closest('.edit-vehicle-btn');
+        if (editButton) {
+            const voitureData = JSON.parse(editButton.dataset.voiture);
+            openEditVehicleModal(voitureData);
+        }
+    });
 });
+
+
+//GESTION DES VÉHICULES (CRUD)                      ==
+function openEditVehicleModal(voiture) {
+    document.getElementById('edit-brand').value = voiture.brand;
+    document.getElementById('edit-model').value = voiture.model;
+    document.getElementById('edit-immat').value = voiture.immat;
+    document.getElementById('edit-date_first_immat').value = voiture.date_first_immat;
+    document.getElementById('edit-color').value = voiture.color;
+    document.getElementById('edit-n_place').value = voiture.n_place;
+    document.getElementById('edit-energie').value = voiture.energie;
+
+    const form = document.getElementById('editVehicleForm');
+    form.action = `/voitures/${voiture.voiture_id}`;
+
+    openModal('edit-vehicle-modal');
+}
+window.openEditVehicleModal = openEditVehicleModal;
+
+
+let formToSubmit;
+async function confirmVehicleDeletion(event, vehicleCount, vehicleId) {
+    event.preventDefault();
+    formToSubmit = event.target;
+
+    // Si c'est le dernier
+    if (vehicleCount <= 1) {
+        openModal('delete-last-vehicle-modal');
+        document.getElementById('confirm-delete-last-vehicle-btn').onclick = () => {
+            formToSubmit.submit();
+        };
+        return;
+    }
+
+    // Sinon, check s'il y a des covoit?
+    try {
+        const response = await fetch(`/voitures/${vehicleId}/has-future-carpools`);
+        const data = await response.json();
+
+        if (data.has_future_carpools) {
+            openModal('confirm-delete-vehicule-with-covoit-modal');
+            document.getElementById('confirm-delete-with-carpools-btn').onclick = () => {
+                formToSubmit.submit();
+            };
+        } else {
+            // Si pas de covoit
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce véhicule ?')) {
+                formToSubmit.submit();
+            }
+        }
+    } catch (error) {
+        console.error('Erreur lors de la vérification des covoiturages:', error);
+        showErrorNotification('Impossible de vérifier les trajets associés. Veuillez réessayer.');
+    }
+}
+window.confirmVehicleDeletion = confirmVehicleDeletion;

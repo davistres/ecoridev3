@@ -11,7 +11,7 @@
                 class="px-4 py-1 text-base font-semibold text-white bg-[#3498db] rounded-full">{{ $user->role }}</span>
         </div>
 
-        <form class="role-change-form" action="{{ route('profile.role.update') }}" method="POST" data-current-role="{{ $user->role }}">
+        <form id="role-change-form" action="{{ route('profile.role.update') }}" method="POST" data-current-role="{{ $user->role }}">
             @csrf
             @method('PATCH')
             <div class="space-y-2">
