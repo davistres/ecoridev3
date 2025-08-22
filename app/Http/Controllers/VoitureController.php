@@ -6,7 +6,7 @@ use App\Http\Requests\StoreVoitureRequest;
 use App\Http\Requests\UpdateVoitureRequest;
 use App\Models\Covoiturage;
 use App\Models\Voiture;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -14,14 +14,14 @@ use Illuminate\Support\Facades\Redirect;
 class VoitureController extends Controller
 {
     /** fonction store => ajout d'une nouvelle voiture à la table VOITURE en ajoutant un id pour lier l'utilisateur à la voiture */
-    public function store(StoreVoitureRequest $request): RedirectResponse
+    public function store(StoreVoitureRequest $request): JsonResponse
     {
         $validated = $request->validated();
         $validated['user_id'] = Auth::id();
 
-        Voiture::create($validated);
+        $voiture = Voiture::create($validated);
 
-        return Redirect::route('dashboard')->with('status', 'vehicle-added');
+        return response()->json(['success' => true, 'voiture' => $voiture]);
     }
 
     /** Mise à jour des infos d'une voiture */

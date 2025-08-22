@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Voiture;
 
 class User extends Authenticatable
 {
@@ -65,4 +66,10 @@ class User extends Authenticatable
         return $this->role === 'Admin';
     }
     /** TODO: si c'est un employé qui se connecte!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+
+    /**Récupère les voitures de l'utilisateur*/
+    public function voitures()
+    {
+        return $this->hasMany(Voiture::class, 'user_id', 'user_id');
+    }
 }

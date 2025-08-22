@@ -7,10 +7,10 @@
         <div class="text-5xl mb-4 text-[#3498db]">
             <i class="fas fa-car-side"></i>
         </div>
-        <p class="mb-4 text-lg">Vous n'avez pas encore de trajet proposé.</p>
-        <a href="#"
+                <p class="mb-4 text-lg">Vous n'avez pas encore de trajet proposé.</p>
+        <button data-modal-target="create-covoit-modal"
             class="inline-block px-6 py-2 bg-[#3498db] text-white font-semibold rounded-md hover:bg-blue-600 shadow-lg transition-all duration-300 transform hover:scale-105">
             Proposer un trajet
-        </a>
+        </button>
     </div>
 </div>

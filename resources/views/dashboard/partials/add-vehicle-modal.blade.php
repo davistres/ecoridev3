@@ -85,6 +85,9 @@
                 </div>
             </div>
 
+            <!-- Message d'erreur -->
+            <div id="add-vehicle-errors" class="text-red-600 text-sm mb-4"></div>
+
             <!-- Footer -->
             <div class="mt-8 flex justify-end space-x-4">
                 <button type="button" onclick="closeModal('add-vehicle-modal')"
