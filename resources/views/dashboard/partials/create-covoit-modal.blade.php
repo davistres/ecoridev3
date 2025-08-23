@@ -213,10 +213,10 @@
                         </div>
                     </div>
                     <div>
-                        <label for="available_seats" class="block font-semibold text-gray-700">Nombre de places
+                        <label for="n_tickets" class="block font-semibold text-gray-700">Nombre de places
                             proposées*</label>
                         <div class="flex items-center">
-                            <input type="number" name="available_seats" id="available_seats_input" required
+                            <input type="number" name="n_tickets" id="n_tickets_input" required
                                 min="1"
                                 class="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1">
                             <div class="w-4 ml-2"></div>
@@ -466,7 +466,7 @@
         const addVehicleForm = document.getElementById('addVehicleForm');
         const addVehicleErrors = document.getElementById('add-vehicle-errors');
         const voitureSelect = document.getElementById('voiture_id_select');
-        const seatsInput = document.getElementById('available_seats_input');
+        const seatsInput = document.getElementById('n_tickets_input');
         const seatsHelper = document.getElementById('seats-helper');
 
         const departureDateInput = document.querySelector('input[name="departure_date"]');

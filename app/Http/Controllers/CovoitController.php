@@ -30,28 +30,22 @@ class CovoitController extends Controller
     // Stock les nouveaux covoit créés
     public function store(StoreCovoiturageRequest $request): RedirectResponse
     {
+        // On récupére ici toutes les données déjà validées par StoreCovoiturageRequest
         $validated = $request->validated();
 
-        // Ajoute l'ID de l'utilisateur
+        // On ajoute l'id de l'utilisateur connecté
         $validated['user_id'] = Auth::id();
 
-        // available_seats en n_tickets pour correspondre à la base de données
-        $validated['n_tickets'] = $validated['available_seats'];
-        unset($validated['available_seats']);
-
-        // Voyage écologique
+        // On détermine la valeur de eco_travel
         $voiture = Voiture::find($validated['voiture_id']);
         $validated['eco_travel'] = ($voiture && $voiture->energie === 'Electrique') ? 1 : 0;
 
-        // Statuts => valeurs par défaut
-        $validated['trip_started'] = 0;
-        $validated['trip_completed'] = 0;
-        $validated['cancelled'] = 0;
-
         try {
+            // On enregistre le covoitdans la base de donnée
             Covoiturage::create($validated);
             return Redirect::route('dashboard')->with('status', 'trip-created');
         } catch (\Exception $e) {
+            // En cas d'erreur
             return Redirect::route('dashboard')->with('error', 'Une erreur est survenue lors de la création du trajet.');
         }
     }

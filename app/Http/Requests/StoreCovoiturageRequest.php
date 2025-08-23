@@ -40,7 +40,7 @@ class StoreCovoiturageRequest extends FormRequest
                     return $query->where('user_id', Auth::id());
                 }),
             ],
-            'available_seats' => ['required', 'integer', 'min:1', function ($attribute, $value, $fail) {
+            'n_tickets' => ['required', 'integer', 'min:1', function ($attribute, $value, $fail) {
                 $voiture = Auth::user()->voitures()->find($this->input('voiture_id'));
                 if ($voiture && $value > $voiture->n_place) {
                     $fail("Le nombre de places ne peut pas dépasser celui du véhicule sélectionné ({$voiture->n_place} places).");

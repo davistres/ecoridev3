@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RechargeRequest;
+use App\Models\Covoiturage;
 use App\Models\Voiture;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,10 +18,17 @@ class DashboardController extends Controller
     {
         $user = $request->user();
         $voitures = Voiture::where('user_id', $user->user_id)->get();
+        $covoiturages = Covoiturage::where('user_id', $user->user_id)
+            ->where('trip_completed', 0)
+            ->where('cancelled', 0)
+            ->orderBy('departure_date', 'asc')
+            ->orderBy('departure_time', 'asc')
+            ->get();
 
         return view('dashboard', [
             'user' => $user,
             'voitures' => $voitures,
+            'covoiturages' => $covoiturages,
         ]);
     }
 
