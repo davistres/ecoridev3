@@ -30,6 +30,9 @@ class DashboardController extends Controller
         $user->n_credit += (int) $request->input('amount');
         $user->save();
 
-        return response()->json(['new_credit_balance' => $user->n_credit]);
+        return response()->json([
+            'success' => true,
+            'new_balance' => $user->n_credit
+        ]);
     }
 }

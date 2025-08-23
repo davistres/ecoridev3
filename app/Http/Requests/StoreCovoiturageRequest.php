@@ -47,7 +47,7 @@ class StoreCovoiturageRequest extends FormRequest
                 }
             }],
             'price' => ['required', 'integer', 'min:0'],
-            'covoit_details' => ['nullable', new Honeypot],
+            'user_preferences' => ['nullable', new Honeypot],
         ];
     }
 }

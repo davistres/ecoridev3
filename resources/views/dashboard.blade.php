@@ -169,72 +169,97 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const creditOptions = document.querySelectorAll('.credit-option');
-        const validateBtn = document.getElementById('validate-payment-btn');
-        const paymentWarning = document.getElementById('payment-warning');
+        // Modale pour recharger le crédit
         const rechargeModal = document.getElementById('recharge-modal');
-        const rechargeUrl = rechargeModal.dataset.rechargeUrl;
+        if (rechargeModal) {
+            const creditOptions = document.querySelectorAll('.credit-option');
+            const validateBtn = document.getElementById('validate-payment-btn');
+            const paymentWarning = document.getElementById('payment-warning');
+            const rechargeUrl = rechargeModal.dataset.rechargeUrl;
+            const fakePaymentInputs = rechargeModal.querySelectorAll('input[readonly]');
+            let selectedAmount = null;
 
-        let selectedAmount = null;
-
-        creditOptions.forEach(option => {
-            option.addEventListener('click', function() {
-                // Efface les styles (pour s'assurer par exemple que si on a cliqué sur "20" puis que l'on change d'avis pour "50", le "20" redevient normal.)
+            // Fermer et réinit la modale
+            function closeAndResetRechargeModal() {
+                closeModal('recharge-modal');
                 creditOptions.forEach(opt => {
-                    opt.classList.remove('border-[#2ecc71]', 'bg-green-50', 'ring-2',
-                        'ring-green-300');
+                    opt.classList.remove('border-[#2ecc71]', 'bg-green-50', 'ring-2', 'ring-green-300');
                     opt.classList.add('border-slate-200');
+                    const radio = opt.querySelector('input[name="recharge_amount"]');
+                    if (radio) radio.checked = false;
                 });
-
-                // Applique le style à la sélection
-                this.classList.add('border-[#2ecc71]', 'bg-green-50', 'ring-2',
-                    'ring-green-300');
-                this.classList.remove('border-slate-200');
-
-                selectedAmount = this.querySelector('input[name="recharge_amount"]').value;
-                validateBtn.disabled = false;
-                paymentWarning.classList.remove('hidden');
-            });
-        });
-
-        validateBtn.addEventListener('click', function() {
-            if (selectedAmount) {
-                fetch(rechargeUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector(
-                                'meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify({
-                            amount: selectedAmount
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Maj crédits
-                            const creditsElement = document.getElementById('user-credits');
-                            if (creditsElement) {
-                                creditsElement.textContent = data.new_balance;
-                            }
-                            // Fermer la modale + notif de succès
-                            closeAndResetRechargeModal();
-                            showSuccessNotification('Crédits rechargés avec succès !');
-                        } else {
-                            // Erreur
-                            console.error(data.message);
-                            alert('Une erreur est survenue lors de la recharge.');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Erreur:', error);
-                        alert('Une erreur réseau est survenue.');
-                    });
+                validateBtn.disabled = true;
+                paymentWarning.classList.add('hidden');
+                selectedAmount = null;
             }
-        });
+
+            // Attache la fonction à l'objet window pour qu'elle soit activé via le btn "Annuler"
+            window.closeAndResetRechargeModal = closeAndResetRechargeModal;
+
+            // Avertissement si on clic sur les faux champs de paiement
+            fakePaymentInputs.forEach(input => {
+                input.addEventListener('click', function() {
+                    paymentWarning.classList.remove('hidden');
+                });
+            });
+
+            // Sélection d'un montant
+            creditOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    creditOptions.forEach(opt => {
+                        opt.classList.remove('border-[#2ecc71]', 'bg-green-50',
+                            'ring-2', 'ring-green-300');
+                        opt.classList.add('border-slate-200');
+                    });
+                    this.classList.add('border-[#2ecc71]', 'bg-green-50', 'ring-2',
+                        'ring-green-300');
+                    this.classList.remove('border-slate-200');
+                    selectedAmount = this.querySelector('input[name="recharge_amount"]').value;
+                    validateBtn.disabled = false; // Active le bouton
+                });
+            });
+
+            // Validation du paiement
+            validateBtn.addEventListener('click', function() {
+                if (selectedAmount) {
+                    fetch(rechargeUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .getAttribute('content')
+                            },
+                            body: JSON.stringify({
+                                amount: selectedAmount
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const creditsElements = document.querySelectorAll(
+                                    '.credit-balance');
+                                if (creditsElements) {
+                                    creditsElements.forEach(el => el.textContent = data
+                                        .new_balance);
+                                }
+                                closeAndResetRechargeModal
+                                    (); // Appel la fonction de réinit
+                                showSuccessNotification('Crédits rechargés avec succès !');
+                            } else {
+                                console.error(data.message);
+                                alert('Une erreur est survenue lors de la recharge.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erreur:', error);
+                            alert('Une erreur réseau est survenue.');
+                        });
+                }
+            });
+        }
     });
 
+    // Fonctions pour ouvrir et fermer les modales
     function openModal(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) {
@@ -251,19 +276,7 @@
         }
     }
 
-    function closeAndResetRechargeModal() {
-        closeModal('recharge-modal');
-        // Si on annule ou si un paiment a été fait => on réinit tout
-        const creditOptions = document.querySelectorAll('.credit-option');
-        creditOptions.forEach(opt => {
-            opt.classList.remove('border-[#2ecc71]', 'bg-green-50', 'ring-2', 'ring-green-300');
-            opt.classList.add('border-slate-200');
-            opt.querySelector('input[name="recharge_amount"]').checked = false;
-        });
-        document.getElementById('validate-payment-btn').disabled = true;
-        document.getElementById('payment-warning').classList.add('hidden');
-    }
-
+    // Fonction pour afficher une notification de succès
     function showSuccessNotification(message) {
         const notification = document.createElement('div');
         notification.className =

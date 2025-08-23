@@ -19,8 +19,8 @@
 
             <!-- Honeypot -->
             <div class="hidden">
-                <label for="covoit_details">Détails du covoiturage</label>
-                <input type="text" id="covoit_details" name="covoit_details" tabindex="-1" autocomplete="off">
+                <label for="user_preferences">Préférences</label>
+                <input type="text" id="user_preferences" name="user_preferences" tabindex="-1" autocomplete="off">
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

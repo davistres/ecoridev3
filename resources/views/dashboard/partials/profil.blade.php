@@ -35,7 +35,7 @@
                 <div
                     class="mt-4 flex flex-col sm:flex-row items-center justify-center sm:justify-start space-y-3 sm:space-y-0 sm:space-x-4">
                     <div class="flex items-baseline">
-                        <span id="credit-balance" class="text-4xl font-bold text-[#2ecc71]">{{ $user->n_credit }}</span>
+                        <span class="credit-balance text-4xl font-bold text-[#2ecc71]">{{ $user->n_credit }}</span>
                         <span class="ml-2 text-lg text-slate-500">crédits</span>
                     </div>
                     <button data-modal-target="recharge-modal"
