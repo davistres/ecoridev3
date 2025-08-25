@@ -44,7 +44,7 @@
 
         <div class="mt-6 flex justify-end space-x-4">
             <button onclick="closeModal('photoModal')"
-                class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">Annuler</button>
+                class="px-4 py-2 text-sm font-semibold text-white bg-slate-500 rounded-lg hover:bg-slate-600 transition-colors duration-300">Annuler</button>
             @if (Auth::user()->photo)
                 <form action="{{ route('profile.photo.destroy') }}" method="POST">
                     @csrf
@@ -120,7 +120,7 @@
                     </div>
                     <div class="mt-6 flex justify-end space-x-4">
                         <button type="button" onclick="closeModal('profileModal')"
-                            class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">Annuler</button>
+                            class="px-4 py-2 text-sm font-semibold text-white bg-slate-500 rounded-lg hover:bg-slate-600 transition-colors duration-300">Annuler</button>
                         <button type="submit"
                             class="px-4 py-2 bg-[#2ecc71] text-white rounded-md hover:bg-[#27ae60]">Enregistrer</button>
                     </div>
@@ -161,7 +161,7 @@
                     </div>
                     <div class="mt-6 flex justify-end space-x-4">
                         <button type="button" onclick="closeModal('profileModal')"
-                            class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">Annuler</button>
+                            class="px-4 py-2 text-sm font-semibold text-white bg-slate-500 rounded-lg hover:bg-slate-600 transition-colors duration-300">Annuler</button>
                         <button type="submit"
                             class="px-4 py-2 bg-[#2ecc71] text-white rounded-md hover:bg-[#27ae60]">Enregistrer</button>
                     </div>

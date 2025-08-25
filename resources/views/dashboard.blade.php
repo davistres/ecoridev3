@@ -154,7 +154,7 @@
             <!-- Footer -->
             <div class="mt-6 flex justify-end space-x-4">
                 <button type="button" onclick="closeAndResetRechargeModal()"
-                    class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition-all duration-200">Annuler</button>
+                    class="px-4 py-2 text-sm font-semibold text-white bg-slate-500 rounded-lg hover:bg-slate-600 transition-colors duration-300">Annuler</button>
                 <button id="validate-payment-btn" disabled
                     class="px-4 py-2 bg-[#2ecc71] text-white font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 shadow-lg transition-all duration-300 disabled:bg-slate-300 disabled:cursor-not-allowed disabled:shadow-none hover:bg-[#27ae60]">
                     Valider le paiement

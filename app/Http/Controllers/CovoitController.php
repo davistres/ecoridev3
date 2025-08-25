@@ -49,4 +49,17 @@ class CovoitController extends Controller
             return Redirect::route('dashboard')->with('error', 'Une erreur est survenue lors de la création du trajet.');
         }
     }
+
+    public function destroy(Covoiturage $covoiturage): RedirectResponse
+    {
+        if (Auth::id() !== $covoiturage->user_id) {
+            abort(403, 'Action non autorisée.');
+        }
+
+        // Pour concerver toute l'historique, je marque le covoit comme annulé au lieu de supprimer
+        $covoiturage->cancelled = 1;
+        $covoiturage->save();
+
+        return Redirect::route('dashboard')->with('status', 'trip-cancelled');
+    }
 }

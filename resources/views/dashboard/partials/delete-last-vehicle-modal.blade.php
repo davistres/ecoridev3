@@ -27,7 +27,7 @@
         <!-- Footer -->
         <div class="mt-8 flex justify-end space-x-4">
             <button type="button" onclick="closeModal('delete-last-vehicle-modal')"
-                class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">Annuler</button>
+                class="px-4 py-2 text-sm font-semibold text-white bg-slate-500 rounded-lg hover:bg-slate-600 transition-colors duration-300">Annuler</button>
             <button id="confirm-delete-last-vehicle-btn" type="button"
                 class="px-5 py-2 bg-red-600 text-white font-semibold rounded-md hover:bg-red-700">Confirmer la suppression</button>
         </div>

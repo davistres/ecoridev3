@@ -11,7 +11,7 @@ class Covoiturage extends Model
 
     protected $table = 'covoiturage';
 
-    protected $primaryKey = 'covoiturage_id';
+    protected $primaryKey = 'covoit_id';
 
     public $timestamps = false;
 

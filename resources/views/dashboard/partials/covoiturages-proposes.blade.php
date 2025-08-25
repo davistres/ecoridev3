@@ -3,7 +3,7 @@
     <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
         <h3 class="text-xl font-bold text-[#2c3e50]">Mes covoiturages proposés</h3>
         @if ($covoiturages->isNotEmpty())
-            <button data-modal-target="create-covoit-modal"
+            <button onclick="openModal('create-covoit-modal')"
                 class="h-8 w-8 rounded-full bg-[#3498db] hover:bg-blue-600 text-white flex items-center justify-center transition-transform duration-300 hover:scale-110">
                 <i class="fas fa-plus"></i>
             </button>
@@ -17,7 +17,7 @@
                     <i class="fas fa-car-side"></i>
                 </div>
                 <p class="mb-4 text-lg">Vous n'avez pas encore de trajet proposé.</p>
-                <button data-modal-target="create-covoit-modal"
+                <button onclick="openModal('create-covoit-modal')"
                     class="inline-block px-6 py-2 bg-[#3498db] text-white font-semibold rounded-md hover:bg-blue-600 shadow-lg transition-all duration-300 transform hover:scale-105">
                     Proposer un trajet
                 </button>
@@ -25,66 +25,143 @@
         @else
             <div class="space-y-6">
                 @foreach ($covoiturages as $covoiturage)
+                    @php
+                        $departureDate = \Carbon\Carbon::parse($covoiturage->departure_date);
+                        $arrivalDate = \Carbon\Carbon::parse($covoiturage->arrival_date);
+                        $diffInDays = $departureDate->diffInDays($arrivalDate);
+                    @endphp
                     <div
-                        class="covoiturage-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row transition-transform duration-300 hover:transform hover:-translate-y-1 hover:shadow-xl">
+                        class="covoiturage-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col transition-transform duration-300 hover:transform hover:-translate-y-1 hover:shadow-xl border border-slate-200">
 
-                        <!-- Section covoit -->
-                        <div class="covoiturage-details w-full md:w-2/3 p-6 flex flex-col justify-center">
-                            <div class="trip-info-container">
-                                <div
-                                    class="trip-route flex items-center justify-center text-2xl font-bold text-gray-800 mb-4">
-                                    <span class="from">{{ $covoiturage->city_dep }}</span>
-                                    <span class="route-arrow mx-4 text-gray-400">→</span>
-                                    <span class="to">{{ $covoiturage->city_arr }}</span>
+                        <!-- Header card -->
+                        <div class="p-4 bg-slate-50 border-b border-slate-200">
+                            <div class="flex justify-between items-center">
+                                <div class="text-2xl font-bold text-gray-800">
+                                    <span>{{ $covoiturage->city_dep }}</span>
+                                    <span class="mx-2 text-gray-400">→</span>
+                                    <span>{{ $covoiturage->city_arr }}</span>
                                 </div>
-                                <div class="trip-date text-center text-lg font-medium text-gray-700 mb-4">
-                                    <i class="fas fa-calendar-alt mr-2 text-green-500"></i>
-                                    {{ \Carbon\Carbon::parse($covoiturage->departure_date)->format('d/m/Y') }}
-                                </div>
-                                <div class="trip-time flex justify-between text-gray-600">
-                                    <span class="departure-time">
-                                        <i class="fas fa-clock mr-2 text-green-500"></i>
-                                        Départ: {{ \Carbon\Carbon::parse($covoiturage->departure_time)->format('H:i') }}
-                                    </span>
-                                    <span class="arrival-time">
-                                        <i class="fas fa-clock mr-2 text-green-500"></i>
-                                        Arrivée: {{ \Carbon\Carbon::parse($covoiturage->arrival_time)->format('H:i') }}
-                                    </span>
+                                <div class="text-right">
+                                    <div class="text-lg font-medium text-gray-700">
+                                        <i class="fas fa-calendar-alt mr-2 text-[#2ecc71]"></i>
+                                        {{ $departureDate->format('d/m/Y') }}
+                                    </div>
+                                    @if ($diffInDays == 1)
+                                        <div class="text-sm text-orange-500 font-semibold hidden md:block">Arrivée le
+                                            lendemain</div>
+                                    @endif
                                 </div>
                             </div>
-                            @if ($covoiturage->eco_travel)
-                                <div
-                                    class="trip-eco-badge self-center mt-4 px-4 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
-                                    <i class="fas fa-leaf mr-2"></i>Voyage écologique
-                                </div>
-                            @endif
                         </div>
 
-                        <!-- Prix et btn -->
+                        <!-- Main card -->
+                        <div class="p-6 flex-grow">
+                            <!-- Grand écran -->
+                            <div class="hidden md:grid md:grid-cols-3 gap-6">
+                                <!-- Info covoit -->
+                                <div class="space-y-3">
+                                    <div class="flex items-center text-gray-600">
+                                        <i class="fas fa-clock w-6 text-center mr-2 text-[#2ecc71]"></i>
+                                        <span>Départ à
+                                            <b>{{ \Carbon\Carbon::parse($covoiturage->departure_time)->format('H:i') }}</b></span>
+                                    </div>
+                                    <div class="flex items-center text-gray-600">
+                                        <i class="fas fa-clock w-6 text-center mr-2 text-[#2ecc71]"></i>
+                                        <span>Arrivée à
+                                            <b>{{ \Carbon\Carbon::parse($covoiturage->arrival_time)->format('H:i') }}</b></span>
+                                    </div>
+                                </div>
+                                <!-- Info vehicule -->
+                                <div class="space-y-3">
+                                    <div class="flex items-center text-gray-600">
+                                        <i class="fas fa-car w-6 text-center mr-2 text-slate-500"></i>
+                                        <span>{{ $covoiturage->voiture->brand }}
+                                            {{ $covoiturage->voiture->model }}</span>
+                                    </div>
+                                    <div class="flex items-center text-gray-600">
+                                        <i class="fas fa-users w-6 text-center mr-2 text-slate-500"></i>
+                                        <span>{{ $covoiturage->n_tickets }} places proposées</span>
+                                    </div>
+                                </div>
+                                <!-- Info prix -->
+                                <div class="text-right">
+                                    <div class="text-3xl font-bold text-[#2ecc71]">{{ $covoiturage->price }} crédits
+                                    </div>
+                                    <div class="text-sm text-gray-500">par personne</div>
+                                </div>
+                                @if ($covoiturage->eco_travel)
+                                    <div class="md:col-span-3 flex justify-center">
+                                        <div
+                                            class="inline-flex items-center mt-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
+                                            <i class="fas fa-leaf mr-2"></i>Voyage écologique
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <!-- Petit écran -->
+                            <div class="md:hidden space-y-4">
+                                <div class="flex justify-between items-center text-gray-600">
+                                    <span><i class="fas fa-clock mr-2 text-[#2ecc71]"></i>Départ:
+                                        <b>{{ \Carbon\Carbon::parse($covoiturage->departure_time)->format('H:i') }}</b></span>
+                                    <span>Arrivée:
+                                        <b>{{ \Carbon\Carbon::parse($covoiturage->arrival_time)->format('H:i') }}</b><i
+                                            class="fas fa-clock ml-2 text-[#2ecc71]"></i></span>
+                                </div>
+                                @if ($diffInDays == 1)
+                                    <div class="text-center text-red-500 font-bold">Arrivée le lendemain</div>
+                                @endif
+                                <div class="flex justify-between items-center text-gray-600 pt-2">
+                                    <span><i
+                                            class="fas fa-car mr-2 text-slate-500"></i>{{ $covoiturage->voiture->brand }}
+                                        {{ $covoiturage->voiture->model }}</span>
+                                    <span>{{ $covoiturage->n_tickets }} places<i
+                                            class="fas fa-users ml-2 text-slate-500"></i></span>
+                                </div>
+                                @if ($covoiturage->eco_travel)
+                                    <div class="text-center">
+                                        <div
+                                            class="inline-flex items-center mt-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
+                                            <i class="fas fa-leaf mr-2"></i>Voyage écologique
+                                        </div>
+                                    </div>
+                                @endif
+                                <div class="text-center pt-4">
+                                    <div class="text-3xl font-bold text-[#2ecc71]">{{ $covoiturage->price }} crédits
+                                    </div>
+                                    <div class="text-sm text-gray-500">par personne</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer card (btn) -->
                         <div
-                            class="covoiturage-booking w-full md:w-1/3 p-6 bg-gray-50 border-t md:border-t-0 md:border-l border-gray-200 flex flex-col items-center justify-center">
-                            <div class="trip-seats text-gray-600 mb-4">
-                                <i class="fas fa-user-friends mr-2"></i>
-                                {{ $covoiturage->n_tickets }}
-                                {{ $covoiturage->n_tickets > 1 ? 'places proposées' : 'place proposée' }}
-                            </div>
-                            <div class="trip-price text-center mb-4">
-                                <span class="price-value text-3xl font-bold text-green-500">{{ $covoiturage->price }}
-                                    crédits</span>
-                                <span class="price-per-person text-sm text-gray-500"><br>par personne</span>
-                            </div>
-                            <div class="booking-buttons flex flex-col sm:flex-row gap-2 w-full">
+                            class="card-footer p-4 bg-slate-50 border-t border-slate-200 grid grid-cols-2 md:flex md:flex-wrap items-center justify-center md:justify-end gap-3">
+                            <button
+                                class="action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-slate-500 rounded-lg hover:bg-slate-600 transition-colors duration-300">Détails</button>
+                            <!-- TODO: créer la page de détail du covoit (c'est la même que celle étape 27 du trello) -->
+                            <button
+                                class="action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-[#3498db] rounded-lg hover:bg-blue-600 transition-colors duration-300">Modifier</button>
+                            <form action="{{ route('covoiturages.destroy', $covoiturage) }}" method="POST"
+                                onsubmit="return confirm('Êtes-vous sûr de vouloir annuler ce trajet ?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                    class="action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors duration-300">Annuler</button>
+                            </form>
+                            <div class="trip-status-toggle" data-trip-id="{{ $covoiturage->covoit_id }}">
                                 <button
-                                    class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded text-center transition-colors duration-300">Détails</button>
+                                    class="start-trip-btn action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-[#2ecc71] rounded-lg hover:bg-[#27ae60] transition-colors duration-300 {{ !empty($covoiturage->trip_started_at) ? 'hidden' : '' }}">Démarrer</button>
                                 <button
-                                    class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded text-center transition-colors duration-300">Annuler</button>
+                                    class="end-trip-btn action-btn w-full md:w-auto px-4 py-2 text-sm font-bold text-black bg-[#2ecc71] rounded-lg hover:bg-[#27ae60] transition-colors duration-300 {{ empty($covoiturage->trip_started_at) ? 'hidden' : '' }}">Vous
+                                    êtes arrivé ?</button>
                             </div>
                         </div>
                     </div>
                 @endforeach
             </div>
             <div class="mt-8 text-center">
-                <button data-modal-target="create-covoit-modal"
+                <button onclick="openModal('create-covoit-modal')"
                     class="inline-block px-6 py-2 bg-[#3498db] text-white font-semibold rounded-md hover:bg-blue-600 shadow-lg transition-all duration-300 transform hover:scale-105">
                     Proposer un autre trajet
                 </button>
@@ -92,3 +169,47 @@
         @endif
     </div>
 </div>
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusToggles = document.querySelectorAll('.trip-status-toggle');
+
+            statusToggles.forEach(toggle => {
+                toggle.addEventListener('click', function(event) {
+                    const buttonClicked = event.target.closest('button');
+                    if (!buttonClicked) return;
+
+                    const tripId = this.dataset.tripId;
+
+                    if (buttonClicked.classList.contains('start-trip-btn')) {
+                        // Démarrer le trajet
+                        console.log(`Démarrer le trajet ${tripId}`);
+                        // TODO: Logique pour démarrer le trajet (appel AJAX?)
+
+                        // Si le trajet est démarré => on masque le btn "Démarrer" et on affiche le btn "Vous êtes arrivé ?"
+                        this.querySelector('.start-trip-btn').classList.add('hidden');
+                        this.querySelector('.end-trip-btn').classList.remove('hidden');
+
+                    } else if (buttonClicked.classList.contains('end-trip-btn')) {
+                        // Action pour terminer le trajet
+                        console.log(`Terminer le trajet ${tripId}`);
+                        // TODO: Logique pour terminer le trajet (appel AJAX?)
+                        // Si le trajet est bien terminé => on grise et on désactive la card
+                        // TODO:ça c'est pour le moment... Après, on la supprimera de la liste et on l'ajoutera dans l'historique
+                        const card = this.closest('.covoiturage-card');
+                        card.style.opacity = '0.6';
+                        card.style.pointerEvents = 'none';
+
+                        const footerButtons = card.querySelectorAll('.card-footer .action-btn');
+                        footerButtons.forEach(btn => {
+                            btn.disabled = true;
+                        });
+
+                        buttonClicked.textContent = 'Terminé';
+                    }
+                });
+            });
+        });
+    </script>
+@endpush

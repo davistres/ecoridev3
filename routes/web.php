@@ -45,7 +45,7 @@ Route::middleware('auth')->group(function () {
     ]);
 
     Route::resource('covoiturages', CovoitController::class)->only([
-        'store'
+        'store', 'destroy'
     ]);
 
     // Route pour vérifier les covoits futurs d'une voiture

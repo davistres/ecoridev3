@@ -18,7 +18,8 @@ class DashboardController extends Controller
     {
         $user = $request->user();
         $voitures = Voiture::where('user_id', $user->user_id)->get();
-        $covoiturages = Covoiturage::where('user_id', $user->user_id)
+        $covoiturages = Covoiturage::with('voiture')
+            ->where('user_id', $user->user_id)
             ->where('trip_completed', 0)
             ->where('cancelled', 0)
             ->orderBy('departure_date', 'asc')
