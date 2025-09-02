@@ -169,46 +169,4 @@
     </div>
 </div>
 
-@push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const statusToggles = document.querySelectorAll('.trip-status-toggle');
 
-            statusToggles.forEach(toggle => {
-                toggle.addEventListener('click', function(event) {
-                    const buttonClicked = event.target.closest('button');
-                    if (!buttonClicked) return;
-
-                    const tripId = this.dataset.tripId;
-
-                    if (buttonClicked.classList.contains('start-trip-btn')) {
-                        // Démarrer le trajet
-                        console.log(`Démarrer le trajet ${tripId}`);
-                        // TODO: Logique pour démarrer le trajet (appel AJAX?)
-
-                        // Si le trajet est démarré => on masque le btn "Démarrer" et on affiche le btn "Vous êtes arrivé ?"
-                        this.querySelector('.start-trip-btn').classList.add('hidden');
-                        this.querySelector('.end-trip-btn').classList.remove('hidden');
-
-                    } else if (buttonClicked.classList.contains('end-trip-btn')) {
-                        // Action pour terminer le trajet
-                        console.log(`Terminer le trajet ${tripId}`);
-                        // TODO: Logique pour terminer le trajet (appel AJAX?)
-                        // Si le trajet est bien terminé => on grise et on désactive la card
-                        // TODO:ça c'est pour le moment... Après, on la supprimera de la liste et on l'ajoutera dans l'historique
-                        const card = this.closest('.covoiturage-card');
-                        card.style.opacity = '0.6';
-                        card.style.pointerEvents = 'none';
-
-                        const footerButtons = card.querySelectorAll('.card-footer .action-btn');
-                        footerButtons.forEach(btn => {
-                            btn.disabled = true;
-                        });
-
-                        buttonClicked.textContent = 'Terminé';
-                    }
-                });
-            });
-        });
-    </script>
-@endpush

@@ -243,8 +243,7 @@
                                     creditsElements.forEach(el => el.textContent = data
                                         .new_balance);
                                 }
-                                closeAndResetRechargeModal
-                                    (); // Appel la fonction de réinit
+                                closeAndResetRechargeModal(); // Appel la fonction de réinit
                                 showSuccessNotification('Crédits rechargés avec succès !');
                             } else {
                                 console.error(data.message);
@@ -258,6 +257,66 @@
                 }
             });
         }
+
+        // Logique pour les covoit cards
+        const covoiturageCards = document.querySelectorAll('.covoiturage-card');
+        covoiturageCards.forEach(card => {
+            const tripToggles = card.querySelector('.trip-status-toggle');
+            const modifierBtn = card.querySelector('button[onclick^="openModifModal"]');
+            const annulerForm = card.querySelector('form input[name="_method"][value="DELETE"]')
+                ?.closest('form');
+            const startBtn = card.querySelector('.start-trip-btn');
+            const endBtn = card.querySelector('.end-trip-btn');
+
+            if (!tripToggles || !modifierBtn || !annulerForm || !startBtn || !endBtn) {
+                return;
+            }
+
+            // On annule l'anciennne logique SIMPLE du btn "Annuler" (avec onsubmit) pour lui attribuer deux comportements différents
+            annulerForm.removeAttribute('onsubmit');
+
+            tripToggles.addEventListener('click', function(event) {
+                const buttonClicked = event.target.closest('button');
+                if (!buttonClicked) return;
+
+                // Si clic sur "Démarrer" => btn "Modifier" est désactiver + btn "Démarrer" est caché + btn "Vous êtes arrivé ?" est visible
+                if (buttonClicked === startBtn) {
+                    modifierBtn.disabled = true;
+                    modifierBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    startBtn.classList.add('hidden');
+                    endBtn.classList.remove('hidden');
+                    card.dataset.tripStarted = 'true';
+                } else if (buttonClicked === endBtn) {
+                    // Si clic sur "Vous êtes arrivé ?"...
+                    // TODO: la vraie logique!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    // Pour le moment=> on grise la card + on désactive les btns + on change le texte du btn "Vous êtes arrivé ?" en "Terminé"
+                    card.style.opacity = '0.6';
+                    card.style.pointerEvents = 'none';
+                    const footerButtons = card.querySelectorAll('.card-footer .action-btn');
+                    footerButtons.forEach(btn => {
+                        btn.disabled = true;
+                    });
+                    buttonClicked.textContent = 'Terminé';
+                }
+            });
+
+            // Si clic sur "Annuler" => on check si le trajet a commencé ou pas. Si oui => on réinit la card. Si non => on demande confirmation de suppression
+            annulerForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                if (card.dataset.tripStarted === 'true') {
+                    modifierBtn.disabled = false;
+                    modifierBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    startBtn.classList.remove('hidden');
+                    endBtn.classList.add('hidden');
+                    delete card.dataset.tripStarted;
+                } else {
+                    if (confirm('Êtes-vous sûr de vouloir annuler ce trajet ?')) {
+                        annulerForm.submit();
+                    }
+                }
+            });
+        });
     });
 
     // Fonctions pour ouvrir et fermer les modales
