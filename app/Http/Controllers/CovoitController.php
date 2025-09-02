@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DemandeRechercheCovoit;
 use App\Http\Requests\StoreCovoiturageRequest;
+use App\Http\Requests\ModifCovoitRequest;
 use App\Models\Covoiturage;
 use App\Models\Voiture;
 use Illuminate\Http\RedirectResponse;
@@ -50,6 +51,22 @@ class CovoitController extends Controller
         }
     }
 
+    public function update(ModifCovoitRequest $request, Covoiturage $covoiturage): RedirectResponse
+    {
+        $validated = $request->validated();
+
+        // Valeur de eco_travel?
+        $voiture = Voiture::find($validated['voiture_id']);
+        $validated['eco_travel'] = ($voiture && $voiture->energie === 'Electrique') ? 1 : 0;
+
+        try {
+            $covoiturage->update($validated);
+            return Redirect::route('dashboard')->with('status', 'trip-updated');
+        } catch (\Exception $e) {
+            return Redirect::route('dashboard')->with('error', 'Une erreur est survenue lors de la mise à jour du trajet.');
+        }
+    }
+
     public function destroy(Covoiturage $covoiturage): RedirectResponse
     {
         if (Auth::id() !== $covoiturage->user_id) {
@@ -61,5 +78,15 @@ class CovoitController extends Controller
         $covoiturage->save();
 
         return Redirect::route('dashboard')->with('status', 'trip-cancelled');
+    }
+
+    public function getDetails(Covoiturage $covoiturage)
+    {
+        // Check si l'utilisateur connecté est le propriétaire du covoi
+        if (Auth::id() !== $covoiturage->user_id) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        return response()->json($covoiturage);
     }
 }

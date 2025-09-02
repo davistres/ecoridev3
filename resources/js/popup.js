@@ -12,6 +12,10 @@ function closeModal(modalId) {
     if (modal) {
         modal.classList.add('hidden');
         document.body.classList.remove('overflow-hidden');
+
+        if (modalId === 'modif-covoit-modal' && typeof resetModifCovoitForm === 'function') {
+            resetModifCovoitForm();
+        }
     }
 }
 

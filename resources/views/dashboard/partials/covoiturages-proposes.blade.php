@@ -30,8 +30,8 @@
                         $arrivalDate = \Carbon\Carbon::parse($covoiturage->arrival_date);
                         $diffInDays = $departureDate->diffInDays($arrivalDate);
                     @endphp
-                    <div
-                        class="covoiturage-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col transition-transform duration-300 hover:transform hover:-translate-y-1 hover:shadow-xl border border-slate-200">
+                    <div class="covoiturage-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col transition-transform duration-300 hover:transform hover:-translate-y-1 hover:shadow-xl border border-slate-200"
+                        data-covoiturage-id="{{ $covoiturage->covoit_id }}">
 
                         <!-- Header card -->
                         <div class="p-4 bg-slate-50 border-b border-slate-200">
@@ -139,8 +139,7 @@
                             class="card-footer p-4 bg-slate-50 border-t border-slate-200 grid grid-cols-2 md:flex md:flex-wrap items-center justify-center md:justify-end gap-3">
                             <button
                                 class="action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-slate-500 rounded-lg hover:bg-slate-600 transition-colors duration-300">Détails</button>
-                            <!-- TODO: créer la page de détail du covoit (c'est la même que celle étape 27 du trello) -->
-                            <button
+                            <button onclick="openModifModal(this)" data-covoiturage-id="{{ $covoiturage->covoit_id }}"
                                 class="action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-[#3498db] rounded-lg hover:bg-blue-600 transition-colors duration-300">Modifier</button>
                             <form action="{{ route('covoiturages.destroy', $covoiturage) }}" method="POST"
                                 onsubmit="return confirm('Êtes-vous sûr de vouloir annuler ce trajet ?');">
@@ -161,7 +160,7 @@
                 @endforeach
             </div>
             <div class="mt-8 text-center">
-                <button onclick="openModal('create-covoit-modal')"
+                <button onclick="resetCreateCovoitForm(); openModal('create-covoit-modal')"
                     class="inline-block px-6 py-2 bg-[#3498db] text-white font-semibold rounded-md hover:bg-blue-600 shadow-lg transition-all duration-300 transform hover:scale-105">
                     Proposer un autre trajet
                 </button>

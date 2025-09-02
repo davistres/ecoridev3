@@ -45,8 +45,10 @@ Route::middleware('auth')->group(function () {
     ]);
 
     Route::resource('covoiturages', CovoitController::class)->only([
-        'store', 'destroy'
+        'store', 'update', 'destroy'
     ]);
+
+    Route::get('/covoiturages/{covoiturage}/details', [CovoitController::class, 'getDetails'])->name('covoiturages.details');
 
     // Route pour vérifier les covoits futurs d'une voiture
     Route::get('/voitures/{voiture}/has-future-carpools', function (Voiture $voiture) {
