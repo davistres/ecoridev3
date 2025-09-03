@@ -142,6 +142,14 @@
             }
 
             nameInput.addEventListener('input', function() {
+                const value = nameInput.value;
+                if (value.length > 0) {
+                    const firstChar = value.charAt(0);
+                    if (/[^a-zA-Z0-9]/.test(firstChar)) {
+                        nameInput.value = value.substring(1);
+                    }
+                }
+
                 if (nameInput.value.length > 18) {
                     nameFeedback.style.backgroundColor = 'transparent';
                     nameFeedback.style.color = errorColor;

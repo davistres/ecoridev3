@@ -16,7 +16,7 @@
                         <!-- Email Address -->
                         <div class="mb-4">
                             <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                            <input id="email" type="email" name="email" :value="old('email')" required
+                            <input id="email" type="email" name="email" value="{{ old('email') }}" required
                                 autofocus autocomplete="username"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" />
                             <x-input-error :messages="$errors->get('email')" class="mt-2" />
