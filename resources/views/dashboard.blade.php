@@ -89,6 +89,7 @@
         </div>
     </div>
 
+    <!-- Les modals -->
     @include('dashboard.partials.popup')
     @include('dashboard.partials.driverinfo-modal')
     @include('dashboard.partials.edit-preferences-modal')
@@ -102,8 +103,7 @@
 
     <!-- Recharge Modal -->
     <div id="recharge-modal" data-recharge-url="{{ route('credits.recharge') }}"
-        class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden"
-        onclick="closeModal('recharge-modal')">
+        class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4" onclick="event.stopPropagation()">
             <!-- Header -->
             <div class="flex justify-between items-center mb-4">
@@ -115,7 +115,6 @@
             <!-- Body -->
             <div>
                 <p class="text-slate-600 mb-4">Sélectionnez le montant à recharger :</p>
-
                 <div id="recharge-amount-options" class="grid grid-cols-3 sm:grid-cols-5 gap-4 mb-6">
                     @foreach ([10, 20, 50, 100, 200] as $amount)
                         <label
@@ -126,7 +125,6 @@
                         </label>
                     @endforeach
                 </div>
-
                 <div id="payment-warning"
                     class="hidden bg-[#3b82f6] text-[#f1f8e9] p-3 my-4 rounded-lg text-sm text-center" role="alert">
                     <p><i class="fas fa-info-circle mr-2"></i>Ceci est une version TEST du projet ! Pour recharger votre
@@ -154,234 +152,198 @@
 
             <!-- Footer -->
             <div class="mt-6 flex justify-end space-x-4">
-                <button type="button" onclick="closeAndResetRechargeModal()"
+                <button type="button" onclick="closeModal('recharge-modal')"
                     class="px-4 py-2 text-sm font-semibold text-white bg-slate-500 rounded-lg hover:bg-slate-600 transition-colors duration-300">Annuler</button>
                 <button id="validate-payment-btn" disabled
-                    class="px-4 py-2 bg-[#2ecc71] text-white font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 shadow-lg transition-all duration-300 disabled:bg-slate-300 disabled:cursor-not-allowed disabled:shadow-none hover:bg-[#27ae60]">
-                    Valider le paiement
-                </button>
+                    class="px-4 py-2 bg-[#2ecc71] text-white font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 shadow-lg transition-all duration-300 disabled:bg-slate-300 disabled:cursor-not-allowed disabled:shadow-none hover:bg-[#27ae60]">Valider
+                    le paiement</button>
             </div>
         </div>
     </div>
 
-
-</x-app-layout>
-
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Modale pour recharger le crédit
-        const rechargeModal = document.getElementById('recharge-modal');
-        if (rechargeModal) {
-            const creditOptions = document.querySelectorAll('.credit-option');
-            const validateBtn = document.getElementById('validate-payment-btn');
-            const paymentWarning = document.getElementById('payment-warning');
-            const rechargeUrl = rechargeModal.dataset.rechargeUrl;
-            const fakePaymentInputs = rechargeModal.querySelectorAll('input[readonly]');
-            let selectedAmount = null;
-
-            // Fermer et réinit la modale
-            function closeAndResetRechargeModal() {
-                closeModal('recharge-modal');
-                creditOptions.forEach(opt => {
-                    opt.classList.remove('border-[#2ecc71]', 'bg-green-50', 'ring-2', 'ring-green-300');
-                    opt.classList.add('border-slate-200');
-                    const radio = opt.querySelector('input[name="recharge_amount"]');
-                    if (radio) radio.checked = false;
-                });
-                validateBtn.disabled = true;
-                paymentWarning.classList.add('hidden');
-                selectedAmount = null;
+    @push('scripts')
+        <script>
+            // Ouvrir et fermer une modale
+            function openModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    document.body.classList.add('overflow-hidden');
+                }
             }
 
-            // Attache la fonction à l'objet window pour qu'elle soit activé via le btn "Annuler"
-            window.closeAndResetRechargeModal = closeAndResetRechargeModal;
-
-            // Avertissement si on clic sur les faux champs de paiement
-            fakePaymentInputs.forEach(input => {
-                input.addEventListener('click', function() {
-                    paymentWarning.classList.remove('hidden');
-                });
-            });
-
-            // Sélection d'un montant
-            creditOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    creditOptions.forEach(opt => {
-                        opt.classList.remove('border-[#2ecc71]', 'bg-green-50',
-                            'ring-2', 'ring-green-300');
-                        opt.classList.add('border-slate-200');
-                    });
-                    this.classList.add('border-[#2ecc71]', 'bg-green-50', 'ring-2',
-                        'ring-green-300');
-                    this.classList.remove('border-slate-200');
-                    selectedAmount = this.querySelector('input[name="recharge_amount"]').value;
-                    validateBtn.disabled = false; // Active le bouton
-                });
-            });
-
-            // Validation du paiement
-            validateBtn.addEventListener('click', function() {
-                if (selectedAmount) {
-                    fetch(rechargeUrl, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                    .getAttribute('content')
-                            },
-                            body: JSON.stringify({
-                                amount: selectedAmount
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                const creditsElements = document.querySelectorAll(
-                                    '.credit-balance');
-                                if (creditsElements) {
-                                    creditsElements.forEach(el => el.textContent = data
-                                        .new_balance);
-                                }
-                                closeAndResetRechargeModal(); // Appel la fonction de réinit
-                                showSuccessNotification('Crédits rechargés avec succès !');
-                            } else {
-                                console.error(data.message);
-                                alert('Une erreur est survenue lors de la recharge.');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Erreur:', error);
-                            alert('Une erreur réseau est survenue.');
-                        });
+            function closeModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.add('hidden');
+                    document.body.classList.remove('overflow-hidden');
                 }
-            });
-        }
-
-        // Logique pour les covoit cards
-        const covoiturageCards = document.querySelectorAll('.covoiturage-card');
-        covoiturageCards.forEach(card => {
-            const tripToggles = card.querySelector('.trip-status-toggle');
-            const modifierBtn = card.querySelector('button[onclick^="openModifModal"]');
-            const annulerForm = card.querySelector('form input[name="_method"][value="DELETE"]')
-                ?.closest('form');
-            const startBtn = card.querySelector('.start-trip-btn');
-            const endBtn = card.querySelector('.end-trip-btn');
-
-            if (!tripToggles || !modifierBtn || !annulerForm || !startBtn || !endBtn) {
-                return;
             }
 
-            // On annule l'anciennne logique SIMPLE du btn "Annuler" (avec onsubmit) pour lui attribuer deux comportements différents
-            annulerForm.removeAttribute('onsubmit');
+            // Autres fonctions globales
+            window.validateImmat = function(immat) {
+                if (!immat) return false;
+                const immatUpper = immat.toUpperCase();
+                const sivRegex = /^[A-Z]{2}[- ]?\d{3}[- ]?[A-Z]{2}$/;
+                const fniRegex = /^\d{1,4}[- ]?[A-Z]{1,3}[- ]?(\d{2}|2[AB])$/;
+                return sivRegex.test(immatUpper) || fniRegex.test(immatUpper);
+            }
 
-            tripToggles.addEventListener('click', function(event) {
-                const buttonClicked = event.target.closest('button');
-                if (!buttonClicked) return;
+            window.showSuccessNotification = function(message) {
+                const notification = document.createElement('div');
+                notification.className =
+                    'fixed bottom-5 right-5 bg-green-500 text-white py-3 px-5 rounded-lg shadow-xl animate-bounce';
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 3000);
+            }
 
-                // Si clic sur "Démarrer" => btn "Modifier" est désactiver + btn "Démarrer" est caché + btn "Vous êtes arrivé ?" est visible
-                if (buttonClicked === startBtn) {
-                    modifierBtn.disabled = true;
-                    modifierBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                    startBtn.classList.add('hidden');
-                    endBtn.classList.remove('hidden');
-                    card.dataset.tripStarted = 'true';
-                } else if (buttonClicked === endBtn) {
-                    // Si clic sur "Vous êtes arrivé ?"...
-                    // TODO: la vraie logique!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    // Pour le moment=> on grise la card + on désactive les btns + on change le texte du btn "Vous êtes arrivé ?" en "Terminé"
-                    card.style.opacity = '0.6';
-                    card.style.pointerEvents = 'none';
-                    const footerButtons = card.querySelectorAll('.card-footer .action-btn');
-                    footerButtons.forEach(btn => {
-                        btn.disabled = true;
-                    });
-                    buttonClicked.textContent = 'Terminé';
-                }
-            });
+            window.openEditVehicleModal = function(voiture) {
+                document.getElementById('edit-brand').value = voiture.brand;
+                document.getElementById('edit-model').value = voiture.model;
+                document.getElementById('edit-immat').value = voiture.immat;
+                document.getElementById('edit-date_first_immat').value = voiture.date_first_immat;
+                document.getElementById('edit-color').value = voiture.color;
+                document.getElementById('edit-n_place').value = voiture.n_place;
+                document.getElementById('edit-energie').value = voiture.energie;
+                const form = document.getElementById('editVehicleForm');
+                form.action = `/voitures/${voiture.voiture_id}`;
+                openModal('edit-vehicle-modal');
+            }
 
-            // Si clic sur "Annuler" => on check si le trajet a commencé ou pas. Si oui => on réinit la card. Si non => on demande confirmation de suppression
-            annulerForm.addEventListener('submit', function(event) {
+            window.confirmVehicleDeletion = function(event, vehicleCount) {
                 event.preventDefault();
-
-                if (card.dataset.tripStarted === 'true') {
-                    modifierBtn.disabled = false;
-                    modifierBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    startBtn.classList.remove('hidden');
-                    endBtn.classList.add('hidden');
-                    delete card.dataset.tripStarted;
-                } else {
-                    if (confirm('Êtes-vous sûr de vouloir annuler ce trajet ?')) {
-                        annulerForm.submit();
+                let formToSubmit = event.target;
+                if (vehicleCount > 1) {
+                    if (confirm('Êtes-vous sûr de vouloir supprimer ce véhicule ?')) {
+                        formToSubmit.submit();
                     }
+                } else {
+                    openModal('delete-last-vehicle-modal');
+                    document.getElementById('confirm-delete-last-vehicle-btn').onclick = function() {
+                        formToSubmit.submit();
+                    };
                 }
-            });
-        });
-    });
-
-    // Fonctions pour ouvrir et fermer les modales
-    function openModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.classList.remove('hidden');
-            document.body.classList.add('overflow-hidden');
-        }
-    }
-
-    function closeModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.classList.add('hidden');
-            document.body.classList.remove('overflow-hidden');
-        }
-    }
-
-    // Fonction pour afficher une notification de succès
-    function showSuccessNotification(message) {
-        const notification = document.createElement('div');
-        notification.className =
-            'fixed bottom-5 right-5 bg-green-500 text-white py-3 px-5 rounded-lg shadow-xl animate-bounce';
-        notification.textContent = message;
-        document.body.appendChild(notification);
-        setTimeout(() => {
-            notification.remove();
-        }, 3000);
-    }
-
-    function openEditVehicleModal(voiture) {
-        // Si clic pour modifier une voiture => ça ouvrira ce formulaire pré-rempli
-        document.getElementById('edit-brand').value = voiture.brand;
-        document.getElementById('edit-model').value = voiture.model;
-        document.getElementById('edit-immat').value = voiture.immat;
-        document.getElementById('edit-date_first_immat').value = voiture.date_first_immat;
-        document.getElementById('edit-color').value = voiture.color;
-        document.getElementById('edit-n_place').value = voiture.n_place;
-        document.getElementById('edit-energie').value = voiture.energie;
-
-        // Maj
-        // Quand on enregistre les modifs => "action" défini l'url vers lequelle les modifs seront envoyées
-        const form = document.getElementById('editVehicleForm');
-        form.action = `/voitures/${voiture.voiture_id}`;
-
-        openModal('edit-vehicle-modal');
-    }
-
-    let formToSubmit;
-
-    function confirmVehicleDeletion(event, vehicleCount) {
-        event.preventDefault();
-        formToSubmit = event.target;
-
-        if (vehicleCount > 1) {
-            if (confirm('Êtes-vous sûr de vouloir supprimer ce véhicule ?')) {
-                formToSubmit.submit();
+                return false;
             }
-        } else {
-            openModal('delete-last-vehicle-modal');
-            document.getElementById('confirm-delete-last-vehicle-btn').onclick = function() {
-                formToSubmit.submit();
-            };
-        }
-        return false;
-    }
-</script>
+
+
+            document.addEventListener('DOMContentLoaded', function() {
+                // Modale pour recharger le crédit
+                const rechargeBtn = document.querySelector('.recharge-btn');
+                if (rechargeBtn) {
+                    rechargeBtn.addEventListener('click', function() {
+                        const modalId = this.dataset.modalTarget;
+                        if (modalId) {
+                            openModal(modalId);
+                        }
+                    });
+                }
+
+                const rechargeModal = document.getElementById('recharge-modal');
+                if (rechargeModal) {
+                    const creditOptions = document.querySelectorAll('.credit-option');
+                    const validateBtn = document.getElementById('validate-payment-btn');
+                    const rechargeUrl = rechargeModal.dataset.rechargeUrl;
+                    let selectedAmount = null;
+
+                    // Sélection d'un montant
+                    creditOptions.forEach(option => {
+                        option.addEventListener('click', function() {
+                            creditOptions.forEach(opt => opt.classList.remove('border-[#2ecc71]',
+                                'bg-green-50', 'ring-2', 'ring-green-300'));
+                            this.classList.add('border-[#2ecc71]', 'bg-green-50', 'ring-2',
+                                'ring-green-300');
+                            selectedAmount = this.querySelector('input[name="recharge_amount"]').value;
+                            validateBtn.disabled = false; // Active le bouton
+                        });
+                    });
+
+                    // Validation du paiement
+                    validateBtn.addEventListener('click', function() {
+                        if (selectedAmount) {
+                            fetch(rechargeUrl, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                            .getAttribute('content')
+                                    },
+                                    body: JSON.stringify({
+                                        amount: selectedAmount
+                                    })
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        document.querySelectorAll('.credit-balance').forEach(el => el
+                                            .textContent = data.new_balance);
+                                        closeModal('recharge-modal');
+                                        showSuccessNotification('Crédits rechargés avec succès !');
+                                    } else {
+                                        alert('Une erreur est survenue lors de la recharge.');
+                                    }
+                                })
+                                .catch(() => alert('Une erreur réseau est survenue.'));
+                        }
+                    });
+                }
+
+                // Logique pour les covoit cards
+                const covoiturageCards = document.querySelectorAll('.covoiturage-card');
+                covoiturageCards.forEach(card => {
+                    const tripToggles = card.querySelector('.trip-status-toggle');
+                    const modifierBtn = card.querySelector('button[onclick^="openEditVehicleModal"]');
+                    const annulerForm = card.querySelector('form input[name="_method"][value="DELETE"]')
+                        ?.closest('form');
+                    const startBtn = card.querySelector('.start-trip-btn');
+                    const endBtn = card.querySelector('.end-trip-btn');
+
+                    if (!tripToggles || !modifierBtn || !annulerForm || !startBtn || !endBtn) return;
+
+                    // On annule l'anciennne logique SIMPLE du btn "Annuler" (avec onsubmit) pour lui attribuer deux comportements différents
+                    annulerForm.removeAttribute('onsubmit');
+
+                    tripToggles.addEventListener('click', function(event) {
+                        const buttonClicked = event.target.closest('button');
+                        if (!buttonClicked) return;
+
+                        // Si clic sur "Démarrer" => btn "Modifier" est désactiver + btn "Démarrer" est caché + btn "Vous êtes arrivé ?" est visible
+                        if (buttonClicked === startBtn) {
+                            modifierBtn.disabled = true;
+                            modifierBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                            startBtn.classList.add('hidden');
+                            endBtn.classList.remove('hidden');
+                            card.dataset.tripStarted = 'true';
+                        } else if (buttonClicked === endBtn) {
+                            // Si clic sur "Vous êtes arrivé ?"...
+                            // TODO: la vraie logique!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                            // Pour le moment=> on grise la card + on désactive les btns + on change le texte du btn "Vous êtes arrivé ?" en "Terminé"
+                            card.style.opacity = '0.6';
+                            card.style.pointerEvents = 'none';
+                            card.querySelectorAll('.card-footer .action-btn').forEach(btn => btn
+                                .disabled = true);
+                            buttonClicked.textContent = 'Terminé';
+                        }
+                    });
+
+                    // Si clic sur "Annuler" => on check si le trajet a commencé ou pas. Si oui => on réinit la card. Si non => on demande confirmation de suppression
+                    annulerForm.addEventListener('submit', function(event) {
+                        event.preventDefault();
+                        if (card.dataset.tripStarted === 'true') {
+                            modifierBtn.disabled = false;
+                            modifierBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                            startBtn.classList.remove('hidden');
+                            endBtn.classList.add('hidden');
+                            delete card.dataset.tripStarted;
+                        } else {
+                            if (confirm('Êtes-vous sûr de vouloir annuler ce trajet ?')) {
+                                annulerForm.submit();
+                            }
+                        }
+                    });
+                });
+            });
+        </script>
+    @endpush
+</x-app-layout>

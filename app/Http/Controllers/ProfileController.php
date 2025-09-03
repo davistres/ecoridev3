@@ -29,13 +29,14 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         $request->validate([
-            'name' => ['required', 'string', 'max:18'],
+            'name' => ['required', 'string', 'max:18', 'regex:/^[a-zA-Z0-9]/'],
             'email' => [
                 'required',
                 'string',
                 'email',
                 'max:255',
                 Rule::unique('users', 'email')->ignore($user->user_id, 'user_id'),
+                'regex:/^[a-zA-Z0-9]/'
             ],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);

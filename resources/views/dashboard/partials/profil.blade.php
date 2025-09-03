@@ -3,7 +3,7 @@
     <!-- header -->
     <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
         <h3 class="text-xl font-bold text-[#2c3e50]">Mon profil</h3>
-        <button onclick="openModal('profileModal')"
+        <button onclick="resetProfileModal(); openModal('profileModal')"
             class="h-8 w-8 rounded-full bg-[#2ecc71] hover:bg-[#27ae60] text-white flex items-center justify-center transition-transform duration-300 hover:scale-110">
             <i class="fas fa-edit"></i>
         </button>
@@ -14,7 +14,7 @@
         <div class="flex flex-col sm:flex-row items-center text-center sm:text-left space-y-4 sm:space-y-0 sm:space-x-6">
             <!-- Place pour la photo -->
             <div class="flex-shrink-0">
-                <button onclick="openModal('photoModal')"
+                <button onclick="resetProfileModal(); openModal('photoModal')"
                     class="h-28 w-28 rounded-full bg-slate-200 flex items-center justify-center border-4 border-[#2ecc71] shadow-md overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-lg">
                     @if (Auth::user()->photo && Auth::user()->phototype)
                         <img src="data:{{ Auth::user()->phototype }};base64,{{ base64_encode(Auth::user()->photo) }}"
