@@ -1,5 +1,5 @@
 <!-- Block Préférences conducteur -->
-<div class="bg-white shadow-lg rounded-lg p-6 h-full">
+<div class="bg-white shadow-md rounded-lg p-6 h-full transition-all duration-300 hover:shadow-xl">
     <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-bold text-gray-800">Préférences conducteur</h3>
         <button onclick="openModal('edit-preferences-modal')"
