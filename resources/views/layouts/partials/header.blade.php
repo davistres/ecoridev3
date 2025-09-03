@@ -56,7 +56,8 @@
                 @auth
                     <!-- TODO: lien vers dashboards -->
                     <!-- Ne pas oublié les employés -->
-                    <a href="{{ route('dashboard') }}" class="text-gray-800 hover:text-blue-600 pb-1">
+                    <a href="{{ route('dashboard') }}"
+                        class="nav-link relative {{ Request::is('dashboard') ? 'font-bold after:scale-x-100' : '' }} text-gray-800 after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-full after:bg-green-500 after:transform after:scale-x-0 after:transition-transform after:duration-300 after:ease-in-out hover:after:scale-x-100 pb-1">
                         @if (auth()->user()->isAdmin())
                             ADMIN
                         @else
@@ -68,7 +69,7 @@
                     <form method="POST" action="{{ route('logout') }}" class="flex items-center">
                         @csrf
                         <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();"
-                            class="text-gray-800 hover:text-blue-600 pb-1">
+                            class="nav-link relative text-gray-800 after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-full after:bg-green-500 after:transform after:scale-x-0 after:transition-transform after:duration-300 after:ease-in-out hover:after:scale-x-100 pb-1">
                             Déconnexion
                         </a>
                     </form>
