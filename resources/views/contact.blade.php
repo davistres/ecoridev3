@@ -12,7 +12,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('contact.store') }}" method="POST">
+                    <form id="contactForm" action="{{ route('contact.store') }}" method="POST">
                         @csrf
 
                         <!--Honeypot-->
@@ -27,7 +27,7 @@
                             <label for="nom" class="block text-sm font-medium text-gray-700">Nom *</label>
                             <input type="text" id="nom" name="nom"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                required>
+                                required oninput="validateNameInput(this)">
                         </div>
 
                         <!-- Email -->
@@ -35,7 +35,8 @@
                             <label for="email" class="block text-sm font-medium text-gray-700">Email *</label>
                             <input type="email" id="email" name="email"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                required>
+                                required oninput="validateEmailInput(this)">
+                            <small id="email-error" class="text-red-600 mt-1 hidden">Adresse email invalide.</small>
                         </div>
 
                         <!-- Sujet -->
@@ -55,7 +56,8 @@
                         <div class="mb-6">
                             <label for="message" class="block text-sm font-medium text-gray-700">Message *</label>
                             <textarea id="message" name="message" rows="4"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required></textarea>
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required
+                                oninput="validateMessageInput(this)"></textarea>
                         </div>
 
                         <!-- Btn -->
@@ -71,3 +73,46 @@
         </div>
     </div>
 </x-app-layout>
+
+<script>
+    function validateNameInput(input) {
+        // Autorise les lettres, les lettres avec accent, les espaces et les tirets.
+        input.value = input.value.replace(/[^a-zA-Zà-ÿÀ-Ÿ\s-]/g, '');
+    }
+
+    function validateMessageInput(textarea) {
+        const value = textarea.value;
+        if (value.length === 1) {
+            // Pour 1er caractère, autorise lettres, chiffres, «, ¨, (.
+            if (!/^[a-zA-Z0-9«"¨\(]$/.test(value)) {
+                textarea.value = '';
+            }
+        }
+    }
+
+    function validateEmailInput(input) {
+        const value = input.value;
+        if (value.length === 1) {
+            // Le 1er caractère ne peut pas être un caractère spécial.
+            if (/[^a-zA-Z0-9]/.test(value)) {
+                input.value = '';
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const contactForm = document.getElementById('contactForm');
+        const emailInput = document.getElementById('email');
+        const emailError = document.getElementById('email-error');
+
+        contactForm.addEventListener('submit', function(e) {
+            const emailRegex = /^\S+@\S+\.\S+$/;
+            if (!emailRegex.test(emailInput.value)) {
+                e.preventDefault();
+                emailError.classList.remove('hidden');
+            } else {
+                emailError.classList.add('hidden');
+            }
+        });
+    });
+</script>
