@@ -12,7 +12,7 @@
         <p><i class="fas fa-smoking-ban fa-fw mr-2 text-slate-400"></i> {{ Auth::user()->pref_smoke ?? 'Non renseigné' }}</p>
         <p><i class="fas fa-paw fa-fw mr-2 text-slate-400"></i> {{ Auth::user()->pref_pet ?? 'Non renseigné' }}</p>
         @if(Auth::user()->pref_libre)
-            <p class="pt-2 border-t border-slate-200"><i class="fas fa-info-circle fa-fw mr-2 text-slate-400"></i> {{ Auth::user()->pref_libre }}</p>
+            <p class="pt-2 border-t border-slate-200 break-words"><i class="fas fa-info-circle fa-fw mr-2 text-slate-400"></i> {{ Auth::user()->pref_libre }}</p>
         @endif
     </div>
 </div>

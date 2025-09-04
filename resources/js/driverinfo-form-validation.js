@@ -151,6 +151,21 @@ document.addEventListener('DOMContentLoaded', function () {
             photoInput.addEventListener('change', validatePhotoSize);
         }
 
+        driverInfoForm.addEventListener('submit', function(event) {
+            const immatInput = driverInfoForm.querySelector('#immat');
+            const immatError = driverInfoForm.querySelector('#immat_error');
+            const immatValue = immatInput.value.toUpperCase();
+
+            const validImmatRegex = /^(?:[A-Z]{2}-[0-9]{3}-[A-Z]{2}|[A-Z]{2}[0-9]{3}[A-Z]{2})$/;
+
+            if (!validImmatRegex.test(immatValue)) {
+                event.preventDefault(); // Stop la soumission du formulaire avec ce message d'erreur
+                immatError.textContent = 'Le format de l\'immatriculation est invalide.';
+            } else {
+                immatError.textContent = ''; // Efface le message d'erreur (si yen a un) si la saisie est valide
+            }
+        });
+
         window.resetDriverInfoModal = function() {
             if (driverInfoForm) {
                 driverInfoForm.reset();
@@ -158,6 +173,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 const photoError = driverInfoForm.querySelector('#profile_photo_error');
                 if (photoError) {
                     photoError.textContent = '';
+                }
+
+                const immatError = driverInfoForm.querySelector('#immat_error');
+                if (immatError) {
+                    immatError.textContent = '';
                 }
 
                 const immatInput = driverInfoForm.querySelector('#immat');

@@ -72,7 +72,7 @@
                 <label for="driver_profile_photo" class="block font-semibold text-gray-700">Photo de profil</label>
                 <input type="file" id="driver_profile_photo" name="profile_photo" accept="image/png,image/jpeg"
                     class="w-full border rounded-md p-2 mt-1 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
-                <small class="text-slate-500">Optionnel (mais 2 Mo max). Une photo de profil aide à établir la confiance
+                <small class="text-slate-500">Optionnel (2 Mo max). Une photo de profil aide à établir la confiance
                     avec vos
                     passagers.</small>
                 <small id="profile_photo_error" class="text-red-500 mt-1 block"></small>
@@ -106,6 +106,7 @@
                     <input type="text" id="immat" name="immat" maxlength="9" required
                         class="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1">
                     <small class="text-slate-500">Format: AA-123-BB ou AB123CD.</small>
+                    <small id="immat_error" class="text-red-500 mt-1 block"></small>
                 </div>
                 <div>
                     <label for="date_first_immat" class="block font-semibold text-gray-700">Date de la 1ère
@@ -119,7 +120,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
-                    <label for="color" class="block font-semibold text-gray-700">Couleur dominante</label>
+                    <label for="color" class="block font-semibold text-gray-700">Couleur dominante (une)</label>
                     <input type="text" id="color" name="color" maxlength="12" required
                         class="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1">
                     <small class="text-slate-500">Maximum 12 caractères.</small>
