@@ -72,15 +72,18 @@
                 <label for="driver_profile_photo" class="block font-semibold text-gray-700">Photo de profil</label>
                 <input type="file" id="driver_profile_photo" name="profile_photo" accept="image/png,image/jpeg"
                     class="w-full border rounded-md p-2 mt-1 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
-                <small class="text-slate-500">Optionnel. Une photo de profil aide à établir la confiance avec vos
+                <small class="text-slate-500">Optionnel (mais 2 Mo max). Une photo de profil aide à établir la confiance
+                    avec vos
                     passagers.</small>
+                <small id="profile_photo_error" class="text-red-500 mt-1 block"></small>
             </div>
 
             <hr class="my-6">
 
             <h3 class="text-xl font-semibold text-gray-700 mb-2">Informations véhicule</h3>
-            <p class="text-sm text-slate-600 mb-4">Les informations suivantes sont obligatoires. Veuillez remplir tous
-                les champs correctement.</p>
+            <p><span class="font-semibold text-red-500"> Toutes les informations suivantes sont
+                    obligatoires.</span> <span class="text-sm text-slate-600 mb-4">Veuillez remplir tous
+                    les champs correctement.</span></p>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
@@ -100,9 +103,9 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label for="immat" class="block font-semibold text-gray-700">Immatriculation</label>
-                    <input type="text" id="immat" name="immat" maxlength="7" required
+                    <input type="text" id="immat" name="immat" maxlength="9" required
                         class="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1">
-                    <small class="text-slate-500">Doit contenir 7 caractères. Doit être unique.</small>
+                    <small class="text-slate-500">Format: AA-123-BB ou AB123CD.</small>
                 </div>
                 <div>
                     <label for="date_first_immat" class="block font-semibold text-gray-700">Date de la 1ère
@@ -116,7 +119,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
-                    <label for="color" class="block font-semibold text-gray-700">Couleur</label>
+                    <label for="color" class="block font-semibold text-gray-700">Couleur dominante</label>
                     <input type="text" id="color" name="color" maxlength="12" required
                         class="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1">
                     <small class="text-slate-500">Maximum 12 caractères.</small>

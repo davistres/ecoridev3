@@ -1,6 +1,7 @@
 import './bootstrap';
 import './popup.js';
 import './covoit-form-validation.js';
+import './driverinfo-form-validation.js';
 
 import Alpine from 'alpinejs';
 

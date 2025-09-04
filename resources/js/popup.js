@@ -119,6 +119,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (currentRole === 'Passager' && (newRole === 'Conducteur' || newRole === 'Les deux')) {
                     const newRoleInput = document.getElementById('new_role_input');
                     if (newRoleInput) newRoleInput.value = newRole;
+                    if(typeof window.resetDriverInfoModal === 'function') {
+                        window.resetDriverInfoModal();
+                    }
                     openModal('driverinfo-modal');
                 } else if ((currentRole === 'Conducteur' || currentRole === 'Les deux') && newRole === 'Passager') {
                     openModal('confirm-delete-all-for-change-role-to-passenger-modal');
