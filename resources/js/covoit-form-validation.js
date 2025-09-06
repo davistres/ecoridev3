@@ -88,6 +88,14 @@ window.validateCovoitForm = function(form) {
     generalErrorDiv.style.display = 'none';
     addressErrorDiv.style.display = 'none';
 
+    // Vérif que le véhicule est bien sélectionné
+    const vehicleSelect = form.querySelector(`#${prefix}_voiture_id_select`);
+    if (!vehicleSelect || !vehicleSelect.value || vehicleSelect.value === 'add_car') {
+        generalErrorDiv.textContent = 'Veuillez sélectionner un véhicule.';
+        generalErrorDiv.style.display = 'block';
+        return false;
+    }
+
     const isDurationValid = durationWarningDiv.classList.contains('hidden');
     const isDepPostalValid = window.covoitFormValidators[prefix].validatePostalCode('postal_code_dep', 'postal_code_dep-error');
     const isArrPostalValid = window.covoitFormValidators[prefix].validatePostalCode('postal_code_arr', 'postal_code_arr-error');
@@ -95,18 +103,62 @@ window.validateCovoitForm = function(form) {
     const isArrivalTimeValid = window.covoitFormValidators[prefix].validateArrivalVsDepartureTime();
     const isMaxTimeValid = window.covoitFormValidators[prefix].validateMaxTravelTime();
 
+    // Affiche les erreurs spécifiques
+    const errorSelectors = [
+        `#${prefix}_postal_code_dep-error`,
+        `#${prefix}_postal_code_arr-error`,
+        `#${prefix}_departure-time-error`,
+        `#${prefix}_arrival-time-error`,
+        `#${prefix}_max-travel-time-error`
+    ];
+
+    errorSelectors.forEach(selector => {
+        const errorDiv = form.querySelector(selector);
+        if (errorDiv && errorDiv.textContent.trim()) {
+            errorDiv.style.display = 'block';
+        }
+    });
+
     const depAddress = form.querySelector('[name="departure_address"]').value.trim();
     const arrAddress = form.querySelector('[name="arrival_address"]').value.trim();
     const depCity = form.querySelector('[name="city_dep"]').value.trim();
     const arrCity = form.querySelector('[name="city_arr"]').value.trim();
     const depPostal = form.querySelector('[name="postal_code_dep"]').value.trim();
     const arrPostal = form.querySelector('[name="postal_code_arr"]').value.trim();
-    let isAddressDifferent = true;
+    const depAddComp = form.querySelector('[name="add_dep_address"]').value.trim();
+    const arrAddComp = form.querySelector('[name="add_arr_address"]').value.trim();
 
-    if (depAddress && depAddress === arrAddress && depCity === arrCity && depPostal === arrPostal) {
+    let isAddressDifferent = true;
+    let needsConfirmation = false;
+
+    // Normaliser les chaînes de caractères (suppr espaces, minuscules)
+    const normalize = (str) => str.toLowerCase().replace(/\s+/g, '');
+
+    // Normaliser les codes postaux (suppr espaces)
+    const normalizePostal = (postal) => postal.replace(/\s+/g, '');
+
+    // Vérif stricte (identiques à 100%)
+    const isStrictlyIdentical = (
+        normalize(depAddress) === normalize(arrAddress) &&
+        normalize(depCity) === normalize(arrCity) &&
+        normalizePostal(depPostal) === normalizePostal(arrPostal) &&
+        normalize(depAddComp) === normalize(arrAddComp)
+    );
+
+    if (isStrictlyIdentical) {
         addressErrorDiv.textContent = 'L\'adresse de départ et d\'arrivée ne peuvent pas être identiques.';
         addressErrorDiv.style.display = 'block';
         isAddressDifferent = false;
+    } else {
+        // Verif souple (adresse + code postal)
+        const isSimilar = (
+            normalize(depAddress) === normalize(arrAddress) &&
+            normalizePostal(depPostal) === normalizePostal(arrPostal)
+        );
+
+        if (isSimilar && depAddress && arrAddress && depPostal && arrPostal) {
+            needsConfirmation = true;
+        }
     }
 
     if (!isDepPostalValid || !isArrPostalValid || !isDepartureTimeValid || !isArrivalTimeValid || !isMaxTimeValid || !isAddressDifferent || !isDurationValid) {
@@ -114,6 +166,21 @@ window.validateCovoitForm = function(form) {
         generalErrorDiv.style.display = 'block';
         return false;
     }
+
+    // Si vérif souple = false
+    if (needsConfirmation) {
+        const confirmed = confirm(
+            'Les adresses de départ et d\'arrivée semblent être identiques ou très similaires.\n\n' +
+            'Départ: ' + depAddress + ' (' + depPostal + ')\n' +
+            'Arrivée: ' + arrAddress + ' (' + arrPostal + ')\n\n' +
+            'Souhaitez-vous quand même valider votre saisie ?'
+        );
+
+        if (!confirmed) {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -127,11 +194,40 @@ window.formatCityName = function(element) {
 }
 window.formatPostalCode = function(element) {
     let value = element.value.replace(/[^0-9 ]/g, '');
-    const firstSpaceIndex = value.indexOf(' ');
-    if (firstSpaceIndex !== -1) {
-        value = value.substring(0, firstSpaceIndex + 1) + value.substring(firstSpaceIndex + 1).replace(/ /g, '');
+
+    // Nouvelle logique stricte pour le code postal
+    let formattedValue = "";
+
+    // Les 2 premiers caractères ne peuvent être que des chiffres
+    const p1 = value.substring(0, 2).replace(/[^0-9]/g, '');
+    formattedValue += p1;
+
+    // On inspecte la 3ème saisie
+    if (value.length > 2) {
+        const thirdChar = value.charAt(2);
+
+        if (thirdChar === ' ') {
+            // Format avec espace : 12 345 (6 caractères total)
+            element.maxLength = 6;
+            formattedValue += ' ';
+
+            // Les 3 caractères suivants ne peuvent être que des chiffres
+            if (value.length > 3) {
+                const p2 = value.substring(3, 6).replace(/[^0-9]/g, '');
+                formattedValue += p2;
+            }
+        } else if (/[0-9]/.test(thirdChar)) {
+            // Format sans espace : 12345 (5 caractères total)
+            element.maxLength = 5;
+
+            // Les 3 caractères suivants ne peuvent être que des chiffres
+            const p2 = value.substring(2, 5).replace(/[^0-9]/g, '');
+            formattedValue += p2;
+        }
+        // Si le 3ème caractère n'est ni un espace ni un chiffre, on s'arrête
     }
-    element.value = value;
+
+    element.value = formattedValue;
 }
 
 // Autres fonctions (non globales)
@@ -268,6 +364,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (departureDateInput.value && departureTimeInput.value) {
                 arrivalTimeInput.disabled = false;
                 arrivalTimeInput.classList.remove('bg-gray-200');
+
+                // Si les dates sont identiques, l'heure d'arrivée doit être au moins 10 minutes après le départ
                 if (arrivalDateInput.value === departureDateInput.value) {
                     let [hours, minutes] = departureTimeInput.value.split(':');
                     let minArrivalTime = new Date();
@@ -275,11 +373,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     minArrivalTime.setMinutes(minArrivalTime.getMinutes() + 10);
                     arrivalTimeInput.min = minArrivalTime.toTimeString().slice(0, 5);
                 } else {
-                    arrivalTimeInput.min = '';
+                    // Si les dates sont différentes, pas de limite pour l'heure
+                    arrivalTimeInput.removeAttribute('min');
                 }
             } else {
                 arrivalTimeInput.disabled = true;
                 arrivalTimeInput.classList.add('bg-gray-200');
+                arrivalTimeInput.removeAttribute('min');
             }
             checkTripDuration();
         }
@@ -304,8 +404,17 @@ document.addEventListener('DOMContentLoaded', function() {
         if (voitureSelect) {
             voitureSelect.addEventListener('change', function() {
                 if (this.value === 'add_car') {
-                    closeModal(form.closest('.fixed').id);
-                    openModal('add-vehicle-modal');
+                    // Quelle modale ouvrir?
+                    const currentModalId = form.closest('.fixed').id;
+
+                    if (currentModalId === 'create-covoit-modal') {
+                        // Depuis create-covoit-modal, ouvrir addcovoit-addvehicle-modal
+                        openAddCovoitVehicleModal();
+                    } else {
+                        // Depuis modif-covoit-modal, ouvrir add-vehicle-modal normal
+                        closeModal(currentModalId);
+                        openModal('add-vehicle-modal');
+                    }
                     this.value = '';
                 } else {
                     const selectedOption = this.options[this.selectedIndex];
@@ -325,4 +434,89 @@ document.addEventListener('DOMContentLoaded', function() {
 
     setupFormValidation(document.getElementById('createCovoitForm'), 'create');
     setupFormValidation(document.getElementById('modifCovoitForm'), 'modif');
+
+    // Validation du covoit (réinit window.temporaryVehicleId)
+    const createCovoitForm = document.getElementById('createCovoitForm');
+    if (createCovoitForm) {
+        createCovoitForm.addEventListener('submit', function(event) {
+            // Si valide, le véhicule n'est plus temporaire
+            if (validateCovoitForm(this)) {
+                window.temporaryVehicleId = null;
+            }
+        });
+    }
+
+    // Réinit pour create-covoit-modal
+    window.resetCreateCovoitModal = function() {
+        const createForm = document.getElementById('createCovoitForm');
+        if (!createForm) return;
+
+        // Suppr le véhicule temporaire si y en a un
+        if (window.temporaryVehicleId) {
+            fetch(`/voitures/${window.temporaryVehicleId}/temporary`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Véhicule temporaire supprimé.');
+                    // Retire l'option du select
+                    const vehicleSelect = document.getElementById('create_voiture_id_select');
+                    const optionToRemove = vehicleSelect.querySelector(`option[value="${window.temporaryVehicleId}"]`);
+                    if (optionToRemove) {
+                        vehicleSelect.removeChild(optionToRemove);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors de la suppression du véhicule temporaire:', error);
+            })
+            .finally(() => {
+                // Très important : réinit la variable !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                window.temporaryVehicleId = null;
+            });
+        }
+
+        // Réinit le formulaire
+        createForm.reset();
+
+        // Réinit les champs disabled
+        const arrivalDateInput = createForm.querySelector('[name="arrival_date"]');
+        const arrivalTimeInput = createForm.querySelector('[name="arrival_time"]');
+
+        if (arrivalDateInput) {
+            arrivalDateInput.disabled = true;
+            arrivalDateInput.classList.add('bg-gray-200');
+        }
+
+        if (arrivalTimeInput) {
+            arrivalTimeInput.disabled = true;
+            arrivalTimeInput.classList.add('bg-gray-200');
+        }
+
+        // Efface les messages
+        const errorElements = createForm.querySelectorAll('[id$="-error"]');
+        errorElements.forEach(element => {
+            element.textContent = '';
+            element.style.display = 'none';
+        });
+
+        const warningElements = createForm.querySelectorAll('[id$="-warning"]');
+        warningElements.forEach(element => {
+            element.classList.add('hidden');
+        });
+
+        // Le bouton de soumission doit se réactiver
+        const submitButton = createForm.querySelector('button[type="submit"]');
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    };
+
+
 });

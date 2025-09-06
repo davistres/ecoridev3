@@ -40,12 +40,12 @@
                         </div>
                         <!-- Btn -->
                         <div class="flex space-x-2 mt-4 sm:mt-0 sm:ml-4 flex-shrink-0 self-start">
-                            <button @click="openEditVehicleModal({{ json_encode($voiture) }})"
-                                class="h-8 w-8 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center">
+                            <button
+                                class="edit-vehicle-btn h-8 w-8 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center"
+                                data-voiture="{{ json_encode($voiture) }}">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <form
-                                action="{{ route('voitures.destroy', $voiture) }}" method="POST"
+                            <form action="{{ route('voitures.destroy', $voiture) }}" method="POST"
                                 onsubmit="return confirmVehicleDeletion(event, {{ $voitures->count() }}, {{ $voiture->voiture_id }})">
                                 @csrf
                                 @method('DELETE')

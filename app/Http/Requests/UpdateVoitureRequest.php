@@ -18,7 +18,7 @@ class UpdateVoitureRequest extends FormRequest
         return [
             'brand' => ['required', 'string', 'max:12'],
             'model' => ['required', 'string', 'max:24'],
-            'immat' => ['required', 'string', 'size:7', Rule::unique('voiture', 'immat')->ignore($this->voiture->voiture_id, 'voiture_id')],
+            'immat' => ['required', 'string', 'regex:/^(?:[A-Z]{2}-[0-9]{3}-[A-Z]{2}|[A-Z]{2}[0-9]{3}[A-Z]{2})$/', Rule::unique('voiture', 'immat')->ignore($this->voiture->voiture_id, 'voiture_id')],
             'date_first_immat' => ['required', 'date', 'before_or_equal:today'],
             'color' => ['required', 'string', 'max:12'],
             'n_place' => ['required', 'integer', 'min:2', 'max:9'],

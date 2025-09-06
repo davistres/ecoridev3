@@ -69,7 +69,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Si c'est un tiret, il y aura donc 9 caractères avec ce format: AA-123-BB... Ici, on est dans H1 (hypothèse 1)
                 if (thirdChar === '-') {
-                    input.maxLength = 9;
                     formattedValue += '-';
 
                     // Partie 2 de H1: Les 3 caractères suivants ne doivent être que des chiffres
@@ -92,7 +91,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Si la saisie du 3éme caractère n'est pas un tiret, alors ça doit être un chiffre.
                     // il y aura 7 caractères avec ce format: AA123BB
                     // Ici, on est dans H2 (hypothèse 2)
-                    input.maxLength = 7;
                     // RPartie 2 de H2: Les 3 caractères suivants ne doivent être que des chiffres
                     const p2_part1 = value.substring(2, 5).replace(/[^0-9]/g, '');
                     formattedValue += p2_part1;

@@ -1,9 +1,36 @@
+// Suivre le véhicule temporaire créé depuis addcovoit-addvehicle-modal dans la modale de covoiturage (create-covoit-modal)
+
+window.temporaryVehicleId = null;
+
 //GESTION DES MODALES ////////////////////////////////////////////
-function openModal(modalId) {
+function openModal(modalId, shouldReset = true) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.classList.remove('hidden');
         document.body.classList.add('overflow-hidden');
+
+        // TODO: j'ai essayer plusieurs façon de ne pas me répéter avec tous les codes qui vont suivre... Mais je n'y suis pas arrivé...
+        // Du coup, si j'ai le temps faut que j'essaie de trouver une solution!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        // Réinit edit-preferences-modal à chaque ouverture
+        if (modalId === 'edit-preferences-modal' && shouldReset && typeof window.resetEditPreferencesModal === 'function') {
+            window.resetEditPreferencesModal();
+        }
+
+        // Réinit add-vehicle-modal à chaque ouverture
+        if (modalId === 'add-vehicle-modal' && shouldReset && typeof window.resetAddVehicleModal === 'function') {
+            window.resetAddVehicleModal();
+        }
+
+        // Réinit recharge-modal à chaque ouverture
+        if (modalId === 'recharge-modal' && shouldReset && typeof window.resetRechargeModal === 'function') {
+            window.resetRechargeModal();
+        }
+
+        // Réinit create-covoit-modal à chaque ouverture, SAUF si on vient d'ajouter un véhicule
+        if (modalId === 'create-covoit-modal' && shouldReset && typeof window.resetCreateCovoitModal === 'function') {
+            window.resetCreateCovoitModal();
+        }
     }
 }
 
@@ -15,6 +42,14 @@ function closeModal(modalId) {
 
         if (modalId === 'modif-covoit-modal' && typeof resetModifCovoitForm === 'function') {
             resetModifCovoitForm();
+        }
+
+        // Si on ferme create-covoit-modal, on supprime le véhicule temporaire
+        if (modalId === 'create-covoit-modal') {
+            // => appel la fonction de reset
+            if (typeof window.resetCreateCovoitModal === 'function') {
+                window.resetCreateCovoitModal();
+            }
         }
     }
 }
@@ -136,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    
+
 
     // Modif véhicule////////////////////////////////////
     document.body.addEventListener('click', function(e) {
@@ -151,6 +186,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 //GESTION DES VÉHICULES (CRUD)                      ==
 function openEditVehicleModal(voiture) {
+    // Réinit la modale avant de la remplir
+    if (typeof window.resetEditVehicleModal === 'function') {
+        window.resetEditVehicleModal();
+    }
+
     document.getElementById('edit-brand').value = voiture.brand;
     document.getElementById('edit-model').value = voiture.model;
     document.getElementById('edit-immat').value = voiture.immat;

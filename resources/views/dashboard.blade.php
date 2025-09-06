@@ -95,6 +95,7 @@
     @include('dashboard.partials.edit-preferences-modal')
     @include('dashboard.partials.add-vehicle-modal')
     @include('dashboard.partials.edit-vehicle-modal')
+    @include('dashboard.partials.addcovoit-addvehicle-modal')
     @include('dashboard.partials.delete-last-vehicle-modal')
     @include('dashboard.partials.confirm-delete-vehicule-with-covoit-modal')
     @include('dashboard.partials.confirm-delete-all-for-change-role-to-passenger-blade')
@@ -198,18 +199,7 @@
                 setTimeout(() => notification.remove(), 3000);
             }
 
-            window.openEditVehicleModal = function(voiture) {
-                document.getElementById('edit-brand').value = voiture.brand;
-                document.getElementById('edit-model').value = voiture.model;
-                document.getElementById('edit-immat').value = voiture.immat;
-                document.getElementById('edit-date_first_immat').value = voiture.date_first_immat;
-                document.getElementById('edit-color').value = voiture.color;
-                document.getElementById('edit-n_place').value = voiture.n_place;
-                document.getElementById('edit-energie').value = voiture.energie;
-                const form = document.getElementById('editVehicleForm');
-                form.action = `/voitures/${voiture.voiture_id}`;
-                openModal('edit-vehicle-modal');
-            }
+
 
             window.confirmVehicleDeletion = function(event, vehicleCount) {
                 event.preventDefault();
@@ -287,6 +277,36 @@
                                 .catch(() => alert('Une erreur réseau est survenue.'));
                         }
                     });
+
+                    // Afficher l'info quand on clic sur les readonly
+                    const readonlyInputs = rechargeModal.querySelectorAll('input[readonly]');
+                    const paymentWarning = document.getElementById('payment-warning');
+
+                    readonlyInputs.forEach(input => {
+                        input.addEventListener('click', function() {
+                            if (paymentWarning) {
+                                paymentWarning.classList.remove('hidden');
+                            }
+                        });
+                    });
+
+                    // Réinit pour recharge-modal
+                    window.resetRechargeModal = function() {
+                        // Désélectionner les options de crédit
+                        creditOptions.forEach(opt => opt.classList.remove('border-[#2ecc71]', 'bg-green-50',
+                            'ring-2', 'ring-green-300'));
+
+                        // Réinit la variable selectedAmount
+                        selectedAmount = null;
+
+                        // Désactive le btn validation
+                        validateBtn.disabled = true;
+
+                        // Cache le message d'avertisement
+                        if (paymentWarning) {
+                            paymentWarning.classList.add('hidden');
+                        }
+                    }
                 }
 
                 // Logique pour les covoit cards

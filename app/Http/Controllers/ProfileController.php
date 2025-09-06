@@ -150,8 +150,7 @@ class ProfileController extends Controller
         $user = $request->user();
         $validated = $request->validated();
 
-        // Sécu en plus mais normalement pas nécessaire
-        if ($user->role !== 'Passager' && $user->role !== 'Conducteur') {
+        if ($user->role !== 'Passager') {
             return redirect()->back()->withErrors(['role' => 'Action non autorisée pour votre rôle actuel.']);
         }
 

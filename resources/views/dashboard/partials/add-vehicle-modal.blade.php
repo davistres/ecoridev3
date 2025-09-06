@@ -42,9 +42,10 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label for="add-immat" class="block font-semibold text-gray-700">Immatriculation</label>
-                    <input type="text" id="add-immat" name="immat" maxlength="7" required
+                    <input type="text" id="add-immat" name="immat" maxlength="9" required
                         class="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1">
-                    <small class="text-slate-500">Doit contenir 7 caractères. Doit être unique.</small>
+                    <small class="text-slate-500">Format: AA-123-BB ou AA123BB. Doit être unique.</small>
+                    <small id="add-immat_error" class="text-red-500 mt-1 block"></small>
                 </div>
                 <div>
                     <label for="add-date_first_immat" class="block font-semibold text-gray-700">Date de la 1ère

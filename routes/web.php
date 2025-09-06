@@ -6,6 +6,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\VoitureController;
 use App\Models\Voiture;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -45,7 +46,9 @@ Route::middleware('auth')->group(function () {
     ]);
 
     Route::resource('covoiturages', CovoitController::class)->only([
-        'store', 'update', 'destroy'
+        'store',
+        'update',
+        'destroy'
     ]);
 
     Route::get('/covoiturages/{covoiturage}/details', [CovoitController::class, 'getDetails'])->name('covoiturages.details');
@@ -58,6 +61,14 @@ Route::middleware('auth')->group(function () {
         $hasFutureCarpools = $voiture->covoiturages()->where('departure_date', '>=', now()->toDateString())->exists();
         return response()->json(['has_future_carpools' => $hasFutureCarpools]);
     })->name('voitures.hasFutureCarpools');
+
+    // Pour suppr un véhicule temporaire
+    Route::delete('/voitures/{voiture}/temporary', [VoitureController::class, 'destroyTemporary'])->name('voitures.destroyTemporary');
+
+    // Pour récupérer les véhicules de l'utilisateur (pour recharger le select)
+    Route::get('/api/user/voitures', function () {
+        return response()->json(Auth::user()->voitures);
+    })->name('api.user.voitures');
 });
 
 require __DIR__ . '/auth.php';

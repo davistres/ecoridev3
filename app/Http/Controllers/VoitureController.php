@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateVoitureRequest;
 use App\Models\Covoiturage;
 use App\Models\Voiture;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -14,14 +15,26 @@ use Illuminate\Support\Facades\Redirect;
 class VoitureController extends Controller
 {
     /** fonction store => ajout d'une nouvelle voiture à la table VOITURE en ajoutant un id pour lier l'utilisateur à la voiture */
-    public function store(StoreVoitureRequest $request): JsonResponse
+    public function store(StoreVoitureRequest $request): JsonResponse|RedirectResponse
     {
         $validated = $request->validated();
         $validated['user_id'] = Auth::id();
 
         $voiture = Voiture::create($validated);
 
-        return response()->json(['success' => true, 'voiture' => $voiture]);
+        /** addcovoit-addvehicle-modal envoie une demande une Ajax */
+        /** Ici donc, on vérifie que c'est bien le cas pour retourner du JSON */
+        /** Je n'ai pas compris cette logique!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Mais pour cela, on doit vérifier deux choses avec: */
+        /** expectsJson() vérifie si la requête attend une réponse JSON  et ajax() vérifie si la requête est une requête AJAX. */
+        /** ajax() je comprends!!!! Mais pourquoi expectsJson()???? */
+        /** expectsJson() est une méthode de la classe Request de Laravel qui vérifie si la requête attend une réponse JSON. ajax() vérifie si la requête est une requête AJAX. */
+        /** TODO! Je dois essayer de creuser ceci pour comprendre */
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'voiture' => $voiture]);
+        }
+
+        /** Si ce n'est pas une requête Ajax, redirection normale (depuis add-vehicle-modal) */
+        return Redirect::route('dashboard')->with('status', 'vehicle-added');
     }
 
     /** Mise à jour des infos d'une voiture */
@@ -71,5 +84,23 @@ class VoitureController extends Controller
 
         // Message géré par Js
         return Redirect::route('dashboard')->with('status', 'vehicle-deleted');
+    }
+
+    // Suppr un véhicule temporaire (créé depuis addcovoit-addvehicle-modal mais covoit non validé)
+    public function destroyTemporary(Voiture $voiture): JsonResponse
+    {
+        // La voiture appartient à l'utilisateur?
+        if (Auth::id() !== $voiture->user_id) {
+            abort(403, 'Action non autorisée.');
+        }
+
+        // Cette voiture est utilisée dans un covoit?
+        if ($voiture->covoiturages()->exists()) {
+            return response()->json(['success' => false, 'message' => 'Ce véhicule est utilisé dans des covoiturages.'], 400);
+        }
+
+        $voiture->delete();
+
+        return response()->json(['success' => true, 'message' => 'Véhicule temporaire supprimé.']);
     }
 }
