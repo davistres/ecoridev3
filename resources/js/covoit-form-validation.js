@@ -439,12 +439,79 @@ document.addEventListener('DOMContentLoaded', function() {
     const createCovoitForm = document.getElementById('createCovoitForm');
     if (createCovoitForm) {
         createCovoitForm.addEventListener('submit', function(event) {
-            if (!validateCovoitForm(this)) {
-                event.preventDefault(); // Empêche la soumission si la validation échoue
-            } else {
-                // Si valide, le véhicule n'est plus temporaire
-                window.temporaryVehicleId = null;
+            event.preventDefault(); // Empêche la soumission si la validation échoue
+
+            const form = this;
+            const generalErrorDiv = form.querySelector('#create_form-general-error');
+            const submitButton = form.querySelector('button[type="submit"]');
+
+            // Plusieurs étapes:
+            // 1. Valide le formulaire côté client
+            if (!validateCovoitForm(form)) {
+                // validateCovoitForm => Affiche les erreurs
+                if (!generalErrorDiv.textContent) {
+                    generalErrorDiv.textContent = 'Le formulaire contient des erreurs. Veuillez vérifier tous les champs.';
+                }
+                generalErrorDiv.style.display = 'block';
+                return; // Stop si la validation client échoue
             }
+
+            // Désactiver le btn (=> empecher les doubles soumissions)
+            submitButton.disabled = true;
+            submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+            generalErrorDiv.style.display = 'none';
+            generalErrorDiv.textContent = '';
+
+
+            // 2. Envoye les données en AJAX (via une requete fetch)
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => {
+                if (response.status === 422) {
+                    // Erreurs de validation du backend
+                    return response.json().then(data => {
+                        return Promise.reject(data);
+                    });
+                }
+                if (!response.ok) {
+                    // Autres erreurs serveur
+                    throw new Error('Une erreur serveur est survenue.');
+                }
+                // Si tout est OK
+                return response.json();
+            })
+            .then(data => {
+                // 3. Gérer la réussite
+                // La validation a réussi et le covoit est créé
+                window.temporaryVehicleId = null; // Le véhicule n'est plus temporaire
+                closeModal('create-covoit-modal');
+                location.reload(); // Recharger la page pour voir le nouveau covoit
+            })
+            .catch(errorData => {
+                // 4. Gérer les erreurs (validation ou serveur)
+                let errorMessage = 'Une erreur inattendue est survenue.';
+                if (errorData && errorData.errors) {
+                    // Erreurs validation de Laravel
+                    const errors = Object.values(errorData.errors).flat();
+                    errorMessage = errors.join('<br>');
+                } else if (errorData && errorData.message) {
+                    // Erreur serveur ou autre
+                    errorMessage = errorData.message;
+                }
+
+                generalErrorDiv.innerHTML = errorMessage;
+                generalErrorDiv.style.display = 'block';
+
+                // Réactiver le btn
+                submitButton.disabled = false;
+                submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            });
         });
     }
 

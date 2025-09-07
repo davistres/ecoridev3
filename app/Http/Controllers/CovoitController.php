@@ -8,6 +8,7 @@ use App\Http\Requests\ModifCovoitRequest;
 use App\Models\Covoiturage;
 use App\Models\Voiture;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -29,7 +30,7 @@ class CovoitController extends Controller
     }
 
     // Stock les nouveaux covoit créés
-    public function store(StoreCovoiturageRequest $request): RedirectResponse
+    public function store(StoreCovoiturageRequest $request): JsonResponse|RedirectResponse
     {
         // On récupére ici toutes les données déjà validées par StoreCovoiturageRequest
         $validated = $request->validated();
@@ -44,9 +45,16 @@ class CovoitController extends Controller
         try {
             // On enregistre le covoitdans la base de donnée
             Covoiturage::create($validated);
+
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'trip-created']);
+            }
             return Redirect::route('dashboard')->with('status', 'trip-created');
+
         } catch (\Exception $e) {
-            // En cas d'erreur
+            if ($request->wantsJson()) {
+                return response()->json(['error' => 'Une erreur est survenue lors de la création du trajet.'], 500);
+            }
             return Redirect::route('dashboard')->with('error', 'Une erreur est survenue lors de la création du trajet.');
         }
     }
