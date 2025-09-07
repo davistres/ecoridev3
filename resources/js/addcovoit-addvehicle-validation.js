@@ -239,5 +239,29 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('addcovoit-addvehicle-modal').classList.remove('hidden');
             document.body.classList.add('overflow-hidden');
         };
+
+        // Fermer addcovoit-addvehicle-modal et retourner à create-covoit-modal
+        window.closeAddCovoitVehicleModal = function() {
+            const modal = document.getElementById('addcovoit-addvehicle-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+
+            // Suppr le véhicule temporaire (si y en a un)
+            if (window.temporaryVehicleId) {
+                fetch(`/voitures/${window.temporaryVehicleId}/temporary`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    }
+                }).then(() => {
+                    window.temporaryVehicleId = null;
+                }).catch(error => console.error('Erreur lors de la suppression du véhicule temporaire:', error));
+            }
+
+            openModal('create-covoit-modal', false);
+            restoreCovoitFormData();
+        }
     }
 });

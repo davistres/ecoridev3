@@ -1,12 +1,13 @@
 <!-- Pop-up addcovoit-addvehicle-modal -->
-<div id="addcovoit-addvehicle-modal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden"
-    onclick="closeAddCovoitVehicleModal()">
-    <div class="bg-white rounded-lg p-8 max-w-2xl w-full mx-4 overflow-y-auto max-h-screen"
+<div id="addcovoit-addvehicle-modal"
+    class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden"
+    onclick="window.closeAddCovoitVehicleModal()">
+    <div class="bg-white rounded-lg p-8 max-w-2xl w-full mx-4 overflow-y-auto max-h-screen z-10"
         onclick="event.stopPropagation()">
         <!-- Header -->
         <div class="flex justify-between items-center mb-6 border-b pb-4">
             <h2 class="text-2xl font-bold text-gray-800">Ajouter un véhicule</h2>
-            <button onclick="closeAddCovoitVehicleModal()"
+            <button onclick="window.closeAddCovoitVehicleModal()"
                 class="text-gray-500 hover:text-gray-800 text-3xl leading-none">&times;</button>
         </div>
 
@@ -66,8 +67,8 @@
                 </div>
                 <div>
                     <label for="addcovoit-n_place" class="block font-semibold text-gray-700">Nombre de places</label>
-                    <input type="number" id="addcovoit-n_place" name="n_place" min="2" max="9" value="2"
-                        required
+                    <input type="number" id="addcovoit-n_place" name="n_place" min="2" max="9"
+                        value="2" required
                         class="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1">
                     <small class="text-slate-500">Minimum 2, maximum 9.</small>
                 </div>
@@ -88,8 +89,8 @@
 
             <!-- Boutons -->
             <div class="flex justify-end space-x-3 pt-6 border-t">
-                <button type="button" onclick="closeAddCovoitVehicleModal()"
-                    class="px-6 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">
+                <button type="button" onclick="window.closeAddCovoitVehicleModal()"
+                    class="px-4 py-2 text-sm font-semibold text-white bg-slate-500 rounded-lg hover:bg-slate-600 transition-colors duration-300">
                     Annuler
                 </button>
                 <button type="submit"

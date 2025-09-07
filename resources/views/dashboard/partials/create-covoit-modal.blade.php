@@ -13,8 +13,7 @@
         <p class="text-sm text-red-600 mb-6">Tous les champs ayant un astérisque (*) sont OBLIGATOIRES !</p>
 
         <!-- Body -->
-        <form id="createCovoitForm" action="{{ route('covoiturages.store') }}" method="POST"
-            onsubmit="return validateCovoitForm(this)">
+        <form id="createCovoitForm" action="{{ route('covoiturages.store') }}" method="POST">
             @include('dashboard.partials._covoit-modal-form', ['prefix' => 'create'])
         </form>
     </div>

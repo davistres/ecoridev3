@@ -22,6 +22,14 @@ class DashboardController extends Controller
             ->where('user_id', $user->user_id)
             ->where('trip_completed', 0)
             ->where('cancelled', 0)
+            ->whereHas('voiture') // Problème fondamental lié a comment j'ai structuré la base de donnée (qui interdit de suppr une voiture si elle est référencée dans un covoit, pour garantir l'intégrité des données pour l'historique avec ON DELETE RESTRICT)
+            // Problème si les covoits d'une voiture n'ont jamais été choisis (ou suppr avant), normalement, il n'y a pas de raison de garder tout cela (les covoits et la voiture) dans la base de donnée... Car on n'a pas besoin de réellement tout lister dans l'historique... L"historique étant là surout pour lister les cvoits qui ont été choisis.
+            // Pour empêcher l'erreur "erreur Attempt to read property "brand" on null" d'apparaitre, j'ai utilisé whereHas('voiture') pour ne récupérer que les covoits qui ont une voiture associée.
+            // Je ne sais pas quoi faire!!!! Ce système de soft delete m'arange bien et permet aussi potentiellement de créer des historiques plus complexe (d'afficher les covoit annulés car la voiture a été supprimée par ex), mais en même temps, cela complique la logique et peut créer des bugs (comme celui que j'ai eu).
+            // PROBLEME POTENTIEL: Si quelqu'un n'est plus chauffeur, mais qu'il le redevient! Peux-il réenregistrer la même voiture? Normalement non, car le numéro de plaque est unique?
+            // Solution possible: Lors de la suppr d'une voiture, si elle a des covoits associés, on peut juste la dissocier de l'utilisateur (mettre user_id à null) et la garder en base de donnée pour l'historique. Mais dans ce cas, il faut aussi gérer le cas où un utilisateur réenregistre une voiture qu'il avait déjà enregistrée avant (et qui est dissociée de lui mais toujours en base de donnée). Dans ce cas, on pourrait permettre la réassociation de la voiture à l'utilisateur si le numéro de plaque correspond (en mettant à jour le user_id).
+            // mais il faut s'assurer que cela ne crée pas de conflits ou des incohérences dans la base de donnée.
+            // TODO: Creuser tout ça et trancher!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             ->orderBy('departure_date', 'asc')
             ->orderBy('departure_time', 'asc')
             ->get();

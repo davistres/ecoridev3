@@ -439,8 +439,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const createCovoitForm = document.getElementById('createCovoitForm');
     if (createCovoitForm) {
         createCovoitForm.addEventListener('submit', function(event) {
-            // Si valide, le véhicule n'est plus temporaire
-            if (validateCovoitForm(this)) {
+            if (!validateCovoitForm(this)) {
+                event.preventDefault(); // Empêche la soumission si la validation échoue
+            } else {
+                // Si valide, le véhicule n'est plus temporaire
                 window.temporaryVehicleId = null;
             }
         });
