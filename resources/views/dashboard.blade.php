@@ -313,7 +313,7 @@
                 const covoiturageCards = document.querySelectorAll('.covoiturage-card');
                 covoiturageCards.forEach(card => {
                     const tripToggles = card.querySelector('.trip-status-toggle');
-                    const modifierBtn = card.querySelector('button[onclick^="openEditVehicleModal"]');
+                    const modifierBtn = card.querySelector('button[onclick^="openModifModal"]');
                     const annulerForm = card.querySelector('form input[name="_method"][value="DELETE"]')
                         ?.closest('form');
                     const startBtn = card.querySelector('.start-trip-btn');

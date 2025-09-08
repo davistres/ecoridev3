@@ -213,6 +213,17 @@ document.addEventListener('DOMContentLoaded', function() {
     window.openAddCovoitVehicleModal = function() {
         saveCovoitFormData();
         closeModal('create-covoit-modal');
+
+        // Réinit le formulaire
+        const form = document.getElementById('addCovoitVehicleForm');
+        if (form) {
+            form.reset();
+            const immatError = document.getElementById('addcovoit-immat_error');
+            if (immatError) {
+                immatError.textContent = '';
+            }
+        }
+
         openModal('addcovoit-addvehicle-modal');
     };
 

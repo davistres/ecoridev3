@@ -76,7 +76,7 @@ class VoitureController extends Controller
     }
 
     /** Mise à jour des infos d'une voiture */
-    public function update(UpdateVoitureRequest $request, Voiture $voiture): RedirectResponse
+    public function update(UpdateVoitureRequest $request, Voiture $voiture): JsonResponse|RedirectResponse
     {
         // Au cas où... On vérifie que la voiture appartient bien à l'utilisateur
         if (Auth::id() !== $voiture->user_id) {
@@ -84,6 +84,37 @@ class VoitureController extends Controller
         }
 
         $validated = $request->validated();
+        $user = Auth::user();
+
+        // La plaque d'immat existe t-elle déjà avec un autre véhicule?
+        $existingVoiture = Voiture::withTrashed()
+            ->where('immat', $validated['immat'])
+            ->where('voiture_id', '!=', $voiture->voiture_id) // le véhicule actuel est exclu de la recherche
+            ->first();
+
+        if ($existingVoiture) {
+            $errorMessage = null;
+            $contactLink = '<a href="' . route('contact') . '" class="font-bold underline">contactez-nous</a>';
+
+            // CAS 1: La plaque appartient déjà à un autre véhicule de l'utilisateur
+            if ($existingVoiture->user_id == $user->user_id) {
+                $errorMessage = "Vous avez déjà enregistré un véhicule ayant la même plaque d’immatriculation ! Si vous avez commis une erreur, vous devez d’abord la corriger avant de saisir le bon véhicule.";
+            }
+            // CAS 2: La plaque appartient à un autre utilisateur
+            else {
+                $errorMessage = "Êtes-vous sûr du numéro de plaque ? Cette plaque est déjà utilisée. Si vous pensez qu'il sagit d'une erreur, " . $contactLink . ".";
+            }
+
+            // Contrairemment au formulaire pour ajouter un véhicule, edit-vehicle-modal n'utilise pas AJAX
+            // $request->wantsJson() sera toujours faux ici! Mais je garde ce bloc de code pour assurer la cohérence entre la méthode store() et la méthode update()
+            if ($request->wantsJson()) {
+                return response()->json(['errors' => ['immat' => [$errorMessage]]], 422);
+            }
+
+            return Redirect::back()->withErrors(['immat' => $errorMessage])->withInput();
+        }
+
+        // Si tout est bon, on met à jour la voiture
         $voiture->update($validated);
 
         return Redirect::route('dashboard')->with('status', 'vehicle-updated');

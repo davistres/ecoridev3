@@ -185,6 +185,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 //GESTION DES VÉHICULES (CRUD)                      ==
+window.resetAddVehicleModal = function() {
+    const modal = document.getElementById('add-vehicle-modal');
+    if (!modal) return;
+
+    // Réinit le formulaire
+    const form = modal.querySelector('#addVehicleForm');
+    if (form) {
+        form.reset();
+    }
+
+    // Suppr le message d'erreur
+    const generalErrorContainer = modal.querySelector('#add-vehicle-errors');
+    if (generalErrorContainer) {
+        const ul = generalErrorContainer.querySelector('ul');
+        if (ul) {
+            ul.innerHTML = '';
+        }
+        generalErrorContainer.classList.add('hidden');
+    }
+
+    // Suppr le message d'erreur du champ immat
+    const immatError = modal.querySelector('#add-immat-error');
+    if (immatError) {
+        immatError.innerHTML = '';
+    }
+};
+
+window.resetEditVehicleModal = function() {
+    const modal = document.getElementById('edit-vehicle-modal');
+    if (!modal) return;
+
+    // Suppr le message d'erreur
+    const generalErrorContainer = modal.querySelector('#edit-vehicle-errors');
+    if (generalErrorContainer) {
+        const ul = generalErrorContainer.querySelector('ul');
+        if (ul) {
+            ul.innerHTML = '';
+        }
+        generalErrorContainer.classList.add('hidden');
+    }
+
+    // Suppr le message d'erreur du champ immat
+    const immatError = modal.querySelector('#edit-immat-error');
+    if (immatError) {
+        immatError.innerHTML = '';
+    }
+};
+
 function openEditVehicleModal(voiture) {
     // Réinit la modale avant de la remplir
     if (typeof window.resetEditVehicleModal === 'function') {
