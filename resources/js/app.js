@@ -3,7 +3,6 @@ import './popup.js';
 import './covoit-form-validation.js';
 import './driverinfo-form-validation.js';
 import './edit-preferences-form-validation.js';
-import './vehicle-form-validation.js';
 import './addcovoit-addvehicle-validation.js';
 
 import Alpine from 'alpinejs';

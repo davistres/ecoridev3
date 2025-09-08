@@ -515,6 +515,69 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Validation modif-covoit-modal
+    const modifCovoitForm = document.getElementById('modifCovoitForm');
+    if (modifCovoitForm) {
+        modifCovoitForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const form = this;
+            const generalErrorDiv = form.querySelector('#modif_form-general-error');
+            const submitButton = form.querySelector('button[type="submit"]');
+
+            if (!validateCovoitForm(form)) {
+                if (!generalErrorDiv.textContent) {
+                    generalErrorDiv.textContent = 'Le formulaire contient des erreurs. Veuillez vérifier tous les champs.';
+                }
+                generalErrorDiv.style.display = 'block';
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+            generalErrorDiv.style.display = 'none';
+            generalErrorDiv.textContent = '';
+
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => {
+                if (response.status === 422) {
+                    return response.json().then(data => Promise.reject(data));
+                }
+                if (!response.ok) {
+                    throw new Error('Une erreur serveur est survenue.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                closeModal('modif-covoit-modal');
+                location.reload();
+            })
+            .catch(errorData => {
+                let errorMessage = 'Une erreur inattendue est survenue.';
+                if (errorData && errorData.errors) {
+                    const errors = Object.values(errorData.errors).flat();
+                    errorMessage = errors.join('<br>');
+                } else if (errorData && errorData.message) {
+                    errorMessage = errorData.message;
+                }
+                generalErrorDiv.innerHTML = errorMessage;
+                generalErrorDiv.style.display = 'block';
+
+                submitButton.disabled = false;
+                submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            });
+        });
+    }
+
     // Réinit pour create-covoit-modal
     window.resetCreateCovoitModal = function() {
         const createForm = document.getElementById('createCovoitForm');

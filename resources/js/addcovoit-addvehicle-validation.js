@@ -1,12 +1,16 @@
-// Validation pour addcovoit-addvehicle-modal
+// VALIDATION ET DE SOUMISSION POUR TOUTES LES MODALES DE VÉHICULE
 document.addEventListener('DOMContentLoaded', function() {
-    const addCovoitVehicleForm = document.getElementById('addCovoitVehicleForm');
 
-    if (addCovoitVehicleForm) {
-        // Stocker les données du formulaire create-covoit
-        let savedCovoitFormData = {};
+    const setupVehicleModal = (formId, prefix) => {
+        const form = document.getElementById(formId);
+        if (!form) return;
 
-        // Même logique que add-vehicle-modal => valadation des entrées
+        // Validation côté client
+        const modelInput = form.querySelector(`#${prefix}-model`);
+        const brandInput = form.querySelector(`#${prefix}-brand`);
+        const colorInput = form.querySelector(`#${prefix}-color`);
+        const immatInput = form.querySelector(`#${prefix}-immat`);
+
         const validateFirstCharIsAlphaNum = (event) => {
             const input = event.target;
             let value = input.value;
@@ -67,86 +71,38 @@ document.addEventListener('DOMContentLoaded', function() {
             input.value = formattedValue;
         };
 
-        // Appliquer les validations
-        const modelInput = addCovoitVehicleForm.querySelector('#addcovoit-model');
-        const brandInput = addCovoitVehicleForm.querySelector('#addcovoit-brand');
-        const colorInput = addCovoitVehicleForm.querySelector('#addcovoit-color');
-        const immatInput = addCovoitVehicleForm.querySelector('#addcovoit-immat');
-
         if (modelInput) modelInput.addEventListener('input', validateFirstCharIsAlphaNum);
         if (brandInput) brandInput.addEventListener('input', validateBrandAndColor);
         if (colorInput) colorInput.addEventListener('input', validateBrandAndColor);
         if (immatInput) immatInput.addEventListener('input', validateImmat);
 
-        // Validation pour la soumission
-        addCovoitVehicleForm.addEventListener('submit', function(event) {
+        // Soumission formulaire
+        form.addEventListener('submit', function(event) {
             event.preventDefault();
 
             const immatValue = immatInput.value.toUpperCase();
-            const immatError = addCovoitVehicleForm.querySelector('#addcovoit-immat_error');
+            const immatError = form.querySelector(`#${prefix}-immat-error`);
+            const generalErrorContainer = form.querySelector(`#${prefix}-vehicle-errors`);
+            const submitButton = form.querySelector('button[type="submit"]');
             const validImmatRegex = /^[A-Z]{2}[-]?[0-9]{3}[-]?[A-Z]{2}$/;
 
+            // Réinit des erreurs
+            if(immatError) immatError.innerHTML = '';
+            if(generalErrorContainer) generalErrorContainer.classList.add('hidden');
+
+            // Validation du format
             if (!validImmatRegex.test(immatValue)) {
-                immatError.textContent = 'Le format de l\'immatriculation est invalide.';
+                if (immatError) immatError.innerHTML = 'Le format de l\'immatriculation est invalide.';
                 return;
-            } else {
-                immatError.textContent = '';
             }
 
-            // Soumettre le véhicule via AJAX
-            submitVehicleForCovoit();
-        });
+            submitButton.disabled = true;
+            submitButton.classList.add('opacity-50');
 
-        // Sauvegarder les données de create-covoit
-        window.saveCovoitFormData = function() {
-            const createForm = document.getElementById('createCovoitForm');
-            if (!createForm) return;
+            const formData = new FormData(form);
+            const method = form.querySelector('input[name="_method"]')?.value || 'POST';
 
-            savedCovoitFormData = {};
-            const formData = new FormData(createForm);
-            for (let [key, value] of formData.entries()) {
-                // Ne pas sauvegarder la valeur "add_car" du select véhicule
-                // car ce n'est pas une donnée (une voiture) mais un déclencheur pour ouvrire la modale addcovoit-addvehicle-modal
-                // voiture_id (ou create_voiture_id_select) est l'id du select contenant l'option "add_car"
-                if (key === 'voiture_id' && value === 'add_car') {
-                    continue;
-                }
-                savedCovoitFormData[key] = value;
-            }
-        };
-
-        // Restaure les données de create-covoit
-        window.restoreCovoitFormData = function() {
-            const createForm = document.getElementById('createCovoitForm');
-            if (!createForm || !savedCovoitFormData) return;
-
-            for (let [key, value] of Object.entries(savedCovoitFormData)) {
-                const input = createForm.querySelector(`[name="${key}"]`);
-                if (input && value) {
-                    // La valeur du select véhicule est déjà sur le nouveau véhicule => pas la peind e la restaurer
-                    if (key === 'voiture_id') {
-                        continue;
-                    }
-                    input.value = value;
-
-                    // Si on sort de addcovoit-addvehicle-modal => donc on retourne OBLIGATOIREMENT sur create-covoit-modal
-                    // Donc, si on avait déjà entré une date et une heure de départ, ça va remettre les valeurs
-                    // Problème: des champs dépendent d'autres champs (ex: jour et heures d'arrivée)!
-                    // SOLUTION: on simule un clic avec l'événement 'change' pour forcer la mise à jour du reste du formulaire
-                    if (key === 'departure_date' || key === 'departure_time') {
-                        input.dispatchEvent(new Event('change'));
-                    }
-                }
-            }
-        };
-
-        // Pour soumettre un véhicule
-        function submitVehicleForCovoit() {
-            const formData = new FormData(addCovoitVehicleForm);
-            // On met ici toutes les données du formulaire create-covoit dans un objet (formData) contruit en sivant le modéle de "FormData" prêt à être envoyé
-
-            // Pour parler au serveur sans recharcher la page (en AJAX donc) => fetch
-            fetch('/voitures', {
+            fetch(form.action, {
                 method: 'POST',
                 body: formData, // On retrouve ici le contenu de notre envoi (= les données du formulaire)
                 headers: {
@@ -159,109 +115,123 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .then(response => {
-                // Si la requête n'est pas OK
-                if (!response.ok) {
-                    if (response.status === 422) { // 422 => erreur de validation larravel
-                        return response.json().then(errorData => {
-                            // On construit un message d'erreur en lisant le contenu de l'erreur
-                            const errors = errorData.errors || {};
-                            let errorMessage = 'Erreurs de validation:\n';
-                            for (const [field, messages] of Object.entries(errors)) {
-                                errorMessage += `- ${field}: ${messages.join(', ')}
-`;
-                            }
-                            // et on lance une erreur pour être capturée par le .catch()
-                            throw new Error(errorMessage);
-                        });
-                    }
-                    // Pour toutes autres erreurs, on déclenche ceci
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                if (response.status === 422) {
+                    return response.json().then(data => Promise.reject(data));
                 }
-                // Si on arrive là, c'est que la requête a réussi (en Json)
-                // On passe alors au .then()
+                if (!response.ok) {
+                    throw new Error('Une erreur serveur est survenue.');
+                }
                 return response.json();
             })
             .then(data => {
-                if (data.success) { // Si tout est ok => data contient la réponse du serveur (sucess: true, voiture: {données du véhicule}...)
-                    // On sauve l'id du véhicule temporaire dans une variable globale
-                    window.temporaryVehicleId = data.voiture.voiture_id;
-
-                    // on trouve le select
-                    const vehicleSelect = document.getElementById('create_voiture_id_select');
-
-                    // Dans le select, on crée une nouvelle option
-                    const newOption = document.createElement('option');
-                    newOption.value = data.voiture.voiture_id;
-                    newOption.textContent = `${data.voiture.brand} ${data.voiture.model} (${data.voiture.immat})`;
-                    newOption.setAttribute('data-places', data.voiture.n_place);
-
-                    // On insère cette option AVANT l'optgroup
-                    const addCarOptgroup = vehicleSelect.querySelector('optgroup');
-                    vehicleSelect.insertBefore(newOption, addCarOptgroup);
-
-                    // On sélectionne cette option
-                    vehicleSelect.value = data.voiture.voiture_id;
-
-                    // On déclenche l'événement change pour simuler un clic et mettre à jour les champs dépendants (le nombre de places)
-                    vehicleSelect.dispatchEvent(new Event('change', { bubbles: true }));
-
-                    // on ferme la modale pour ajouter un véhicule
-                    document.getElementById('addcovoit-addvehicle-modal').classList.add('hidden');
-                    addCovoitVehicleForm.reset();
-                    const immatError = addCovoitVehicleForm.querySelector('#addcovoit-immat_error');
-                    if (immatError) immatError.textContent = '';
-
-
-                    // On réouvre la modale de création de covoi sans la réinit
-                    openModal('create-covoit-modal', false);
-
-                    // On restaure les données du formulaire create-covoit (que l'utilisateur avait déjà entré)
-                    restoreCovoitFormData();
-
+                // Si c'est la modale "addcovoit", on gère la logique spécifique
+                if (formId === 'addCovoitVehicleForm' && data.success) {
+                    handleSuccessForAddCovoit(data.voiture);
                 } else {
-                    alert('Erreur lors de l\'ajout du véhicule');
+                    // Pour les autres modales, on recharge simplement la page
+                    location.reload();
                 }
             })
-            // Filet de sécu classique pour attraper une erreur (de n'importe où) et l'afficher dans la console
             .catch(error => {
-                console.error('Erreur:', error);
-                alert('Erreur lors de l\'ajout du véhicule: ' + error.message);
-            });
-        }
-
-        // Ouvrir addcovoit-addvehicle-modal (la modale d'ajout de véhicule) depuis create-covoit-modal (la modale de covoiturage)
-        window.openAddCovoitVehicleModal = function() {
-            // Sauve les données du formulaire create-covoit
-            saveCovoitFormData();
-
-            closeModal('create-covoit-modal');
-
-            document.getElementById('addcovoit-addvehicle-modal').classList.remove('hidden');
-            document.body.classList.add('overflow-hidden');
-        };
-
-        // Fermer addcovoit-addvehicle-modal et retourner à create-covoit-modal
-        window.closeAddCovoitVehicleModal = function() {
-            const modal = document.getElementById('addcovoit-addvehicle-modal');
-            if (modal) {
-                modal.classList.add('hidden');
-            }
-
-            // Suppr le véhicule temporaire (si y en a un)
-            if (window.temporaryVehicleId) {
-                fetch(`/voitures/${window.temporaryVehicleId}/temporary`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
+                // Si c'est une erreur de validation de Laravel
+                if (error && error.errors) {
+                    // Ou afficher l'erreur pour le champ 'immat'?
+                    const immatErrorDiv = form.querySelector(`#${prefix}-immat_error`);
+                    if (error.errors.immat && immatErrorDiv) {
+                        immatErrorDiv.innerHTML = error.errors.immat[0];
+                    } else {
+                        // Si c'est autre erreur de validation => on l'affiche dans le conteneur principal
+                        const generalErrorDiv = form.querySelector(`#${prefix}-vehicle-errors ul`);
+                        if (generalErrorDiv) {
+                            generalErrorDiv.innerHTML = '';
+                            Object.values(error.errors).flat().forEach(msg => {
+                                const li = document.createElement('li');
+                                li.innerHTML = msg;
+                                generalErrorDiv.appendChild(li);
+                            });
+                            generalErrorDiv.parentElement.classList.remove('hidden');
+                        }
                     }
-                }).then(() => {
-                    window.temporaryVehicleId = null;
-                }).catch(error => console.error('Erreur lors de la suppression du véhicule temporaire:', error));
-            }
+                } else {
+                    // Erreur = alerte
+                    alert(error.message || 'Une erreur inattendue est survenue.');
+                }
+            })
+            .finally(() => {
+                submitButton.disabled = false;
+                submitButton.classList.remove('opacity-50');
+            });
+        });
+    };
 
-            openModal('create-covoit-modal', false);
-            restoreCovoitFormData();
+    // Logique addcovoit-addvehicle
+    let savedCovoitFormData = {};
+
+    const handleSuccessForAddCovoit = (voiture) => {
+        window.temporaryVehicleId = voiture.voiture_id;
+        const vehicleSelect = document.getElementById('create_voiture_id_select');
+        const newOption = document.createElement('option');
+        newOption.value = voiture.voiture_id;
+        newOption.textContent = `${voiture.brand} ${voiture.model} (${voiture.immat})`;
+        newOption.setAttribute('data-places', voiture.n_place);
+        const addCarOptgroup = vehicleSelect.querySelector('optgroup');
+        vehicleSelect.insertBefore(newOption, addCarOptgroup);
+        vehicleSelect.value = voiture.voiture_id;
+        vehicleSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        closeModal('addcovoit-addvehicle-modal');
+        document.getElementById('addCovoitVehicleForm').reset();
+        openModal('create-covoit-modal', false);
+        restoreCovoitFormData();
+    };
+
+    window.saveCovoitFormData = function() {
+        const createForm = document.getElementById('createCovoitForm');
+        if (!createForm) return;
+        savedCovoitFormData = {};
+        const formData = new FormData(createForm);
+        for (let [key, value] of formData.entries()) {
+            if (key !== 'voiture_id' || value !== 'add_car') {
+                savedCovoitFormData[key] = value;
+            }
         }
-    }
+    };
+
+    window.restoreCovoitFormData = function() {
+        const createForm = document.getElementById('createCovoitForm');
+        if (!createForm || !savedCovoitFormData) return;
+        for (let [key, value] of Object.entries(savedCovoitFormData)) {
+            const input = createForm.querySelector(`[name="${key}"]`);
+            if (input && value && key !== 'voiture_id') {
+                input.value = value;
+                if (key === 'departure_date' || key === 'departure_time') {
+                    input.dispatchEvent(new Event('change'));
+                }
+            }
+        }
+    };
+
+    window.openAddCovoitVehicleModal = function() {
+        saveCovoitFormData();
+        closeModal('create-covoit-modal');
+        openModal('addcovoit-addvehicle-modal');
+    };
+
+    window.closeAddCovoitVehicleModal = function() {
+        closeModal('addcovoit-addvehicle-modal');
+        if (window.temporaryVehicleId) {
+            fetch(`/voitures/${window.temporaryVehicleId}/temporary`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                }
+            }).then(() => window.temporaryVehicleId = null);
+        }
+        openModal('create-covoit-modal', false);
+        restoreCovoitFormData();
+    };
+
+    setupVehicleModal('addCovoitVehicleForm', 'addcovoit');
+    setupVehicleModal('addVehicleForm', 'add');
+    setupVehicleModal('editVehicleForm', 'edit');
 });

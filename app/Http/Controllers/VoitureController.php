@@ -18,18 +18,56 @@ class VoitureController extends Controller
     public function store(StoreVoitureRequest $request): JsonResponse|RedirectResponse
     {
         $validated = $request->validated();
-        $validated['user_id'] = Auth::id();
+        $user = Auth::user();
 
-        $voiture = Voiture::create($validated);
+        // Recherche une voiture avec la même immat, y compris les "soft-deleted"
+        $existingVoiture = Voiture::withTrashed()->where('immat', $validated['immat'])->first();
+
+        $contactLink = '<a href="' . route('contact') . '" class="font-bold underline">contactez-nous</a>';
+
+        if ($existingVoiture) {
+            $errorMessage = null;
+
+            // CAS 1: La voiture existe et est active (pas soft-deleted)
+            if (!$existingVoiture->trashed()) {
+                // CAS 1.1: La voiture appartient à l'utilisateur actuel
+                if ($existingVoiture->user_id == $user->user_id) {
+                    $errorMessage = "Vous avez déjà enregistré un véhicule ayant la même plaque d’immatriculation ! Si vous avez commis une erreur, vous devez d’abord la corriger avant de saisir le bon véhicule.";
+                }
+                // CAS 1.2: La voiture est déjà attribuée à un autre utilisateur
+                else {
+                    $errorMessage = "Êtes-vous sûr du numéro de plaque ? Cette plaque est déjà utilisée. Si vous pensez qu'il s'agit d'une erreur, " . $contactLink . ".";
+                }
+            }
+            // CAS 2: La voiture existe mais a été soft-deleted
+            elseif ($existingVoiture->user_id != $user->user_id) {
+                $errorMessage = "Êtes-vous sûr du numéro de plaque ? Cette plaque a déjà été enregistrée par un autre utilisateur. Si vous pensez qu'il s'agit d'une erreur, " . $contactLink . ".";
+            }
+
+            // Si y a un message d'erreur => on arrête tout
+            if ($errorMessage) {
+                // Requete AJAX
+                if ($request->wantsJson()) {
+                    return response()->json(['errors' => ['immat' => [$errorMessage]]], 422);
+                }
+                // Standards
+                return Redirect::back()->withErrors(['immat' => $errorMessage])->withInput();
+            }
+
+            // CAS 3: La voiture existait, mais elle est soft-deleted + elle appartenait à l'utilisateur => on la restaure
+            if ($existingVoiture->user_id == $user->user_id) {
+                $existingVoiture->restore();
+                $existingVoiture->update($validated);
+                $voiture = $existingVoiture;
+            }
+        } else {
+            // CAS 4: La voiture n'existe pas du tout -> on la crée
+            $validated['user_id'] = $user->user_id;
+            $voiture = Voiture::create($validated);
+        }
 
         /** addcovoit-addvehicle-modal envoie une demande une Ajax */
-        /** Ici donc, on vérifie que c'est bien le cas pour retourner du JSON */
-        /** Je n'ai pas compris cette logique!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Mais pour cela, on doit vérifier deux choses avec: */
-        /** expectsJson() vérifie si la requête attend une réponse JSON  et ajax() vérifie si la requête est une requête AJAX. */
-        /** ajax() je comprends!!!! Mais pourquoi expectsJson()???? */
-        /** expectsJson() est une méthode de la classe Request de Laravel qui vérifie si la requête attend une réponse JSON. ajax() vérifie si la requête est une requête AJAX. */
-        /** TODO! Je dois essayer de creuser ceci pour comprendre */
-        if ($request->expectsJson() || $request->ajax()) {
+        if ($request->wantsJson()) {
             return response()->json(['success' => true, 'voiture' => $voiture]);
         }
 

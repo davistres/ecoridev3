@@ -26,4 +26,11 @@ class UpdateVoitureRequest extends FormRequest
             'edit_vehicle_details' => ['nullable', new Honeypot],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'immat.unique' => 'Cette plaque d\'immatriculation est déjà utilisée par un autre véhicule.',
+        ];
+    }
 }

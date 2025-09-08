@@ -12,7 +12,7 @@
         </div>
 
         <!-- Body -->
-        <form id="addCovoitVehicleForm">
+        <form id="addCovoitVehicleForm" action="{{ route('voitures.store') }}" method="POST">
             @csrf
 
             <!--Honeypot-->

@@ -50,4 +50,35 @@ class ModifCovoitRequest extends FormRequest
             'price' => ['required', 'integer', 'min:0'],
         ];
     }
+
+    // Empêcher le chevauchement des covoits
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $user = $this->user();
+            $covoiturageIdToExclude = $this->route('covoiturage')->covoit_id;
+
+            $newDepartureDateTime = \Carbon\Carbon::parse($this->input('departure_date') . ' ' . $this->input('departure_time'));
+            $newArrivalDateTime = \Carbon\Carbon::parse($this->input('arrival_date') . ' ' . $this->input('arrival_time'));
+
+            $existingCovoiturages = \App\Models\Covoiturage::where('user_id', $user->user_id)
+                ->where('covoit_id', '!=', $covoiturageIdToExclude)
+                ->where('cancelled', 0)
+                ->get();
+
+            foreach ($existingCovoiturages as $existingCovoiturage) {
+                $existingDepartureDateTime = \Carbon\Carbon::parse($existingCovoiturage->departure_date . ' ' . $existingCovoiturage->departure_time);
+                $existingArrivalDateTime = \Carbon\Carbon::parse($existingCovoiturage->arrival_date . ' ' . $existingCovoiturage->arrival_time);
+
+                if ($newDepartureDateTime < $existingArrivalDateTime && $newArrivalDateTime > $existingDepartureDateTime) {
+                    $validator->errors()->add(
+                        'overlap',
+                        'Vous ne pouvez pas modifier ce covoiturage car il se chevauche avec un autre de vos trajets prévus entre le ' .
+                            $existingDepartureDateTime->format('d/m/Y à H:i') . ' et le ' . $existingArrivalDateTime->format('d/m/Y à H:i') . '.'
+                    );
+                    break;
+                }
+            }
+        });
+    }
 }

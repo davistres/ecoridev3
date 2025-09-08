@@ -280,5 +280,6 @@ return [
         'winner'                   => 'winner',
         'work'                     => 'work',
         'year'                     => 'année',
+        'immat'                    => 'plaque d\'immatriculation',
     ],
 ];

@@ -13,7 +13,7 @@
         <p class="text-sm text-red-600 mb-6">Tous les champs ayant un astérisque (*) sont OBLIGATOIRES !</p>
 
         <!-- Body -->
-        <form id="modifCovoitForm" action="" method="POST" onsubmit="return validateCovoitForm(this)" data-action-base="{{ route('covoiturages.update', ['covoiturage' => '__COVOITURAGE_ID__']) }}">
+        <form id="modifCovoitForm" action="" method="POST" data-action-base="{{ route('covoiturages.update', ['covoiturage' => '__COVOITURAGE_ID__']) }}">
             @csrf
             @method('PATCH')
             <input type="hidden" id="covoiturage_id" name="covoiturage_id">

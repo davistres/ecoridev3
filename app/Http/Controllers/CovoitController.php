@@ -59,7 +59,7 @@ class CovoitController extends Controller
         }
     }
 
-    public function update(ModifCovoitRequest $request, Covoiturage $covoiturage): RedirectResponse
+    public function update(ModifCovoitRequest $request, Covoiturage $covoiturage): JsonResponse|RedirectResponse
     {
         $validated = $request->validated();
 
@@ -69,8 +69,16 @@ class CovoitController extends Controller
 
         try {
             $covoiturage->update($validated);
+
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'trip-updated']);
+            }
             return Redirect::route('dashboard')->with('status', 'trip-updated');
+
         } catch (\Exception $e) {
+            if ($request->wantsJson()) {
+                return response()->json(['error' => 'Une erreur est survenue lors de la mise à jour du trajet.'], 500);
+            }
             return Redirect::route('dashboard')->with('error', 'Une erreur est survenue lors de la mise à jour du trajet.');
         }
     }
