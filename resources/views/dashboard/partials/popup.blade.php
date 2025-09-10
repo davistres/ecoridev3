@@ -3,7 +3,8 @@
     <div class="bg-white rounded-lg p-8 max-w-md w-full">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-2xl font-bold">Changer la photo de profil</h2>
-            <button onclick="closeModal('photoModal')" class="text-gray-500 hover:text-gray-800 text-3xl leading-none">&times;</button>
+            <button onclick="closeModal('photoModal')"
+                class="text-gray-500 hover:text-gray-800 text-3xl leading-none">&times;</button>
         </div>
 
         <div class="profile-photo-container">
@@ -209,7 +210,7 @@
         const photoSubmitBtn = document.getElementById('profile-photo-submit');
         if (photoSubmitBtn) {
             photoSubmitBtn.addEventListener('click', () => document.getElementById('profilePhotoForm')
-        .submit());
+                .submit());
         }
 
         // Variable et logique pour les onglets
@@ -287,7 +288,8 @@
                             Object.keys(errorData.errors).forEach(key => {
                                 const errorDiv = document.getElementById(key + '_error');
                                 if (errorDiv) errorDiv.textContent = errorData.errors[key][
-                                    0];
+                                    0
+                                ];
                             });
                         } else {
                             profileSuccessMessage.textContent =
@@ -310,19 +312,29 @@
             const successColor = '#2ecc71';
             const errorColor = '#ef4444';
 
-            const setPasswordRequirementFeedback = (element, isValid) => {
-                element.innerHTML = isValid ? `✓ ${element.innerText.substring(2)}` :
-                    `✗ ${element.innerText.substring(2)}`;
+            const originalTexts = {
+                length: 'Au moins 8 caractères',
+                uppercase: 'Au moins une majuscule',
+                lowercase: 'Au moins une minuscule',
+                number: 'Au moins un chiffre',
+                symbol: 'Au moins un symbole'
+            };
+
+            const setPasswordRequirementFeedback = (element, isValid, originalText) => {
+                element.innerHTML = isValid ? `✓ ${originalText}` : `✗ ${originalText}`;
                 element.style.color = isValid ? successColor : errorColor;
             };
 
             passwordInput.addEventListener('input', function() {
                 const value = passwordInput.value;
-                setPasswordRequirementFeedback(passLength, value.length >= 8);
-                setPasswordRequirementFeedback(passUppercase, /[A-Z]/.test(value));
-                setPasswordRequirementFeedback(passLowercase, /[a-z]/.test(value));
-                setPasswordRequirementFeedback(passNumber, /[0-9]/.test(value));
-                setPasswordRequirementFeedback(passSymbol, /[^A-Za-z0-9]/.test(value));
+                setPasswordRequirementFeedback(passLength, value.length >= 8, originalTexts.length);
+                setPasswordRequirementFeedback(passUppercase, /[A-Z]/.test(value), originalTexts
+                    .uppercase);
+                setPasswordRequirementFeedback(passLowercase, /[a-z]/.test(value), originalTexts
+                    .lowercase);
+                setPasswordRequirementFeedback(passNumber, /[0-9]/.test(value), originalTexts.number);
+                setPasswordRequirementFeedback(passSymbol, /[^A-Za-z0-9]/.test(value), originalTexts
+                    .symbol);
             });
         }
 

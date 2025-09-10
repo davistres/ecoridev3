@@ -17,10 +17,10 @@ class DemandeRechercheCovoit extends FormRequest
     public function rules(): array
     {
         return [
-            'departure' => 'required|string|max:255',
-            'arrival' => 'required|string|max:255',
-            'date' => 'required|date',
-            'seats' => 'required|integer|min:1|max:8',
+            'departure' => 'nullable|string|max:255',
+            'arrival' => 'nullable|string|max:255',
+            'date' => 'nullable|date',
+            'seats' => 'nullable|integer|min:1|max:8',
             'raison_sociale' => ['nullable', new Honeypot],
         ];
     }

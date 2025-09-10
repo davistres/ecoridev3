@@ -18,6 +18,7 @@ Route::get('/accueil', function () {
 })->name('accueil');
 
 Route::get('/covoiturage', [CovoitController::class, 'index'])->name('covoiturage');
+Route::post('/covoiturage', [CovoitController::class, 'index'])->name('covoiturage.search');
 
 Route::get('/contact', function () {
     return view('contact');
