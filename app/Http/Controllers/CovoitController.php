@@ -160,12 +160,84 @@ class CovoitController extends Controller
             }
         }
 
-        return view('covoiturage', [
+        // Calcule pour les filtres (si résultats)
+        $filterData = [];
+        if ($covoiturages->isNotEmpty()) {
+            $filterData = $this->calculateFilterData($covoiturages);
+        }
+
+        return view('covoiturage', array_merge([
             'covoiturages' => $covoiturages,
             'searchPerformed' => $searchPerformed,
             'input' => $request->all(),
             'errors' => $errors
-        ]);
+        ], $filterData));
+    }
+
+    // FILTRES => calcul
+    private function calculateFilterData($covoiturages)
+    {
+        if ($covoiturages->isEmpty()) {
+            return [];
+        }
+
+        // Prix min/max
+        $prices = $covoiturages->pluck('price')->filter()->values();
+        $minPrice = $prices->min() ?? 0;
+        $maxPrice = $prices->max() ?? 100;
+
+        // Durée min/max (en minutes)
+        $durations = $covoiturages->map(function ($covoiturage) {
+            return $this->timeToMinutes($covoiturage->max_travel_time ?? 120);
+        })->filter()->values();
+
+        $minDuration = $durations->min() ?? 30;
+        $maxDuration = $durations->max() ?? 480;
+
+        return [
+            'min_price' => $minPrice,
+            'max_price' => $maxPrice,
+            'min_duration' => $minDuration,
+            'max_duration' => $maxDuration,
+            'min_duration_formatted' => $this->formatDuration($minDuration),
+            'max_duration_formatted' => $this->formatDuration($maxDuration),
+        ];
+    }
+
+    // Convert en mn
+    private function timeToMinutes($timeString)
+    {
+        if (!$timeString) return 120;
+
+        // Si c'est déjà un nombre, le retourner tel quel
+        if (is_numeric($timeString)) {
+            return (int) $timeString;
+        }
+
+        // Format HH:MM:SS ou HH:MM
+        $parts = explode(':', $timeString);
+        if (count($parts) >= 2) {
+            $hours = (int) ($parts[0] ?? 0);
+            $minutes = (int) ($parts[1] ?? 0);
+            $seconds = count($parts) > 2 ? (int) ($parts[2] ?? 0) : 0;
+
+            return ceil($hours * 60 + $minutes + $seconds / 60);
+        }
+
+        return 120;
+    }
+
+    // Format heure et mn
+    private function formatDuration($minutes)
+    {
+        $hours = floor($minutes / 60);
+        $mins = $minutes % 60;
+
+        if ($hours > 0) {
+            return $hours . 'h' . ($mins > 0 ? ' ' . $mins . 'min' : '');
+        } else {
+            return $mins . 'min';
+        }
     }
 
     // Suggestions de date alternatives (plus complexe)

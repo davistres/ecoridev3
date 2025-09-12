@@ -407,17 +407,25 @@
             </div>
         </section>
 
+        <!-- Section des filtres (si 2 résultats ou plus) -->
+        @if ($covoiturages->count() >= 2)
+            @include('partials.filters')
+        @endif
+
         <!-- Section des résultats ou message si pas de résultats -->
         @if ($covoiturages->isNotEmpty())
             <div class="results-title flex justify-between items-center mb-6">
                 <h2 class="text-xl font-bold text-gray-800">Trajets disponibles</h2>
-                <p class="text-gray-600">{{ $covoiturages->count() }} résultat(s) trouvé(s)</p>
+                <p class="text-gray-600" id="results-count">{{ $covoiturages->count() }} résultat(s) trouvé(s)</p>
             </div>
             <section class="covoiturage-list grid gap-6">
                 @foreach ($covoiturages as $covoiturage)
                     <!-- covoiturage-card !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
-                    <div
-                        class="covoiturage-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row transition-transform duration-300 hover:transform hover:-translate-y-1 hover:shadow-xl">
+                    <div class="covoiturage-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row transition-transform duration-300 hover:transform hover:-translate-y-1 hover:shadow-xl"
+                        data-max-travel-time="{{ $covoiturage->max_travel_time ?? 120 }}"
+                        data-price="{{ $covoiturage->price }}"
+                        data-eco="{{ $covoiturage->eco_travel ? 'true' : 'false' }}"
+                        data-rating="{{ $covoiturage->user->average_rating ?? 0 }}">
                         <div
                             class="covoiturage-driver w-full md:w-1/4 p-6 bg-gray-50 border-b md:border-b-0 md:border-r border-gray-200 flex flex-col items-center justify-center text-center">
                             <div
@@ -470,8 +478,13 @@
                             </div>
                             @if ($covoiturage->eco_travel)
                                 <div
-                                    class="trip-eco-badge self-center mt-4 px-4 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
+                                    class="trip-eco-badge eco self-center mt-4 px-4 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
                                     <i class="fas fa-leaf mr-2"></i>Voyage écologique
+                                </div>
+                            @else
+                                <div
+                                    class="trip-eco-badge standard self-center mt-4 px-4 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-semibold">
+                                    <i class="fas fa-car mr-2"></i>Voyage standard
                                 </div>
                             @endif
                         </div>
@@ -608,6 +621,7 @@
     </div>
 
     @push('scripts')
+        @vite(['resources/js/trip-filters.js'])
         <script>
             // Réinit la page
             function resetSearchForm() {
