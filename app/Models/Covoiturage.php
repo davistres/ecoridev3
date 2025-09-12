@@ -50,4 +50,10 @@ class Covoiturage extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
+
+    /** Satisfaction pour ce covoit */
+    public function satisfactions()
+    {
+        return $this->hasMany(Satisfaction::class, 'covoit_id', 'covoit_id');
+    }
 }

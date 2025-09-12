@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Voiture;
+use App\Models\Satisfaction;
 
 class User extends Authenticatable
 {
@@ -71,5 +72,34 @@ class User extends Authenticatable
     public function voitures()
     {
         return $this->hasMany(Voiture::class, 'user_id', 'user_id');
+    }
+
+    /** On récupère les covoit proposés par l'utilisateur conducteur
+     */
+    public function covoiturages()
+    {
+        return $this->hasMany(Covoiturage::class, 'user_id', 'user_id');
+    }
+
+    /** On récupère les évaluations (les notes donnés par les passagers)*/
+    public function evaluations()
+    {
+        return $this->hasMany(Satisfaction::class, 'user_id', 'user_id');
+    }
+
+    /** Calcul de la moyenne des notes */
+    public function averageRating()
+    {
+        return Satisfaction::whereHas('covoiturage', function ($query) {
+            $query->where('user_id', $this->user_id);
+        })->whereNotNull('note')->avg('note');
+    }
+
+    /** Compte le n total de note reçues d'un conducteur */
+    public function totalRatings()
+    {
+        return Satisfaction::whereHas('covoiturage', function ($query) {
+            $query->where('user_id', $this->user_id);
+        })->whereNotNull('note')->count();
     }
 }

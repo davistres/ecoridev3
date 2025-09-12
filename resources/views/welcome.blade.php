@@ -63,7 +63,7 @@
                         <label for="seats" class="block text-sm font-medium text-gray-700 text-left">Places</label>
                         <input type="number" id="seats" name="seats" min="1" max="8"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                            placeholder="?" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                            placeholder="≤8" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
                     </div>
 
                     <!-- btn recherche -->
@@ -85,77 +85,7 @@
                     véhicules standards n’ont généralement pas plus de 6 places (hors siège du chauffeur). Pour
                     maximiser vos chances, nous vous invitons à chercher plusieurs trajets vers votre destination.
                 </div>
-                <!-- Affichage des suggestions de dates alternatives-->
-                @if (session('suggestions'))
-                    <div class="bg-blue-50 border border-blue-200 rounded-md p-4 mt-6 text-left">
-                        <h4 class="text-sm font-medium text-blue-800 mb-2">💡 Suggestions de dates alternatives :</h4>
-                        <div class="text-sm text-blue-700">
-                            <p>Nous n'avons pas de covoiturage à la date recherchée. Néanmoins, nous en avons
-                                @foreach (session('suggestions') as $index => $suggestion)
-                                    @if ($index == 0)
-                                        @if ($suggestion['count'] > 1)
-                                            {{ $suggestion['count'] }} le <a href="#"
-                                                class="suggestion-link font-medium underline hover:text-blue-900"
-                                                data-date="{{ $suggestion['date'] }}"
-                                                data-depart="{{ session('lieu_depart') }}"
-                                                data-arrivee="{{ session('lieu_arrivee') }}">{{ $suggestion['formatted_date'] }}</a>
-                                            ({{ $suggestion['relative_day'] }})
-                                        @else
-                                            le <a href="#"
-                                                class="suggestion-link font-medium underline hover:text-blue-900"
-                                                data-date="{{ $suggestion['date'] }}"
-                                                data-depart="{{ session('lieu_depart') }}"
-                                                data-arrivee="{{ session('lieu_arrivee') }}">{{ $suggestion['formatted_date'] }}</a>
-                                            ({{ $suggestion['relative_day'] }})
-                                        @endif
-                                    @elseif($index == count(session('suggestions')) - 1)
-                                        @if ($suggestion['count'] > 1)
-                                            et {{ $suggestion['count'] }} le <a href="#"
-                                                class="suggestion-link font-medium underline hover:text-blue-900"
-                                                data-date="{{ $suggestion['date'] }}"
-                                                data-depart="{{ session('lieu_depart') }}"
-                                                data-arrivee="{{ session('lieu_arrivee') }}">{{ $suggestion['formatted_date'] }}</a>
-                                            ({{ $suggestion['relative_day'] }})
-                                        @else
-                                            et le <a href="#"
-                                                class="suggestion-link font-medium underline hover:text-blue-900"
-                                                data-date="{{ $suggestion['date'] }}"
-                                                data-depart="{{ session('lieu_depart') }}"
-                                                data-arrivee="{{ session('lieu_arrivee') }}">{{ $suggestion['formatted_date'] }}</a>
-                                            ({{ $suggestion['relative_day'] }})
-                                        @endif
-                                    @else
-                                        @if ($suggestion['count'] > 1)
-                                            , {{ $suggestion['count'] }} le <a href="#"
-                                                class="suggestion-link font-medium underline hover:text-blue-900"
-                                                data-date="{{ $suggestion['date'] }}"
-                                                data-depart="{{ session('lieu_depart') }}"
-                                                data-arrivee="{{ session('lieu_arrivee') }}">{{ $suggestion['formatted_date'] }}</a>
-                                            ({{ $suggestion['relative_day'] }})
-                                        @else
-                                            , le <a href="#"
-                                                class="suggestion-link font-medium underline hover:text-blue-900"
-                                                data-date="{{ $suggestion['date'] }}"
-                                                data-depart="{{ session('lieu_depart') }}"
-                                                data-arrivee="{{ session('lieu_arrivee') }}">{{ $suggestion['formatted_date'] }}</a>
-                                            ({{ $suggestion['relative_day'] }})
-                                        @endif
-                                    @endif
-                                @endforeach
-                                ... Si vous êtes flexible, ils n'attendent que vous !
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Formulaire caché pour les suggestions -->
-                    <form id="suggestion-form-welcome" action="{{ route('covoiturage') }}" method="GET"
-                        style="display: none;">
-                        <input type="hidden" id="suggestion-departure-welcome" name="departure" value="">
-                        <input type="hidden" id="suggestion-arrival-welcome" name="arrival" value="">
-                        <input type="hidden" id="suggestion-date-welcome" name="date" value="">
-                        <input type="hidden" id="suggestion-seats-welcome" name="seats" value="1">
-                    </form>
-                @endif
+                
             </div>
         </div>
     </div>

@@ -10,6 +10,24 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    // Réinit la barre de recherche sur la page d'accueil
+    session()->forget([
+        'suggestions',
+        'distant_dates',
+        'no_trips_between_cities',
+        'insufficient_seats_cumulative',
+        'insufficient_seats_alternatives',
+        'distant_perfect_matches',
+        'general_criteria_mismatch',
+        'perfect_matches',
+        'trips_today',
+        'requested_seats',
+        'total_seats_today',
+        'seat_alternatives',
+        'lieu_depart',
+        'lieu_arrivee',
+        'date_recherche'
+    ]);
     return view('welcome');
 })->name('welcome');
 
@@ -19,6 +37,7 @@ Route::get('/accueil', function () {
 
 Route::get('/covoiturage', [CovoitController::class, 'index'])->name('covoiturage');
 Route::post('/covoiturage', [CovoitController::class, 'index'])->name('covoiturage.search');
+Route::post('/clear-search-sessions', [CovoitController::class, 'clearSearchSessions'])->name('clear.search.sessions');
 
 Route::get('/contact', function () {
     return view('contact');
