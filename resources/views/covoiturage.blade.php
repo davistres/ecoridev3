@@ -427,7 +427,7 @@
                         data-eco="{{ $covoiturage->eco_travel ? 'true' : 'false' }}"
                         data-rating="{{ $covoiturage->user->average_rating ?? 0 }}">
                         <div
-                            class="covoiturage-driver w-full md:w-1/4 p-6 bg-gray-50 border-b md:border-b-0 md:border-r border-gray-200 flex flex-col items-center justify-center text-center">
+                            class="covoiturage-driver w-full md:w-[26%] p-6 md:p-5 bg-gray-50 border-b md:border-b-0 md:border-r border-gray-200 flex flex-col items-center justify-center text-center">
                             <div
                                 class="driver-photo w-24 h-24 rounded-full border-4 border-green-400 shadow-md mb-4 bg-gray-200 flex items-center justify-center">
                                 <i class="fas fa-user text-4xl text-gray-500"></i>
@@ -588,40 +588,12 @@
         </form>
     </div>
 
-    <!-- Modale -->
-    <div class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center hidden" id="tripDetailsModal">
-        <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
-
-        <div class="modal-container bg-white w-11/12 md:max-w-3xl mx-auto rounded shadow-lg z-50 overflow-y-auto">
-            <div class="modal-content py-4 text-left px-6">
-                <div class="modal-header flex justify-between items-center pb-3">
-                    <p class="text-2xl font-bold">Détails du covoiturage</p>
-                    <div class="modal-close cursor-pointer z-50">
-                        <svg class="fill-current text-black" xmlns="http://www.w3.org/2000/svg" width="18"
-                            height="18" viewBox="0 0 18 18">
-                            <path
-                                d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z">
-                            </path>
-                        </svg>
-                    </div>
-                </div>
-
-                <div class="modal-body">
-                    <!-- Contenu chargé par JS -->
-                </div>
-
-                <div class="modal-footer flex justify-end pt-2">
-                    <button
-                        class="modal-close-btn px-4 bg-transparent p-3 rounded-lg text-indigo-500 hover:bg-gray-100 hover:text-indigo-400 mr-2">Fermer</button>
-                    <a href="#"
-                        class="btn-participate-modal px-4 bg-indigo-500 p-3 rounded-lg text-white hover:bg-indigo-400">Participer</a>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Modale détails du covoiturage -->
+    @include('partials.trip-details-modal')
 
     @push('scripts')
         @vite(['resources/js/trip-filters.js'])
+        @vite(['resources/js/trip-details-modal.js'])
         <script>
             // Réinit la page
             function resetSearchForm() {

@@ -279,7 +279,7 @@ class CovoitController extends Controller
         foreach ($covoituragesAvant as $covoit) {
             $date = $covoit->departure_date;
             $formattedDate = date('d/m/Y', strtotime($date));
-            $diff = 'J-' . $dateRecherche->diff(new DateTime($date))->days;
+            $diff = 'J-' . $dateRecherche->diff(new \DateTime($date))->days;
 
             if (!isset($dateGroups[$date])) {
                 $dateGroups[$date] = [
@@ -298,7 +298,7 @@ class CovoitController extends Controller
         foreach ($covoituragesApres as $covoit) {
             $date = $covoit->departure_date;
             $formattedDate = date('d/m/Y', strtotime($date));
-            $diff = 'J+' . $dateRecherche->diff(new DateTime($date))->days;
+            $diff = 'J+' . $dateRecherche->diff(new \DateTime($date))->days;
 
             if (!isset($dateGroups[$date])) {
                 $dateGroups[$date] = [

@@ -7,7 +7,7 @@
 }
 
 
-/* Info-bulle */
+/* Info-bulle ////////////////////////////////////////////////*/
 .tooltip {
     position: relative;
     display: inline-block;
@@ -48,7 +48,7 @@
 }
 
 
-/* Styles pour les sliders /////////////////////////////////////*/
+/* Styles pour les sliders des filtres /////////////////////////////////////*/
 
 /* Pour duration-filter et price-filter */
 .slider::-webkit-slider-thumb {
@@ -71,12 +71,52 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Pour les étoiles actives */
+/* Pour masquer les cards filtrées */
+.covoiturage-card.filtered-out {
+    display: none !important;
+}
+
+
+
+/* Styles pour les étoiles ////////////////////////////////////////////*/
 .star.active {
     color: #fbbf24 !important;
 }
 
-/* Pour masquer les cards filtrées */
-.covoiturage-card.filtered-out {
-    display: none !important;
+.star.half-active {
+    color: #fbbf24;
+}
+
+.star.empty {
+    color: #d1d5db;
+}
+
+
+/* Styles pour les cards d'avis ////////////////////////////////*/
+.review-card {
+    @apply bg-white p-4 rounded-lg border border-gray-200 shadow-sm;
+}
+
+.review-header {
+    @apply flex justify-between items-center mb-2;
+}
+
+.review-author {
+    @apply font-semibold text-gray-800;
+}
+
+.review-date {
+    @apply text-sm text-gray-500;
+}
+
+.review-rating {
+    @apply mb-2;
+}
+
+.review-content {
+    @apply text-gray-700 text-sm;
+}
+
+.no-reviews {
+    @apply text-center text-gray-500 py-8;
 }
