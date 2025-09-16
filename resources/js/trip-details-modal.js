@@ -363,10 +363,27 @@ function updateModalButton(userData, tripId) {
     const modalParticipateBtn = document.getElementById('modal-participate-btn');
     if (modalParticipateBtn) {
         modalParticipateBtn.textContent = userData.button_text || 'Participer';
+
+        // Réinit les class de couleur
+        modalParticipateBtn.className = modalParticipateBtn.className.replace(/bg-\w+-\d+/g, '').replace(/hover:bg-\w+-\d+/g, '');
+
+        // Applique les bonnes class en fonction de la situation
         if (userData.can_participate) {
             modalParticipateBtn.href = `/covoiturage/${tripId}/participate`;
+            modalParticipateBtn.classList.add('bg-green-600', 'hover:bg-green-700');
         } else {
             modalParticipateBtn.href = userData.redirect_to || '#';
+
+            // Les couleurs en fonction du btn
+            if (userData.button_text === 'Se connecter') {
+                modalParticipateBtn.classList.add('bg-red-600', 'hover:bg-red-700');
+            } else if (userData.button_text === 'Changer de rôle') {
+                modalParticipateBtn.classList.add('bg-red-600', 'hover:bg-red-700');
+            } else if (userData.button_text === 'Recharger votre crédit') {
+                modalParticipateBtn.classList.add('bg-red-600', 'hover:bg-red-700');
+            } else {
+                modalParticipateBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+            }
         }
     }
 }

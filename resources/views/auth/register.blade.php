@@ -70,19 +70,23 @@
                                 autocomplete="off">
                         </div>
 
-                        <div class="flex items-center justify-between mt-4">
-                            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                href="{{ route('login') }}">
-                                Déjà enregistré ?
-                            </a>
-                        </div>
-
                         <!-- Btn -->
                         <div class="text-center mt-6">
                             <button type="submit"
                                 class="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-300">
                                 S'enregistrer
                             </button>
+                        </div>
+
+                        <!-- Lien vers la page de connexion -->
+                        <div class="text-center mt-4">
+                            <p class="text-sm text-gray-600">
+                                Déjà inscrit ?
+                                <a href="{{ route('login') }}"
+                                    class="text-green-600 hover:text-green-700 font-medium underline">
+                                    Connectez-vous ici
+                                </a>
+                            </p>
                         </div>
                     </form>
                 </div>

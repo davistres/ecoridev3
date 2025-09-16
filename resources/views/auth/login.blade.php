@@ -45,6 +45,17 @@
                                 Se connecter
                             </button>
                         </div>
+
+                        <!-- Lien vers la page d'inscription -->
+                        <div class="text-center mt-4">
+                            <p class="text-sm text-gray-600">
+                                Vous n'avez pas encore de compte ?
+                                <a href="{{ route('register') }}"
+                                    class="text-green-600 hover:text-green-700 font-medium underline">
+                                    Inscrivez-vous ici
+                                </a>
+                            </p>
+                        </div>
                     </form>
                 </div>
             </div>

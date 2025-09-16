@@ -166,6 +166,13 @@ class CovoitController extends Controller
             $filterData = $this->calculateFilterData($covoiturages);
         }
 
+        // Ajouter les infos du btn à chaque covoit
+        $covoiturages = $covoiturages->map(function ($covoiturage) {
+            $buttonStatus = $this->getButtonStatus($covoiturage);
+            $covoiturage->button_status = $buttonStatus;
+            return $covoiturage;
+        });
+
         return view('covoiturage', array_merge([
             'covoiturages' => $covoiturages,
             'searchPerformed' => $searchPerformed,
@@ -565,5 +572,49 @@ class CovoitController extends Controller
         }
 
         return response()->json($covoiturage);
+    }
+
+    // Le btn "Participer" en fonction de la situation
+    public function getButtonStatus($covoiturage)
+    {
+        $user = auth()->user();
+
+        // Utilisateur non connecté
+        if (!$user) {
+            return [
+                'can_participate' => false,
+                'button_text' => 'Se connecter',
+                'redirect_to' => route('login'),
+                'button_class' => 'bg-red-600 hover:bg-red-700'
+            ];
+        }
+
+        // Utilisateur connecté mais rôle "Conducteur"
+        if ($user->role === 'Conducteur') {
+            return [
+                'can_participate' => false,
+                'button_text' => 'Changer de rôle',
+                'redirect_to' => route('dashboard') . '#role-section',
+                'button_class' => 'bg-red-600 hover:bg-red-700'
+            ];
+        }
+
+        // Utilisateur connecté mais pas assez de crédits
+        if ($user->n_credit < $covoiturage->price) {
+            return [
+                'can_participate' => false,
+                'button_text' => 'Recharger votre crédit',
+                'redirect_to' => route('dashboard') . '#credits-section',
+                'button_class' => 'bg-red-600 hover:bg-red-700'
+            ];
+        }
+
+        // Tout est OK, peut participer
+        return [
+            'can_participate' => true,
+            'button_text' => 'Participer',
+            'redirect_to' => '#', // TODO: créer ensuite la logique de double confirmation...
+            'button_class' => 'bg-green-600 hover:bg-green-700'
+        ];
     }
 }

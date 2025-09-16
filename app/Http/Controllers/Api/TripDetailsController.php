@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Covoiturage;
 use App\Models\Satisfaction;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class TripDetailsController extends Controller
 {
@@ -104,16 +105,46 @@ class TripDetailsController extends Controller
     public function getUserStatus($tripId): JsonResponse
     {
         try {
-            // TODO: plus tard, je devrai faire en sorte que le bouton "particper" change selon le statut de l'utilisateur
-            // Pour l'instant, on retourne des données par défaut
+            $user = auth()->user();
+            $covoiturage = Covoiturage::where('covoit_id', $tripId)->first();
 
-            $data = [
+            if (!$covoiturage) {
+                return response()->json(['error' => 'Covoiturage non trouvé'], 404);
+            }
+
+            // Utilisateur non connecté
+            if (!$user) {
+                return response()->json([
+                    'can_participate' => false,
+                    'button_text' => 'Se connecter',
+                    'redirect_to' => route('login')
+                ]);
+            }
+
+            // Utilisateur connecté mais rôle "Conducteur"
+            if ($user->role === 'Conducteur') {
+                return response()->json([
+                    'can_participate' => false,
+                    'button_text' => 'Changer de rôle',
+                    'redirect_to' => route('dashboard') . '#role-section'
+                ]);
+            }
+
+            // Utilisateur connecté mais pas assez de crédits
+            if ($user->n_credit < $covoiturage->price) {
+                return response()->json([
+                    'can_participate' => false,
+                    'button_text' => 'Recharger votre crédit',
+                    'redirect_to' => route('dashboard') . '#credits-section'
+                ]);
+            }
+
+            // Tout est OK, peut participer
+            return response()->json([
                 'can_participate' => true,
                 'button_text' => 'Participer',
-                'redirect_to' => route('covoiturage')
-            ];
-
-            return response()->json($data);
+                'redirect_to' => route('covoiturage') // TODO: créer ensuite la logique de double confirmation...
+            ]);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Erreur lors de la vérification du statut'], 500);
         }
