@@ -44,18 +44,41 @@ function initTripDetailsModal() {
                 }
             }
 
+            // Récupére l'état du btn (dans la div booking-buttons) depuis de la covoiturage-card correspondante
+            const cardContainer = this.closest('.covoiturage-card');
+            let buttonData = null;
+
+            if (cardContainer) {
+                const bookingButtons = cardContainer.querySelector('.booking-buttons');
+                if (bookingButtons) {
+                    const buttons = bookingButtons.querySelectorAll('a');
+                    const participateBtn = buttons[1]; // Index 1 = deuxième bouton (le premier c'est celui du détail, le deuxième c'est celui que l'on veut = celui qui change d'état en fonction de la situation)
+
+                    if (participateBtn) {
+                        buttonData = {
+                            button_text: participateBtn.textContent.trim(),
+                            redirect_to: participateBtn.getAttribute('href'),
+                            can_participate: participateBtn.classList.contains('btn-participate'),
+                            button_classes: participateBtn.className
+                        };
+                    }
+                }
+            }
+
             console.log('ID du covoiturage:', tripId);
-            fetchTripDetails(tripId);
+            console.log('Données du bouton:', buttonData);
+            fetchTripDetails(tripId, buttonData);
         });
     });
 }
 
 // Récupére les infos du covoit
-function fetchTripDetails(tripId) {
+function fetchTripDetails(tripId, buttonData = null) {
     const modal = document.getElementById('tripDetailsModal');
     if (!modal) return;
 
     console.log('Récupération des détails du covoiturage:', tripId);
+    console.log('Données du bouton reçues:', buttonData);
 
     // Affiche de la modale avec l'indicateur de chargement
     modal.classList.remove('hidden');
@@ -84,35 +107,21 @@ function fetchTripDetails(tripId) {
             document.getElementById('modal-content').classList.remove('hidden');
             document.getElementById('modal-button-loading').classList.add('hidden');
 
-            // Statut utilisateur
-            return fetch(`/api/trips/${tripId}/user-status`)
-                .then(response => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        // POUR LE MOMENT, si l'API ne peut pas récupérer le rôle de l'utilisateur, on utilise alors la valeur par défaut: il peut participer
-                        // TODO: plus tard, je devrai faire en sorte que le bouton "particper" change selon le statut de l'utilisateur
-                        return {
-                            can_participate: true,
-                            button_text: 'Participer',
-                            redirect_to: `/covoiturage/${tripId}/participate`
-                        };
-                    }
-                })
-                .then(userData => {
-                    updateModalButton(userData, tripId);
-                    document.getElementById('modal-participate-btn').classList.remove('hidden');
-                })
-                .catch(error => {
-                    console.warn('Erreur lors de la récupération du statut utilisateur:', error);
-                    const defaultUserData = {
-                        can_participate: true,
-                        button_text: 'Participer',
-                        redirect_to: `/covoiturage/${tripId}/participate`
-                    };
-                    updateModalButton(defaultUserData, tripId);
-                    document.getElementById('modal-participate-btn').classList.remove('hidden');
-                });
+            // On utilise les données du btn de la covoiturage-card au lieu de l'API
+            if (buttonData) {
+                console.log('Utilisation des données du bouton de la carte:', buttonData);
+                updateModalButtonFromCard(buttonData, tripId);
+                document.getElementById('modal-participate-btn').classList.remove('hidden');
+            } else {
+                console.warn('Aucune donnée de bouton trouvée, utilisation des valeurs par défaut');
+                const defaultUserData = {
+                    can_participate: true,
+                    button_text: 'Participer',
+                    redirect_to: `/covoiturage/${tripId}/participate`
+                };
+                updateModalButton(defaultUserData, tripId);
+                document.getElementById('modal-participate-btn').classList.remove('hidden');
+            }
         })
         .catch(error => {
             console.error('Erreur lors de la récupération des détails:', error);
@@ -120,8 +129,14 @@ function fetchTripDetails(tripId) {
             document.getElementById('modal-content').classList.remove('hidden');
             document.getElementById('modal-reviews-list').innerHTML = '<div class="text-center text-red-500 py-8">Erreur lors du chargement des détails</div>';
             document.getElementById('modal-button-loading').classList.add('hidden');
+
+            // Même en cas d'erreur, on utilisera les données du btn de la covoiturage-card
+            if (buttonData) {
+                updateModalButtonFromCard(buttonData, tripId);
+            } else {
+                document.getElementById('modal-participate-btn').textContent = 'Participer';
+            }
             document.getElementById('modal-participate-btn').classList.remove('hidden');
-            document.getElementById('modal-participate-btn').textContent = 'Participer';
         });
 }
 
@@ -358,7 +373,35 @@ function generateStars(rating) {
     return starsHtml;
 }
 
-// Maj du btn "Participer"
+// Copie les infos du btn de la card dans le btn de la modale
+function updateModalButtonFromCard(buttonData, tripId) {
+    const modalParticipateBtn = document.getElementById('modal-participate-btn');
+    if (modalParticipateBtn && buttonData) {
+        // On copie le texte et le lien depuis la card
+        modalParticipateBtn.textContent = buttonData.button_text;
+        modalParticipateBtn.href = buttonData.redirect_to || '#';
+
+        // Réinit toutes les class
+        modalParticipateBtn.className = 'px-6 py-2 font-bold rounded transition-colors duration-300 text-white';
+
+        // Applique les mêmes class que celles de la card
+        if (buttonData.can_participate) {
+            // Seul le btn "Participer" est en vert
+            modalParticipateBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+        } else {
+            // Tous les autres sont en  rouge
+            modalParticipateBtn.classList.add('bg-red-600', 'hover:bg-red-700');
+        }
+
+        console.log('Bouton modal mis à jour:', {
+            text: buttonData.button_text,
+            href: buttonData.redirect_to,
+            can_participate: buttonData.can_participate
+        });
+    }
+}
+
+// Maj de la valeur du btn dans la modale (modifiée par updateModalButtonFromCard) en le prenant directement du serveur (AJAX/fetch)... C'est une sécurité pour être sûr de l'info!
 function updateModalButton(userData, tripId) {
     const modalParticipateBtn = document.getElementById('modal-participate-btn');
     if (modalParticipateBtn) {
