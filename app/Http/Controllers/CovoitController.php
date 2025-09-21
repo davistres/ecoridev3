@@ -6,7 +6,10 @@ use App\Http\Requests\DemandeRechercheCovoit;
 use App\Http\Requests\StoreCovoiturageRequest;
 use App\Http\Requests\ModifCovoitRequest;
 use App\Models\Covoiturage;
+use App\Models\Satisfaction;
+use App\Models\User;
 use App\Models\Voiture;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -609,12 +612,73 @@ class CovoitController extends Controller
             ];
         }
 
-        // Tout est OK, peut participer
+        // Si tout est OK, on peut participer
+        // On récupère le n place depuis la recherche (ou 1 par défaut)
+        $seats = request()->input('seats') ?? session('seats') ?? 1;
+        $confirmationUrl = '/covoiturage/' . $covoiturage->covoit_id . '/confirmation?seats=' . $seats;
+        Log::info('URL de confirmation générée: ' . $confirmationUrl);
+
         return [
             'can_participate' => true,
             'button_text' => 'Participer',
-            'redirect_to' => '#', // TODO: créer ensuite la logique de double confirmation...
+            'redirect_to' => $confirmationUrl,
             'button_class' => 'bg-green-600 hover:bg-green-700'
         ];
+    }
+
+    // Page de confirmation
+    // On confirme que l'on va participer à un covoit via un système de double confirmation => ici, c'est la 1ère avec la page de confirmation
+    public function showConfirmation($id)
+    {
+        $user = auth()->user();
+        $covoiturage = Covoiturage::where('covoit_id', $id)->first();
+
+        if (!$covoiturage) {
+            return redirect()->route('covoiturage')->with('error', 'Covoiturage non trouvé');
+        }
+
+        // L'utilisateur peut participer?
+        $buttonStatus = $this->getButtonStatus($covoiturage);
+        if (!$buttonStatus['can_participate']) {
+            return redirect()->route('covoiturage')->with('error', 'Vous ne pouvez pas participer à ce covoiturage');
+        }
+
+        // On récupère le n place depuis la recherche (ou 1 par défaut)
+        $requestedSeats = request()->input('seats') ?? session('seats') ?? session('n_tickets') ?? 1;
+
+        // On conserve les paramètres de recherche en cas de retour sur la page covoiturage
+        session()->put('n_tickets', $requestedSeats);
+        if (!session()->has('ville_depart')) {
+            session()->put('ville_depart', $covoiturage->departure_address);
+        }
+        if (!session()->has('ville_arrivee')) {
+            session()->put('ville_arrivee', $covoiturage->arrival_address);
+        }
+        if (!session()->has('date_recherche')) {
+            session()->put('date_recherche', $covoiturage->departure_date);
+        }
+
+        // On récupére toutes les infos du covoit (les mêmes que celle de la modale Détails)
+        $conducteur = User::find($covoiturage->user_id);
+        $voiture = Voiture::find($covoiturage->voiture_id);
+
+        // + Les avis du conducteur
+        $avis = Satisfaction::where('user_id', $conducteur->user_id)
+            ->orderBy('date', 'desc')
+            ->get();
+
+        // On calcul la note moyenne
+        $notesMoyenne = $avis->avg('note') ?? 0;
+        $placesRestantes = $covoiturage->n_tickets; // TODO: déduire les places réservées!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        return view('covoiturage-confirmation', [
+            'covoiturage' => $covoiturage,
+            'conducteur' => $conducteur,
+            'voiture' => $voiture,
+            'avis' => $avis,
+            'notesMoyenne' => $notesMoyenne,
+            'placesRestantes' => $placesRestantes,
+            'user' => $user
+        ]);
     }
 }

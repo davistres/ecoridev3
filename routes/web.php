@@ -39,6 +39,9 @@ Route::get('/covoiturage', [CovoitController::class, 'index'])->name('covoiturag
 Route::post('/covoiturage', [CovoitController::class, 'index'])->name('covoiturage.search');
 Route::post('/clear-search-sessions', [CovoitController::class, 'clearSearchSessions'])->name('clear.search.sessions');
 
+// Route pour la page de confirmation
+Route::get('/covoiturage/{id}/confirmation', [CovoitController::class, 'showConfirmation'])->middleware('auth')->name('covoiturage.confirmation');
+
 Route::get('/contact', function () {
     return view('contact');
 })->name('contact');

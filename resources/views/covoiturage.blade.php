@@ -507,18 +507,11 @@
                                     data-id="{{ $covoiturage->covoit_id }}">
                                     Détails
                                 </a>
-                                @if ($covoiturage->button_status['can_participate'])
-                                    <a href="#"
-                                        class="btn-participate {{ $covoiturage->button_status['button_class'] }} text-white font-bold py-2 px-4 rounded text-center transition-colors duration-300"
-                                        data-id="{{ $covoiturage->covoit_id }}">
-                                        {{ $covoiturage->button_status['button_text'] }}
-                                    </a>
-                                @else
-                                    <a href="{{ $covoiturage->button_status['redirect_to'] }}"
-                                        class="{{ $covoiturage->button_status['button_class'] }} text-white font-bold py-2 px-4 rounded text-center transition-colors duration-300">
-                                        {{ $covoiturage->button_status['button_text'] }}
-                                    </a>
-                                @endif
+                                <a href="{{ $covoiturage->button_status['redirect_to'] }}"
+                                    class="btn-participate {{ $covoiturage->button_status['button_class'] }} text-white font-bold py-2 px-4 rounded text-center transition-colors duration-300"
+                                    data-id="{{ $covoiturage->covoit_id }}">
+                                    {{ $covoiturage->button_status['button_text'] }}
+                                </a>
                             </div>
                         </div>
                     </div>

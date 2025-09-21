@@ -58,7 +58,6 @@ function initTripDetailsModal() {
                         buttonData = {
                             button_text: participateBtn.textContent.trim(),
                             redirect_to: participateBtn.getAttribute('href'),
-                            can_participate: participateBtn.classList.contains('btn-participate'),
                             button_classes: participateBtn.className
                         };
                     }
@@ -85,7 +84,7 @@ function fetchTripDetails(tripId, buttonData = null) {
     document.getElementById('modal-loading').classList.remove('hidden');
     document.getElementById('modal-content').classList.add('hidden');
     document.getElementById('modal-button-loading').classList.remove('hidden');
-    document.getElementById('modal-participate-btn').classList.add('hidden');
+    document.querySelector('.modal-participate-btn-js').classList.add('hidden');
 
     const apiUrl = `/api/trips/${tripId}/details`;
     console.log('URL de l\'API:', apiUrl);
@@ -111,16 +110,11 @@ function fetchTripDetails(tripId, buttonData = null) {
             if (buttonData) {
                 console.log('Utilisation des données du bouton de la carte:', buttonData);
                 updateModalButtonFromCard(buttonData, tripId);
-                document.getElementById('modal-participate-btn').classList.remove('hidden');
             } else {
-                console.warn('Aucune donnée de bouton trouvée, utilisation des valeurs par défaut');
-                const defaultUserData = {
-                    can_participate: true,
-                    button_text: 'Participer',
-                    redirect_to: `/covoiturage/${tripId}/participate`
-                };
-                updateModalButton(defaultUserData, tripId);
-                document.getElementById('modal-participate-btn').classList.remove('hidden');
+                // Normalement, ça ne devrait pas arriver!!!!!
+                // Mais au cas où... Si on ne trouve aucune donnée sur le btn de la card, alors on cache le btn d'action.
+                console.warn('Aucune donnée de bouton de carte trouvée. Le bouton d\'action de la modale sera masqué.');
+                document.querySelector('.modal-participate-btn-js').classList.add('hidden');
             }
         })
         .catch(error => {
@@ -134,9 +128,8 @@ function fetchTripDetails(tripId, buttonData = null) {
             if (buttonData) {
                 updateModalButtonFromCard(buttonData, tripId);
             } else {
-                document.getElementById('modal-participate-btn').textContent = 'Participer';
+                document.querySelector('.modal-participate-btn-js').classList.add('hidden');
             }
-            document.getElementById('modal-participate-btn').classList.remove('hidden');
         });
 }
 
@@ -241,13 +234,10 @@ function populateModalWithData(data) {
     populateReviews(data.reviews || []);
 
     // Bouton participer
-    const participateBtn = document.getElementById('modal-participate-btn');
+    const participateBtn = document.querySelector('.modal-participate-btn-js');
     const tripId = data.covoit_id;
     if (tripId) {
         participateBtn.href = `/covoiturage/${tripId}/participate`;
-        participateBtn.classList.remove('hidden');
-    } else {
-        participateBtn.classList.add('hidden');
     }
 }
 
@@ -375,58 +365,45 @@ function generateStars(rating) {
 
 // Copie les infos du btn de la card dans le btn de la modale
 function updateModalButtonFromCard(buttonData, tripId) {
-    const modalParticipateBtn = document.getElementById('modal-participate-btn');
+    const modalParticipateBtn = document.querySelector('.modal-participate-btn-js');
     if (modalParticipateBtn && buttonData) {
         // On copie le texte et le lien depuis la card
         modalParticipateBtn.textContent = buttonData.button_text;
         modalParticipateBtn.href = buttonData.redirect_to || '#';
 
-        // Réinit toutes les class
-        modalParticipateBtn.className = 'px-6 py-2 font-bold rounded transition-colors duration-300 text-white';
+        // On copie aussi TOUTES les class du btn de la card => pour la même apparence
+        modalParticipateBtn.className = buttonData.button_classes;
 
-        // Applique les mêmes class que celles de la card
-        if (buttonData.can_participate) {
-            // Seul le btn "Participer" est en vert
-            modalParticipateBtn.classList.add('bg-green-600', 'hover:bg-green-700');
-        } else {
-            // Tous les autres sont en  rouge
-            modalParticipateBtn.classList.add('bg-red-600', 'hover:bg-red-700');
-        }
+        // + ajout de class spécifique qui pourraient manquer (comme le padding)
+        // + on s'assure qu'il est visible.
+        modalParticipateBtn.classList.add('px-6', 'py-2', 'modal-participate-btn-js');
+        modalParticipateBtn.classList.remove('hidden');
+
+        // Le btn affiche "Participer" ou une autre action?
+        const isParticipateAction = buttonData.button_text === 'Participer';
+
+        // Suppr les anciens eventlisteners et ajouter le nouveau
+        modalParticipateBtn.onclick = function(e) {
+            e.preventDefault();
+            if (isParticipateAction) {
+                // On récupère le n place depuis la recherche (ou 1 par défaut)
+                const seatsInput = document.getElementById('seats');
+                const seats = seatsInput ? seatsInput.value : 1;
+
+                // Fermeture de la modale
+                document.getElementById('tripDetailsModal').classList.add('hidden');
+                // Redirige vers la page de confirmation avec le n place
+                window.location.href = `/covoiturage/${tripId}/confirmation?seats=${seats}`;
+            } else {
+                // Pour les autres btn (Se connecter, Changer de rôle et Recharger votre crédit)
+                window.location.href = buttonData.redirect_to;
+            }
+        };
 
         console.log('Bouton modal mis à jour:', {
             text: buttonData.button_text,
             href: buttonData.redirect_to,
-            can_participate: buttonData.can_participate
+            isParticipate: isParticipateAction
         });
-    }
-}
-
-// Maj de la valeur du btn dans la modale (modifiée par updateModalButtonFromCard) en le prenant directement du serveur (AJAX/fetch)... C'est une sécurité pour être sûr de l'info!
-function updateModalButton(userData, tripId) {
-    const modalParticipateBtn = document.getElementById('modal-participate-btn');
-    if (modalParticipateBtn) {
-        modalParticipateBtn.textContent = userData.button_text || 'Participer';
-
-        // Réinit les class de couleur
-        modalParticipateBtn.className = modalParticipateBtn.className.replace(/bg-\w+-\d+/g, '').replace(/hover:bg-\w+-\d+/g, '');
-
-        // Applique les bonnes class en fonction de la situation
-        if (userData.can_participate) {
-            modalParticipateBtn.href = `/covoiturage/${tripId}/participate`;
-            modalParticipateBtn.classList.add('bg-green-600', 'hover:bg-green-700');
-        } else {
-            modalParticipateBtn.href = userData.redirect_to || '#';
-
-            // Les couleurs en fonction du btn
-            if (userData.button_text === 'Se connecter') {
-                modalParticipateBtn.classList.add('bg-red-600', 'hover:bg-red-700');
-            } else if (userData.button_text === 'Changer de rôle') {
-                modalParticipateBtn.classList.add('bg-red-600', 'hover:bg-red-700');
-            } else if (userData.button_text === 'Recharger votre crédit') {
-                modalParticipateBtn.classList.add('bg-red-600', 'hover:bg-red-700');
-            } else {
-                modalParticipateBtn.classList.add('bg-green-600', 'hover:bg-green-700');
-            }
-        }
     }
 }

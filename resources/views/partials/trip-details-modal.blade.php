@@ -210,8 +210,8 @@
                     class="modal-close px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white font-bold rounded transition-colors duration-300">
                     Fermer
                 </button>
-                <a href="#" id="modal-participate-btn"
-                    class="hidden px-6 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded transition-colors duration-300">
+                <a href="#"
+                    class="btn-participate modal-participate-btn-js hidden px-6 py-2 text-white font-bold rounded transition-colors duration-300">
                     Participer
                 </a>
             </div>
