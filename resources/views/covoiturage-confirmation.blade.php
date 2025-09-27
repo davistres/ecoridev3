@@ -57,7 +57,7 @@
                                     </div>
                                 </div>
 
-                                <div class="trip-details-arrival flex flex-col items-center md:items-start">
+                                <div class="trip-details-arrival flex flex-col items-center md:items-end">
                                     <h5 class="font-semibold text-gray-700 mb-2">Arrivée</h5>
                                     <div class="space-y-2">
                                         <div class="flex items-center text-gray-600">
@@ -74,7 +74,8 @@
 
                             <!-- Adresses -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                <div class="address-departure">
+                                <div
+                                    class="address-departure address-departure flex flex-col items-center md:items-start">
                                     <h5 class="font-semibold text-gray-700 mb-2">Adresse de départ</h5>
                                     <div class="flex items-start text-gray-600">
                                         <i class="fas fa-map-marker-alt mr-2 text-green-500 mt-1"></i>
@@ -82,7 +83,7 @@
                                     </div>
                                 </div>
 
-                                <div class="address-arrival">
+                                <div class="address-arrival flex flex-col items-center md:items-end">
                                     <h5 class="font-semibold text-gray-700 mb-2">Adresse d'arrivée</h5>
                                     <div class="flex items-start text-gray-600">
                                         <i class="fas fa-map-marker-alt mr-2 text-green-500 mt-1"></i>
@@ -346,10 +347,10 @@
                     class="modal-close px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded transition-colors duration-300">
                     Annuler
                 </button>
-                <a href="#"
+                <button id="validate-transaction-btn"
                     class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded transition-colors duration-300">
                     Valider la transaction
-                </a>
+                </button>
             </div>
         </div>
     </div>
@@ -359,6 +360,7 @@
             const confirmBtn = document.getElementById('confirm-participation-btn');
             const paymentModal = document.getElementById('paymentModal');
             const closeButtons = paymentModal.querySelectorAll('.modal-close');
+            const validateBtn = document.getElementById('validate-transaction-btn');
 
             // Ouvrir la modale de paiement
             confirmBtn.addEventListener('click', function() {
@@ -378,6 +380,44 @@
                     paymentModal.classList.add('hidden');
                 }
             });
+
+            // Validation de la transaction
+            if (validateBtn) {
+                validateBtn.addEventListener('click', function() {
+                    validateBtn.disabled = true;
+                    validateBtn.textContent = 'Traitement en cours...';
+
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute(
+                        'content');
+                    const tripId = {{ $covoiturage->covoit_id }};
+
+                    fetch(`/covoiturage/${tripId}/participate`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert(data.message);
+                                window.location.href = '{{ route('dashboard') }}';
+                            } else {
+                                alert('Erreur: ' + data.message);
+                                validateBtn.disabled = false;
+                                validateBtn.textContent = 'Valider la transaction';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erreur Fetch:', error);
+                            alert('Une erreur de communication est survenue.');
+                            validateBtn.disabled = false;
+                            validateBtn.textContent = 'Valider la transaction';
+                        });
+                });
+            }
         });
     </script>
 </x-app-layout>

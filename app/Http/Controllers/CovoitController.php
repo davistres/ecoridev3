@@ -6,6 +6,7 @@ use App\Http\Requests\DemandeRechercheCovoit;
 use App\Http\Requests\StoreCovoiturageRequest;
 use App\Http\Requests\ModifCovoitRequest;
 use App\Models\Covoiturage;
+use App\Models\Confirmation;
 use App\Models\Satisfaction;
 use App\Models\User;
 use App\Models\Voiture;
@@ -14,6 +15,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
 class CovoitController extends Controller
@@ -79,6 +81,7 @@ class CovoitController extends Controller
                         ->where('postal_code_dep', str_replace(' ', '', $departurePostalCode))
                         ->where('postal_code_arr', str_replace(' ', '', $arrivalPostalCode))
                         ->where('cancelled', 0)
+                        ->where('trip_started', 0) // Sauf les trajets complets
                         ->where('departure_date', '>=', now()->toDateString());
 
                     // A la date demandée
@@ -261,6 +264,7 @@ class CovoitController extends Controller
             ->where('postal_code_arr', str_replace(' ', '', $arrivalPostalCode))
             ->where('n_tickets', '>=', $requestedSeats)
             ->where('cancelled', 0)
+            ->where('trip_started', 0) // Sauf les trajets complets
             ->where('departure_date', '>=', now()->toDateString());
 
         // Recherche dans les 7 jours avant/après (avec limite de 8*2)
@@ -336,6 +340,7 @@ class CovoitController extends Controller
             ->where('postal_code_arr', str_replace(' ', '', $arrivalPostalCode))
             ->where('n_tickets', '>=', $requestedSeats)
             ->where('cancelled', 0)
+            ->where('trip_started', 0) // Sauf les trajets complets
             ->where('departure_date', '>=', now()->toDateString());
 
         // Date la plus proche après 7 jours en moins
@@ -368,6 +373,7 @@ class CovoitController extends Controller
         return Covoiturage::where('postal_code_dep', str_replace(' ', '', $departurePostalCode))
             ->where('postal_code_arr', str_replace(' ', '', $arrivalPostalCode))
             ->where('cancelled', 0)
+            ->where('trip_started', 0) // Sauf les trajets complets
             ->where('departure_date', '>=', now()->toDateString()) // bien entendu => que les trajets futurs
             ->exists();
     }
@@ -437,6 +443,7 @@ class CovoitController extends Controller
                 ->where('postal_code_arr', str_replace(' ', '', $arrivalPostalCode))
                 ->whereDate('departure_date', $checkDate)
                 ->where('cancelled', 0)
+                ->where('trip_started', 0) // Sauf les trajets complets
                 ->sum('n_tickets');
 
             if ($totalSeats > 0) {
@@ -468,6 +475,7 @@ class CovoitController extends Controller
             ->where('departure_date', '>=', (clone $dateRecherche)->modify('-10 days')->format('Y-m-d'))
             ->where('n_tickets', '>=', $requestedSeats)
             ->where('cancelled', 0)
+            ->where('trip_started', 0) // Sauf les trajets complets
             ->where('departure_date', '>=', now()->toDateString())
             ->orderBy('departure_date', 'desc')
             ->first();
@@ -479,6 +487,7 @@ class CovoitController extends Controller
             ->where('departure_date', '<=', (clone $dateRecherche)->modify('+10 days')->format('Y-m-d'))
             ->where('n_tickets', '>=', $requestedSeats)
             ->where('cancelled', 0)
+            ->where('trip_started', 0) // Sauf les trajets complets
             ->where('departure_date', '>=', now()->toDateString())
             ->orderBy('departure_date', 'asc')
             ->first();
@@ -602,20 +611,26 @@ class CovoitController extends Controller
             ];
         }
 
+        // On récupére le n place demandé lors de la recherche
+        $requestedSeats = session('requested_seats', 1);
+        $totalCost = $covoiturage->price * $requestedSeats;
+
         // Utilisateur connecté mais pas assez de crédits
-        if ($user->n_credit < $covoiturage->price) {
+        if ($user->n_credit < $totalCost) {
             return [
                 'can_participate' => false,
                 'button_text' => 'Recharger votre crédit',
                 'redirect_to' => route('dashboard') . '#credits-section',
-                'button_class' => 'bg-red-600 hover:bg-red-700'
+                'button_class' => 'bg-red-600 hover:bg-red-700',
+                'show_credit_warning' => true,
+                'user_credits' => $user->n_credit,
+                'requested_seats' => $requestedSeats,
+                'total_cost' => $totalCost
             ];
         }
 
         // Si tout est OK, on peut participer
-        // On récupère le n place depuis la recherche (ou 1 par défaut)
-        $seats = request()->input('seats') ?? session('seats') ?? 1;
-        $confirmationUrl = '/covoiturage/' . $covoiturage->covoit_id . '/confirmation?seats=' . $seats;
+        $confirmationUrl = '/covoiturage/' . $covoiturage->covoit_id . '/confirmation?seats=' . $requestedSeats;
         Log::info('URL de confirmation générée: ' . $confirmationUrl);
 
         return [
@@ -680,5 +695,91 @@ class CovoitController extends Controller
             'placesRestantes' => $placesRestantes,
             'user' => $user
         ]);
+    }
+
+    // On finalise la participation au covoit
+    public function participate(Request $request, $id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $user = Auth::user();
+            $covoiturage = Covoiturage::findOrFail($id);
+            $requestedSeats = session('n_tickets', 1); // On récupére le n place demandé de la session, ou 1 par défaut
+
+
+            // Section de validation !!!!!!!!!!!!!!!!!!!!!!!!!!
+            // Un conducteur ne peut pas réserver une place dans son propre trajet... Si il est juste conducteur, normalement, il ne pourrait pas (car on lui demanderait de changer de rôle)! Mais si il a le rôle les deux, je dois alors bloquer cette possibilité.
+            if ($covoiturage->user_id == $user->user_id) {
+                return response()->json(['success' => false, 'message' => 'Vous ne pouvez pas réserver une place dans votre propre covoiturage.'], 400);
+            }
+
+            // Trajet valide? Disponible?
+            if ($covoiturage->cancelled || $covoiturage->trip_completed) {
+                return response()->json(['success' => false, 'message' => 'Ce covoiturage n\'est plus disponible.'], 400);
+            }
+
+            // L'utilisateur a-t-il déjà réservé?
+            $dejaReserve = Confirmation::where('covoit_id', $id)->where('user_id', $user->user_id)->exists();
+            if ($dejaReserve) {
+                return response()->json(['success' => false, 'message' => 'Vous avez déjà fait une réservation dans ce covoiturage.'], 400);
+            }
+
+            // Assez de places?
+            $reservedSeats = Confirmation::where('covoit_id', $id)->count();
+            $availableSeats = $covoiturage->n_tickets - $reservedSeats;
+
+            if ($availableSeats < $requestedSeats) {
+                return response()->json(['success' => false, 'message' => 'Il n\'y a pas assez de places disponibles.'], 400);
+            }
+
+            // Assez de crédits?
+            $totalCost = $covoiturage->price * $requestedSeats;
+            if ($user->n_credit < $totalCost) {
+                return response()->json(['success' => false, 'message' => 'Vous n\'avez pas assez de crédits pour effectuer cette réservation.'], 400);
+            }
+
+
+
+            // Après VALIDATION:
+            // 1. Enlever le prix en crédit de l'utilisateur
+            $user->n_credit -= $totalCost;
+            $user->save();
+
+            // 2. Création des confirmations (ou de la conf)
+            for ($i = 0; $i < $requestedSeats; $i++) {
+                Confirmation::create([
+                    'covoit_id' => $id,
+                    'user_id' => $user->user_id,
+                    'statut' => 'En cours',
+                    'n_conf' => $i + 1 // Numéro de la place réservée
+                ]);
+            }
+
+            // 3. Le covoit est_il complet maintenant?
+            $newReservedSeats = $reservedSeats + $requestedSeats;
+            if ($covoiturage->n_tickets - $newReservedSeats <= 0) {
+                $covoiturage->trip_started = 1; // Si oui => on indique complet
+                $covoiturage->save();
+            }
+
+            // Si tout est ok, on valide la transaction
+            DB::commit();
+
+            // On efface alors le n place de la session
+            session()->forget(['n_tickets']);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Votre participation a été confirmée avec succès !',
+                'new_balance' => $user->n_credit
+            ]);
+        } catch (\Exception $e) {
+            // Si erreur => on annule tout
+            DB::rollback();
+            Log::error('Erreur lors de la confirmation de participation: ' . $e->getMessage());
+
+            return response()->json(['success' => false, 'message' => 'Une erreur technique est survenue. Veuillez réessayer.'], 500);
+        }
     }
 }

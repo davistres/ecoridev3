@@ -101,6 +101,7 @@
     @include('dashboard.partials.confirm-delete-all-for-change-role-to-passenger-blade')
     @include('dashboard.partials.create-covoit-modal')
     @include('dashboard.partials.modif-covoit-modal')
+    @include('dashboard.partials.covoiturage-avenir-modal')
 
     <!-- Recharge Modal -->
     <div id="recharge-modal" data-recharge-url="{{ route('credits.recharge') }}"
@@ -363,6 +364,114 @@
                         }
                     });
                 });
+
+                // Modale des covoit à venir
+                const upcomingTripModal = document.getElementById('covoiturage-avenir-modal');
+                if (upcomingTripModal) {
+                    const reservationCards = document.querySelectorAll('.reservation-card');
+                    const contentDiv = document.getElementById('modal-avenir-content');
+                    const closeButtons = upcomingTripModal.querySelectorAll('.modal-close');
+
+                    reservationCards.forEach(card => {
+                        card.addEventListener('click', function() {
+                            // Récupére toutes les données directement depuis les attributs data
+                            const data = {
+                                user_name: this.dataset.userName,
+                                departure_date: this.dataset.departureDate,
+                                departure_time: this.dataset.departureTime,
+                                arrival_date: this.dataset.arrivalDate,
+                                arrival_time: this.dataset.arrivalTime,
+                                departure_address: this.dataset.departureAddress,
+                                arrival_address: this.dataset.arrivalAddress,
+                                driver_name: this.dataset.driverName,
+                                driver_photo: this.dataset.driverPhoto,
+                                driver_rating: parseFloat(this.dataset.driverRating),
+                                driver_total_ratings: this.dataset.driverTotalRatings,
+                                car_brand: this.dataset.carBrand,
+                                car_model: this.dataset.carModel,
+                                car_color: this.dataset.carColor,
+                                car_energy: this.dataset.carEnergy,
+                                reserved_seats: this.dataset.reservedSeats
+                            };
+
+                            // Texte récap
+                            const recapText =
+                                `Nous vous rappelons que vous avez acté votre participation à ce trajet. Vous avez réservé ${data.reserved_seats} place(s) pour le covoiturage du ${data.departure_date} à ${data.departure_time}, de ${data.departure_address} vers ${data.arrival_address}.`;
+
+                            // Ouverture de la modale
+                            openModal('covoiturage-avenir-modal');
+
+                            // La remplir avec les données
+                            document.getElementById('modal-avenir-user-name').textContent = data
+                                .user_name;
+                            document.getElementById('modal-avenir-recap-text').textContent = recapText;
+                            document.getElementById('modal-avenir-departure-date').textContent = data
+                                .departure_date;
+                            document.getElementById('modal-avenir-departure-time').textContent = data
+                                .departure_time;
+                            document.getElementById('modal-avenir-arrival-date').textContent = data
+                                .arrival_date;
+                            document.getElementById('modal-avenir-arrival-time').textContent = data
+                                .arrival_time;
+                            document.getElementById('modal-avenir-departure-address').textContent = data
+                                .departure_address;
+                            document.getElementById('modal-avenir-arrival-address').textContent = data
+                                .arrival_address;
+                            document.getElementById('modal-avenir-driver-name').textContent = data
+                                .driver_name;
+                            document.getElementById('modal-avenir-car-brand').textContent = data
+                                .car_brand;
+                            document.getElementById('modal-avenir-car-model').textContent = data
+                                .car_model;
+                            document.getElementById('modal-avenir-car-color').textContent = data
+                                .car_color;
+                            document.getElementById('modal-avenir-car-energy').textContent = data
+                                .car_energy;
+
+                            // Photo du conducteur
+                            const driverPhotoDiv = document.getElementById('modal-avenir-driver-photo');
+                            if (data.driver_photo && data.driver_photo.trim() !== '') {
+                                driverPhotoDiv.innerHTML =
+                                    `<img src="${data.driver_photo}" alt="Photo de ${data.driver_name}" class="w-16 h-16 rounded-full object-cover border-2 border-green-500">`;
+                            } else {
+                                driverPhotoDiv.innerHTML =
+                                    `<i class="fas fa-user text-gray-600 text-xl"></i>`;
+                            }
+
+                            // Les étoiles des avis
+                            const ratingDiv = document.getElementById('modal-avenir-driver-rating');
+                            let ratingHTML = '';
+                            if (data.driver_rating && data.driver_rating > 0) {
+                                for (let i = 1; i <= 5; i++) {
+                                    if (i <= Math.floor(data.driver_rating)) {
+                                        ratingHTML += '<i class="fas fa-star text-yellow-400"></i>';
+                                    } else if (i - 0.5 <= data.driver_rating) {
+                                        ratingHTML +=
+                                            '<i class="fas fa-star-half-alt text-yellow-400"></i>';
+                                    } else {
+                                        ratingHTML += '<i class="far fa-star text-gray-300"></i>';
+                                    }
+                                }
+                                ratingHTML +=
+                                    `<span class="ml-2 text-gray-600">(${data.driver_rating.toFixed(1)}/5 sur ${data.driver_total_ratings} avis)</span>`;
+                            } else {
+                                ratingHTML = '<span class="text-gray-600">Nouveau conducteur</span>';
+                            }
+                            ratingDiv.innerHTML = ratingHTML;
+                        });
+                    });
+
+                    closeButtons.forEach(button => {
+                        button.addEventListener('click', () => closeModal('covoiturage-avenir-modal'));
+                    });
+
+                    upcomingTripModal.addEventListener('click', function(event) {
+                        if (event.target === upcomingTripModal || event.target.classList.contains(
+                                'modal-overlay')) {
+                            closeModal('covoiturage-avenir-modal');
+                        }
+                    });
+                }
             });
         </script>
     @endpush

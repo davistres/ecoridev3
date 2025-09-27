@@ -29,8 +29,9 @@
                         $departureDate = \Carbon\Carbon::parse($covoiturage->departure_date);
                         $arrivalDate = \Carbon\Carbon::parse($covoiturage->arrival_date);
                         $diffInDays = $departureDate->diffInDays($arrivalDate);
+                        $isFull = $covoiturage->trip_started;
                     @endphp
-                    <div class="covoiturage-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col transition-transform duration-300 hover:transform hover:-translate-y-1 hover:shadow-xl border border-slate-200"
+                    <div class="covoiturage-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col transition-transform duration-300 hover:transform hover:-translate-y-1 hover:shadow-xl border border-slate-200 @if($isFull) bg-gray-100 opacity-75 @endif"
                         data-covoiturage-id="{{ $covoiturage->covoit_id }}">
 
                         <!-- Header card -->
@@ -42,13 +43,17 @@
                                     <span>{{ $covoiturage->city_arr }}</span>
                                 </div>
                                 <div class="text-right">
-                                    <div class="text-lg font-medium text-gray-700">
-                                        <i class="fas fa-calendar-alt mr-2 text-[#2ecc71]"></i>
-                                        {{ $departureDate->format('d/m/Y') }}
-                                    </div>
-                                    @if ($diffInDays == 1)
-                                        <div class="text-sm text-orange-500 font-semibold hidden md:block">Arrivée le
-                                            lendemain</div>
+                                    @if($isFull)
+                                        <span class="px-3 py-1 text-sm font-semibold text-white bg-red-500 rounded-full">Complet</span>
+                                    @else
+                                        <div class="text-lg font-medium text-gray-700">
+                                            <i class="fas fa-calendar-alt mr-2 text-[#2ecc71]"></i>
+                                            {{ $departureDate->format('d/m/Y') }}
+                                        </div>
+                                        @if ($diffInDays == 1)
+                                            <div class="text-sm text-orange-500 font-semibold hidden md:block">Arrivée le
+                                                lendemain</div>
+                                        @endif
                                     @endif
                                 </div>
                             </div>
@@ -140,17 +145,17 @@
                             <button
                                 class="action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-slate-500 rounded-lg hover:bg-slate-600 transition-colors duration-300">Détails</button>
                             <button onclick="openModifModal(this)" data-covoiturage-id="{{ $covoiturage->covoit_id }}"
-                                class="action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-[#3498db] rounded-lg hover:bg-blue-600 transition-colors duration-300">Modifier</button>
+                                class="action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-[#3498db] rounded-lg hover:bg-blue-600 transition-colors duration-300" @disabled($isFull)>Modifier</button>
                             <form action="{{ route('covoiturages.destroy', $covoiturage) }}" method="POST"
                                 onsubmit="return confirm('Êtes-vous sûr de vouloir annuler ce trajet ?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
-                                    class="action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors duration-300">Annuler</button>
+                                    class="action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors duration-300" @disabled($isFull)>Annuler</button>
                             </form>
                             <div class="trip-status-toggle" data-trip-id="{{ $covoiturage->covoit_id }}">
                                 <button
-                                    class="start-trip-btn action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-[#2ecc71] rounded-lg hover:bg-[#27ae60] transition-colors duration-300 {{ !empty($covoiturage->trip_started_at) ? 'hidden' : '' }}">Démarrer</button>
+                                    class="start-trip-btn action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-[#2ecc71] rounded-lg hover:bg-[#27ae60] transition-colors duration-300 {{ !empty($covoiturage->trip_started_at) ? 'hidden' : '' }}" @disabled($isFull)>Démarrer</button>
                                 <button
                                     class="end-trip-btn action-btn w-full md:w-auto px-4 py-2 text-sm font-bold text-black bg-[#2ecc71] rounded-lg hover:bg-[#27ae60] transition-colors duration-300 {{ empty($covoiturage->trip_started_at) ? 'hidden' : '' }}">Vous
                                     êtes arrivé ?</button>

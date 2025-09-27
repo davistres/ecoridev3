@@ -42,6 +42,9 @@ Route::post('/clear-search-sessions', [CovoitController::class, 'clearSearchSess
 // Route pour la page de confirmation
 Route::get('/covoiturage/{id}/confirmation', [CovoitController::class, 'showConfirmation'])->middleware('auth')->name('covoiturage.confirmation');
 
+// Route pour la validation de la participation à un covoit
+Route::post('/covoiturage/{id}/participate', [CovoitController::class, 'participate'])->middleware('auth')->name('covoiturage.participate');
+
 Route::get('/contact', function () {
     return view('contact');
 })->name('contact');

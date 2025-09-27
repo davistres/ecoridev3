@@ -420,12 +420,51 @@
             </div>
             <section class="covoiturage-list grid gap-6">
                 @foreach ($covoiturages as $covoiturage)
+                    @if (isset($covoiturage->button_status['show_credit_warning']) && $covoiturage->button_status['show_credit_warning'])
+                        <div class="text-red-500 font-bold text-center mt-4">
+                            Vous avez {{ $covoiturage->button_status['user_credits'] }}
+                            crédit{{ $covoiturage->button_status['user_credits'] > 1 ? 's' : '' }} ! Pour réserver
+                            {{ $covoiturage->button_status['requested_seats'] }}
+                            place{{ $covoiturage->button_status['requested_seats'] > 1 ? 's' : '' }} sur ce
+                            covoiturage, il vous faut {{ $covoiturage->button_status['total_cost'] }} crédits !
+                        </div>
+                    @endif
                     <!-- covoiturage-card !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
                     <div class="covoiturage-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row transition-transform duration-300 hover:transform hover:-translate-y-1 hover:shadow-xl"
+                        data-id="{{ $covoiturage->covoit_id }}"
                         data-max-travel-time="{{ $covoiturage->max_travel_time ?? 120 }}"
                         data-price="{{ $covoiturage->price }}"
                         data-eco="{{ $covoiturage->eco_travel ? 'true' : 'false' }}"
-                        data-rating="{{ $covoiturage->user->average_rating ?? 0 }}">
+                        data-rating="{{ $covoiturage->user->average_rating ?? 0 }}"
+                        data-departure-address="{{ $covoiturage->departure_address }}"
+                        data-add-dep-address="{{ $covoiturage->add_dep_address }}"
+                        data-postal-code-dep="{{ $covoiturage->postal_code_dep }}"
+                        data-city-dep="{{ $covoiturage->city_dep }}"
+                        data-arrival-address="{{ $covoiturage->arrival_address }}"
+                        data-add-arr-address="{{ $covoiturage->add_arr_address }}"
+                        data-postal-code-arr="{{ $covoiturage->postal_code_arr }}"
+                        data-city-arr="{{ $covoiturage->city_arr }}"
+                        data-departure-date="{{ \Carbon\Carbon::parse($covoiturage->departure_date)->format('d/m/Y') }}"
+                        data-departure-time="{{ \Carbon\Carbon::parse($covoiturage->departure_time)->format('H:i') }}"
+                        data-arrival-date="{{ \Carbon\Carbon::parse($covoiturage->arrival_date)->format('d/m/Y') }}"
+                        data-arrival-time="{{ \Carbon\Carbon::parse($covoiturage->arrival_time)->format('H:i') }}"
+                        data-n-tickets="{{ $covoiturage->n_tickets }}"
+                        data-driver-pseudo="{{ $covoiturage->user->name }}"
+                        data-driver-photo="{{ $covoiturage->user->photo ? 'data:' . $covoiturage->user->phototype . ';base64,' . base64_encode($covoiturage->user->photo) : '' }}"
+                        data-driver-rating-avg="{{ $covoiturage->user->average_rating ?? 0 }}"
+                        data-driver-total-ratings="{{ $covoiturage->user->total_ratings ?? 0 }}"
+                        data-pref-smoke="{{ $covoiturage->user->pref_smoke }}"
+                        data-pref-pet="{{ $covoiturage->user->pref_pet }}"
+                        data-pref-libre="{{ $covoiturage->user->pref_libre }}"
+                        data-immat="{{ $covoiturage->voiture->immat ?? 'N/A' }}"
+                        data-brand="{{ $covoiturage->voiture->brand ?? 'N/A' }}"
+                        data-model="{{ $covoiturage->voiture->model ?? 'N/A' }}"
+                        data-color="{{ $covoiturage->voiture->color ?? 'N/A' }}"
+                        data-energie="{{ $covoiturage->voiture->energie ?? 'N/A' }}"
+                        data-button-text="{{ $covoiturage->button_status['button_text'] }}"
+                        data-button-redirect="{{ $covoiturage->button_status['redirect_to'] }}"
+                        data-button-class="{{ $covoiturage->button_status['button_class'] }}"
+                        data-can-participate="{{ $covoiturage->button_status['can_participate'] ? 'true' : 'false' }}">
                         <div
                             class="covoiturage-driver w-full md:w-[26%] p-6 md:p-5 bg-gray-50 border-b md:border-b-0 md:border-r border-gray-200 flex flex-col items-center justify-center text-center">
                             <div

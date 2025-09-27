@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Validation\Rule;
+use App\Models\Confirmation;
 
 class DashboardController extends Controller
 {
@@ -18,6 +18,8 @@ class DashboardController extends Controller
     {
         $user = $request->user();
         $voitures = Voiture::where('user_id', $user->user_id)->get();
+
+        // Covoit proposé par l'utilisateur
         $covoiturages = Covoiturage::with('voiture')
             ->where('user_id', $user->user_id)
             ->where('trip_completed', 0)
@@ -34,12 +36,26 @@ class DashboardController extends Controller
             ->orderBy('departure_time', 'asc')
             ->get();
 
+        // Covoit réservé
+        $reservations = Confirmation::with(['covoiturage.user', 'covoiturage.voiture'])
+            ->where('user_id', $user->user_id)
+            ->whereHas('covoiturage', function ($q) {
+                $q->where('trip_completed', 0)
+                    ->where('cancelled', 0)
+                    ->where('departure_date', '>=', now()->toDateString());
+            })
+            ->get()
+            ->unique('covoit_id');
+
         return view('dashboard', [
             'user' => $user,
             'voitures' => $voitures,
             'covoiturages' => $covoiturages,
+            'reservations' => $reservations,
         ]);
     }
+
+
 
     public function recharge(RechargeRequest $request): JsonResponse
     {

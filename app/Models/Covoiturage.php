@@ -56,4 +56,10 @@ class Covoiturage extends Model
     {
         return $this->hasMany(Satisfaction::class, 'covoit_id', 'covoit_id');
     }
+
+    /** Confirmation pour ce covoit */
+    public function confirmations()
+    {
+        return $this->hasMany(Confirmation::class, 'covoit_id', 'covoit_id');
+    }
 }

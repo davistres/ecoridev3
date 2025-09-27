@@ -19,14 +19,8 @@
         <!-- Main -->
         <div class="modal-body p-6">
 
-            <!-- Indicateur de chargement -->
-            <div id="modal-loading" class="flex flex-col items-center justify-center py-12">
-                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mb-4"></div>
-                <p class="text-gray-600">Chargement des détails...</p>
-            </div>
-
-            <!-- Contenu masqué pendant le chargement -->
-            <div id="modal-content" class="hidden space-y-6">
+            <!-- Contenu -->
+            <div id="modal-content" class="space-y-6">
 
                 <!-- Info du trajet -->
                 <div class="trip-details-section">
