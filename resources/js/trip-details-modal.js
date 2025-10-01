@@ -37,6 +37,56 @@ function initTripDetailsModal() {
     });
 }
 
+// Génération des étoiles
+function generateStars(rating) {
+    let starsHtml = '';
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating - fullStars >= 0.5;
+    for (let i = 0; i < fullStars; i++) {
+        starsHtml += '<i class="fas fa-star text-yellow-400"></i>';
+    }
+    if (hasHalfStar) {
+        starsHtml += '<i class="fas fa-star-half-alt text-yellow-400"></i>';
+    }
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    for (let i = 0; i < emptyStars; i++) {
+        starsHtml += '<i class="far fa-star text-gray-300"></i>';
+    }
+    return starsHtml;
+}
+
+// Profil du conducteur
+function generateDriverProfileHTML(driver) {
+    let photoHTML = '';
+    if (driver.driverPhoto) {
+        photoHTML = `<img src="${driver.driverPhoto}" alt="Photo de ${driver.driverPseudo}" class="w-16 h-16 rounded-full object-cover border-2 border-green-500">`;
+    } else {
+        photoHTML = `<div class="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center border-2 border-green-500">
+            <i class="fas fa-user text-gray-600 text-xl"></i>
+        </div>`;
+    }
+
+    const avgRating = parseFloat(driver.driverRatingAvg);
+    const totalRatings = parseInt(driver.driverTotalRatings);
+    let ratingHTML = '';
+    if (avgRating && totalRatings > 0) {
+        ratingHTML = `<div class="flex items-center">
+            ${generateStars(avgRating)}
+            <span class="ml-2 text-gray-600">(${avgRating.toFixed(1)}/5 sur ${totalRatings} avis)</span>
+        </div>`;
+    } else {
+        ratingHTML = '<span class="text-gray-600">Nouveau conducteur</span>';
+    }
+
+    return `<div class="flex items-center space-x-4">
+        ${photoHTML}
+        <div>
+            <h5 class="font-semibold text-gray-800 text-lg">${driver.driverPseudo}</h5>
+            ${ratingHTML}
+        </div>
+    </div>`;
+}
+
 // Remplissage de la modale
 function populateModalFromData(data) {
     // Informations de base
@@ -70,25 +120,9 @@ function populateModalFromData(data) {
     }
 
     // Info du conducteur
-    document.getElementById('modal-driver-pseudo').textContent = data.driverPseudo || '';
-    const driverPhoto = document.getElementById('modal-driver-photo');
-    if (data.driverPhoto) {
-        driverPhoto.innerHTML = `<img src="${data.driverPhoto}" alt="${data.driverPseudo}" class="w-full h-full object-cover rounded-full">`;
-    } else {
-        driverPhoto.innerHTML = '<i class="fas fa-user text-2xl text-gray-500"></i>';
-    }
-
-    const driverRating = document.getElementById('modal-driver-rating');
-    const driverStars = document.getElementById('modal-driver-stars');
-    const avgRating = parseFloat(data.driverRatingAvg);
-    const totalRatings = parseInt(data.driverTotalRatings);
-
-    if (avgRating && totalRatings > 0) {
-        driverRating.textContent = `${avgRating.toFixed(1)}/5 (${totalRatings} avis)`;
-        driverStars.innerHTML = generateStars(avgRating);
-    } else {
-        driverRating.textContent = '';
-        driverStars.textContent = 'Nouveau conducteur';
+    const driverProfileContainer = document.getElementById('modal-driver-profile');
+    if (driverProfileContainer) {
+        driverProfileContainer.innerHTML = generateDriverProfileHTML(data);
     }
 
     // Préférences
@@ -111,11 +145,16 @@ function populateModalFromData(data) {
     document.getElementById('modal-energie').textContent = data.energie || 'Non disponible';
 
     // Pour gagner en vitesse, j'ai décidé de ne pas récupérer les infos en faisant un appel API...
-    // Mais pour les avis, si je charge les données avant la page, ça n'est pas jouable si il y en a beaucoup... ça sera trop lent!!!
-    // Donc, toujours pour cette raison (la vitesse), j'ai décidé de ne pas récupérer les avis pour l'instant...
-    // Par contre, je vais devoir m'en occuper après (en créant un appel api juste pour récupérer les avis).
-    document.getElementById('modal-reviews-list').innerHTML = '<div class="text-center text-gray-500 py-4">Les avis détaillés ne sont pas affichés dans cet aperçu.</div>';
-    // TODO: Faire un appel API pour récupérer les avis détaillés!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // Mais pour les avis, je pensais que faire la même chose serait trop lent... Donc, je pensias devoir faire un appel api...
+    // Mais rien ne marche???? Après ce commit, je vais essayer encore... Mais en cas d'échec, je vais faire comme pour les autres infos... En limitant néanmoins le nombre d'avis à afficher...
+
+    // Pour afficher la liste des avis => on récupère le html qui a l'id modal-reviews-list
+    const reviewsContainer = document.getElementById('modal-reviews-list');
+    // On récupére l'id du conducteur pour avoir ses avis
+    const driverId = data.driver_id;
+    if (window.fetchAndDisplayReviews) {
+        window.fetchAndDisplayReviews(driverId, reviewsContainer);
+    }
 
 
     // Bouton participer
@@ -177,19 +216,4 @@ function formatDuration(duration) {
     }
 }
 
-function generateStars(rating) {
-    let starsHtml = '';
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating - fullStars >= 0.5;
-    for (let i = 0; i < fullStars; i++) {
-        starsHtml += '<i class="fas fa-star text-yellow-400"></i>';
-    }
-    if (hasHalfStar) {
-        starsHtml += '<i class="fas fa-star-half-alt text-yellow-400"></i>';
-    }
-    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-    for (let i = 0; i < emptyStars; i++) {
-        starsHtml += '<i class="far fa-star text-gray-300"></i>';
-    }
-    return starsHtml;
-}
+

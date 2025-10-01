@@ -33,11 +33,11 @@
                         <div class="trip-details-departure flex flex-col items-center md:items-start">
                             <h5 class="font-semibold text-gray-700 mb-2">Départ</h5>
                             <div class="space-y-2">
-                                <div class="flex items-center text-gray-600">
+                                <div class="flex items-center justify-center md:justify-start text-gray-600">
                                     <i class="fas fa-calendar mr-2 text-green-500"></i>
                                     <span id="modal-departure-date"></span>
                                 </div>
-                                <div class="flex items-center text-gray-600">
+                                <div class="flex items-center justify-center md:justify-start text-gray-600">
                                     <i class="fas fa-clock mr-2 text-green-500"></i>
                                     <span id="modal-departure-time"></span>
                                 </div>
@@ -45,12 +45,12 @@
                         </div>
                         <div class="trip-details-arrival flex flex-col items-center md:items-end">
                             <h5 class="font-semibold text-gray-700 mb-2">Arrivée</h5>
-                            <div class="space-y-2 flex flex-col md:items-end">
-                                <div class="flex items-center text-gray-600">
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-center md:justify-end text-gray-600">
                                     <i class="fas fa-calendar mr-2 text-green-500"></i>
                                     <span id="modal-arrival-date"></span>
                                 </div>
-                                <div class="flex items-center text-gray-600">
+                                <div class="flex items-center justify-center md:justify-end text-gray-600">
                                     <i class="fas fa-clock mr-2 text-green-500"></i>
                                     <span id="modal-arrival-time"></span>
                                 </div>
@@ -117,17 +117,9 @@
                         <i class="fas fa-user mr-2 text-green-500"></i>Informations sur le conducteur
                     </h4>
 
-                    <div class="driver-profile flex items-center mb-6">
-                        <div id="modal-driver-photo"
-                            class="w-20 h-20 rounded-full border-4 border-green-400 shadow-md mr-4 bg-gray-200 flex items-center justify-center">
-                            <i class="fas fa-user text-2xl text-gray-500"></i>
-                        </div>
-                        <div class="driver-info">
-                            <h5 id="modal-driver-pseudo" class="text-xl font-semibold text-gray-800"></h5>
-                            <div class="driver-rating flex items-center gap-2 mt-1">
-                                <span id="modal-driver-rating" class="font-bold text-yellow-500"></span>
-                                <span id="modal-driver-stars" class="text-yellow-500"></span>
-                            </div>
+                    <div class="flex justify-center">
+                        <div id="modal-driver-profile" class="mb-6">
+                            <!-- Le profil du conducteur sera chargé ici -->
                         </div>
                     </div>
 
@@ -187,7 +179,11 @@
                     </h4>
                     <div class="reviews-container">
                         <div id="modal-reviews-list" class="space-y-4">
-                            <div class="text-center text-gray-500 py-8">Chargement des avis...</div>
+                            <div class="text-center text-gray-500 py-8">
+                                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto">
+                                </div>
+                                <p class="mt-4">Chargement des avis...</p>
+                            </div>
                         </div>
                     </div>
                 </div>

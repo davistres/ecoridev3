@@ -165,6 +165,88 @@
 
     @push('scripts')
         <script>
+            // Géné étoiles
+            function generateStars(rating) {
+                let starsHtml = '';
+                const fullStars = Math.floor(rating);
+                const hasHalfStar = rating - fullStars >= 0.5;
+                for (let i = 0; i < fullStars; i++) {
+                    starsHtml += '<i class="fas fa-star text-yellow-400"></i>';
+                }
+                if (hasHalfStar) {
+                    starsHtml += '<i class="fas fa-star-half-alt text-yellow-400"></i>';
+                }
+                const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+                for (let i = 0; i < emptyStars; i++) {
+                    starsHtml += '<i class="far fa-star text-gray-300"></i>';
+                }
+                return starsHtml;
+            }
+
+            // Géné profil du conducteur
+            function generateDriverProfileHTML(driver) {
+                let photoHTML = '';
+                if (driver.driver_photo) {
+                    photoHTML =
+                        `<img src="${driver.driver_photo}" alt="Photo de ${driver.driver_name}" class="w-16 h-16 rounded-full object-cover border-2 border-green-500">`;
+                } else {
+                    photoHTML = `<div class="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center border-2 border-green-500">
+                        <i class="fas fa-user text-gray-600 text-xl"></i>
+                    </div>`;
+                }
+
+                // Géné de la note
+                const avgRating = parseFloat(driver.driver_rating);
+                const totalRatings = parseInt(driver.driver_total_ratings);
+                let ratingHTML = '';
+                if (avgRating && totalRatings > 0) {
+                    ratingHTML = `<div class="flex items-center">
+                        ${generateStars(avgRating)}
+                        <span class="ml-2 text-gray-600">(${avgRating.toFixed(1)}/5 sur ${totalRatings} avis)</span>
+                    </div>`;
+                } else {
+                    ratingHTML = '<span class="text-gray-600">Nouveau conducteur</span>';
+                }
+
+                return `<div class="flex items-center space-x-4">
+                    ${photoHTML}
+                    <div>
+                        <h5 class="font-semibold text-gray-800 text-lg">${driver.driver_name}</h5>
+                        ${ratingHTML}
+                    </div>
+                </div>`;
+            }
+
+            // Formatage de la durée
+            function formatDuration(timeString) {
+                if (!timeString || !timeString.includes(':')) {
+                    return 'N/A';
+                }
+                const parts = timeString.split(':');
+                const hours = parseInt(parts[0], 10);
+                const minutes = parseInt(parts[1], 10);
+
+                if (isNaN(hours) || isNaN(minutes)) {
+                    return 'N/A';
+                }
+
+                let formatted = '';
+                if (hours > 0) {
+                    formatted += `${hours}h`;
+                }
+                if (minutes > 0) {
+                    formatted += `${minutes.toString().padStart(2, '0')}`;
+                }
+
+                if (formatted === '') {
+                    return '0min';
+                } else if (!formatted.includes('h')) {
+                    return formatted + 'min';
+                }
+
+                return formatted;
+            }
+
             // Ouvrir et fermer une modale
             function openModal(modalId) {
                 const modal = document.getElementById(modalId);
@@ -387,24 +469,47 @@
                                 driver_photo: this.dataset.driverPhoto,
                                 driver_rating: parseFloat(this.dataset.driverRating),
                                 driver_total_ratings: this.dataset.driverTotalRatings,
+                                driver_id: this.dataset.driverId,
                                 car_brand: this.dataset.carBrand,
                                 car_model: this.dataset.carModel,
                                 car_color: this.dataset.carColor,
                                 car_energy: this.dataset.carEnergy,
-                                reserved_seats: this.dataset.reservedSeats
+                                reserved_seats: parseInt(this.dataset.reservedSeats),
+                                max_travel_time: this.dataset.maxTravelTime,
+                                eco_travel: this.dataset.ecoTravel === '1',
+                                pref_smoke: this.dataset.prefSmoke,
+                                pref_pet: this.dataset.prefPet,
+                                pref_libre: this.dataset.prefLibre,
+                                price: parseFloat(this.dataset.price)
                             };
 
                             // Texte récap
-                            const recapText =
-                                `Nous vous rappelons que vous avez acté votre participation à ce trajet. Vous avez réservé ${data.reserved_seats} place(s) pour le covoiturage du ${data.departure_date} à ${data.departure_time}, de ${data.departure_address} vers ${data.arrival_address}.`;
+                            let recapText =
+                                `Nous vous rappelons que vous avez acté votre participation à ce trajet. Vous avez réservé ${data.reserved_seats} place(s) pour le covoiturage du ${data.departure_date} à ${data.departure_time}, de ${data.departure_address} vers ${data.arrival_address}.<br><br>`;
+
+                            if (data.reserved_seats > 1) {
+                                recapText +=
+                                    `Nous vous rappelons aussi que cela vous a coûté ${data.price} crédits pour une place... Soit un total de ${data.price * data.reserved_seats} crédits.`
+                            } else {
+                                recapText +=
+                                    `Nous vous rappelons aussi que cela vous a coûté ${data.price} crédits pour une place...`
+                            }
+
 
                             // Ouverture de la modale
                             openModal('covoiturage-avenir-modal');
 
+                            // Charger les avis dynamiquement
+                            const reviewsContainer = document.getElementById(
+                                'modal-avenir-reviews-list');
+                            if (window.fetchAndDisplayReviews) {
+                                window.fetchAndDisplayReviews(this.dataset.driverId, reviewsContainer);
+                            }
+
                             // La remplir avec les données
                             document.getElementById('modal-avenir-user-name').textContent = data
                                 .user_name;
-                            document.getElementById('modal-avenir-recap-text').textContent = recapText;
+                            document.getElementById('modal-avenir-recap-text').innerHTML = recapText;
                             document.getElementById('modal-avenir-departure-date').textContent = data
                                 .departure_date;
                             document.getElementById('modal-avenir-departure-time').textContent = data
@@ -417,8 +522,10 @@
                                 .departure_address;
                             document.getElementById('modal-avenir-arrival-address').textContent = data
                                 .arrival_address;
-                            document.getElementById('modal-avenir-driver-name').textContent = data
-                                .driver_name;
+                            document.getElementById('modal-avenir-price').textContent = data.price ?
+                                `${data.price} crédits` : 'N/A';
+                            document.getElementById('modal-avenir-reserved-seats').textContent = data
+                                .reserved_seats;
                             document.getElementById('modal-avenir-car-brand').textContent = data
                                 .car_brand;
                             document.getElementById('modal-avenir-car-model').textContent = data
@@ -427,37 +534,41 @@
                                 .car_color;
                             document.getElementById('modal-avenir-car-energy').textContent = data
                                 .car_energy;
+                            document.getElementById('modal-avenir-max-travel-time').textContent = data
+                                .max_travel_time ? formatDuration(data.max_travel_time) :
+                                'Non spécifiée';
 
-                            // Photo du conducteur
-                            const driverPhotoDiv = document.getElementById('modal-avenir-driver-photo');
-                            if (data.driver_photo && data.driver_photo.trim() !== '') {
-                                driverPhotoDiv.innerHTML =
-                                    `<img src="${data.driver_photo}" alt="Photo de ${data.driver_name}" class="w-16 h-16 rounded-full object-cover border-2 border-green-500">`;
+                            // Badge éco
+                            const ecoBadgeContainer = document.getElementById(
+                                'modal-avenir-eco-travel');
+                            if (data.eco_travel) {
+                                ecoBadgeContainer.innerHTML =
+                                    `<span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800"><i class="fas fa-leaf mr-2"></i>Trajet écologique</span>`;
                             } else {
-                                driverPhotoDiv.innerHTML =
-                                    `<i class="fas fa-user text-gray-600 text-xl"></i>`;
+                                ecoBadgeContainer.innerHTML = '';
                             }
 
-                            // Les étoiles des avis
-                            const ratingDiv = document.getElementById('modal-avenir-driver-rating');
-                            let ratingHTML = '';
-                            if (data.driver_rating && data.driver_rating > 0) {
-                                for (let i = 1; i <= 5; i++) {
-                                    if (i <= Math.floor(data.driver_rating)) {
-                                        ratingHTML += '<i class="fas fa-star text-yellow-400"></i>';
-                                    } else if (i - 0.5 <= data.driver_rating) {
-                                        ratingHTML +=
-                                            '<i class="fas fa-star-half-alt text-yellow-400"></i>';
-                                    } else {
-                                        ratingHTML += '<i class="far fa-star text-gray-300"></i>';
-                                    }
-                                }
-                                ratingHTML +=
-                                    `<span class="ml-2 text-gray-600">(${data.driver_rating.toFixed(1)}/5 sur ${data.driver_total_ratings} avis)</span>`;
+                            // Préférences
+                            document.getElementById('modal-avenir-pref-smoke').textContent = data
+                                .pref_smoke || 'Non spécifié';
+                            document.getElementById('modal-avenir-pref-pet').textContent = data
+                                .pref_pet ? 'Animaux ' + data.pref_pet : 'Non spécifié';
+                            const prefLibreContainer = document.getElementById(
+                                'modal-avenir-pref-libre-container');
+                            const prefLibre = document.getElementById('modal-avenir-pref-libre');
+                            if (data.pref_libre) {
+                                prefLibre.textContent = data.pref_libre;
+                                prefLibreContainer.style.display = 'flex';
                             } else {
-                                ratingHTML = '<span class="text-gray-600">Nouveau conducteur</span>';
+                                prefLibreContainer.style.display = 'none';
                             }
-                            ratingDiv.innerHTML = ratingHTML;
+
+                            // Info du conducteur
+                            const driverProfileContainer = document.getElementById(
+                                'modal-avenir-driver-profile');
+                            if (driverProfileContainer) {
+                                driverProfileContainer.innerHTML = generateDriverProfileHTML(data);
+                            }
                         });
                     });
 

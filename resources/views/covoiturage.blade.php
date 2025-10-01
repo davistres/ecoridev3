@@ -464,7 +464,8 @@
                         data-button-text="{{ $covoiturage->button_status['button_text'] }}"
                         data-button-redirect="{{ $covoiturage->button_status['redirect_to'] }}"
                         data-button-class="{{ $covoiturage->button_status['button_class'] }}"
-                        data-can-participate="{{ $covoiturage->button_status['can_participate'] ? 'true' : 'false' }}">
+                        data-can-participate="{{ $covoiturage->button_status['can_participate'] ? 'true' : 'false' }}"
+                        data-driver-id="{{ $covoiturage->user->user_id }}">
                         <div
                             class="covoiturage-driver w-full md:w-[26%] p-6 md:p-5 bg-gray-50 border-b md:border-b-0 md:border-r border-gray-200 flex flex-col items-center justify-center text-center">
                             <div
@@ -634,6 +635,7 @@
     @push('scripts')
         @vite(['resources/js/trip-filters.js'])
         @vite(['resources/js/trip-details-modal.js'])
+        @vite(['resources/js/reviews-loader.js'])
         <script>
             // Réinit la page
             function resetSearchForm() {

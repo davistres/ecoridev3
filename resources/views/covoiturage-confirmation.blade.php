@@ -7,7 +7,7 @@
                 <div class="text-center">
                     <h1 class="text-3xl font-bold text-gray-800 mb-4">
                         <i class="fas fa-check-circle text-green-500 mr-2"></i>
-                        Confirmation de participation
+                        Confirmation de votre participation
                     </h1>
                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                         <p class="text-lg text-gray-700">
@@ -46,11 +46,11 @@
                                 <div class="trip-details-departure flex flex-col items-center md:items-start">
                                     <h5 class="font-semibold text-gray-700 mb-2">Départ</h5>
                                     <div class="space-y-2">
-                                        <div class="flex items-center text-gray-600">
+                                        <div class="flex items-center justify-center md:justify-start text-gray-600">
                                             <i class="fas fa-calendar mr-2 text-green-500"></i>
                                             <span>{{ \Carbon\Carbon::parse($covoiturage->departure_date)->format('d/m/Y') }}</span>
                                         </div>
-                                        <div class="flex items-center text-gray-600">
+                                        <div class="flex items-center justify-center md:justify-start text-gray-600">
                                             <i class="fas fa-clock mr-2 text-green-500"></i>
                                             <span>{{ \Carbon\Carbon::parse($covoiturage->departure_time)->format('H:i') }}</span>
                                         </div>
@@ -60,11 +60,11 @@
                                 <div class="trip-details-arrival flex flex-col items-center md:items-end">
                                     <h5 class="font-semibold text-gray-700 mb-2">Arrivée</h5>
                                     <div class="space-y-2">
-                                        <div class="flex items-center text-gray-600">
+                                        <div class="flex items-center justify-center md:justify-end text-gray-600">
                                             <i class="fas fa-calendar mr-2 text-green-500"></i>
                                             <span>{{ \Carbon\Carbon::parse($covoiturage->departure_date)->format('d/m/Y') }}</span>
                                         </div>
-                                        <div class="flex items-center text-gray-600">
+                                        <div class="flex items-center justify-center md:justify-end text-gray-600">
                                             <i class="fas fa-clock mr-2 text-green-500"></i>
                                             <span>{{ \Carbon\Carbon::parse($covoiturage->arrival_time)->format('H:i') }}</span>
                                         </div>
@@ -77,7 +77,7 @@
                                 <div
                                     class="address-departure address-departure flex flex-col items-center md:items-start">
                                     <h5 class="font-semibold text-gray-700 mb-2">Adresse de départ</h5>
-                                    <div class="flex items-start text-gray-600">
+                                    <div class="flex items-start justify-center md:justify-start text-gray-600">
                                         <i class="fas fa-map-marker-alt mr-2 text-green-500 mt-1"></i>
                                         <span>{{ $covoiturage->departure_address }}</span>
                                     </div>
@@ -85,7 +85,7 @@
 
                                 <div class="address-arrival flex flex-col items-center md:items-end">
                                     <h5 class="font-semibold text-gray-700 mb-2">Adresse d'arrivée</h5>
-                                    <div class="flex items-start text-gray-600">
+                                    <div class="flex items-start justify-center md:justify-end text-gray-600">
                                         <i class="fas fa-map-marker-alt mr-2 text-green-500 mt-1"></i>
                                         <span>{{ $covoiturage->arrival_address }}</span>
                                     </div>
@@ -115,6 +115,16 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Eco ou non -->
+                            @if ($covoiturage->eco_travel)
+                                <div class="mt-4 text-center">
+                                    <span
+                                        class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-leaf mr-2"></i>Trajet écologique
+                                    </span>
+                                </div>
+                            @endif
                         </div>
 
                         <!-- Info du conducteur -->
@@ -125,53 +135,30 @@
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <!-- Photo et nom -->
-                                <div class="driver-profile flex items-center space-x-4">
-                                    @if ($conducteur->photo)
-                                        <img src="data:{{ $conducteur->phototype }};base64,{{ base64_encode($conducteur->photo) }}"
-                                            alt="Photo de {{ $conducteur->name }}"
-                                            class="w-16 h-16 rounded-full object-cover border-2 border-green-500">
-                                    @else
-                                        <div
-                                            class="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center border-2 border-green-500">
-                                            <i class="fas fa-user text-gray-600 text-xl"></i>
-                                        </div>
-                                    @endif
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800 text-lg">{{ $conducteur->name }}</h5>
-                                        <div class="flex items-center">
-                                            @for ($i = 1; $i <= 5; $i++)
-                                                @if ($i <= floor($notesMoyenne))
-                                                    <i class="fas fa-star text-yellow-400"></i>
-                                                @elseif($i - 0.5 <= $notesMoyenne)
-                                                    <i class="fas fa-star-half-alt text-yellow-400"></i>
-                                                @else
-                                                    <i class="far fa-star text-gray-300"></i>
-                                                @endif
-                                            @endfor
-                                            <span
-                                                class="ml-2 text-gray-600">({{ number_format($notesMoyenne, 1) }}/5)</span>
-                                        </div>
-                                    </div>
+                                <div class="driver-profile flex items-center justify-center md:justify-start space-x-4">
+                                    <x-driver-profile :driver="$conducteur" :avgRating="$notesMoyenne" :totalRatings="$totalRatings" />
                                 </div>
 
                                 <!-- Préférences -->
-                                <div class="driver-preferences">
+                                <div class="driver-preferences flex flex-col items-center md:items-start">
                                     <h5 class="font-semibold text-gray-700 mb-2">Préférences</h5>
                                     <div class="space-y-2">
                                         @if ($conducteur->pref_smoke)
-                                            <div class="flex items-center text-gray-600">
+                                            <div
+                                                class="flex items-center justify-center md:justify-start text-gray-600">
                                                 <i class="fas fa-smoking mr-2 text-gray-500"></i>
                                                 <span>{{ $conducteur->pref_smoke }}</span>
                                             </div>
                                         @endif
                                         @if ($conducteur->pref_pet)
-                                            <div class="flex items-center text-gray-600">
+                                            <div
+                                                class="flex items-center justify-center md:justify-start text-gray-600">
                                                 <i class="fas fa-paw mr-2 text-gray-500"></i>
                                                 <span>Animaux {{ $conducteur->pref_pet }}</span>
                                             </div>
                                         @endif
                                         @if ($conducteur->pref_libre)
-                                            <div class="flex items-start text-gray-600">
+                                            <div class="flex items-start justify-center md:justify-start text-gray-600">
                                                 <i class="fas fa-comment mr-2 text-gray-500 mt-1"></i>
                                                 <span>{{ $conducteur->pref_libre }}</span>
                                             </div>
@@ -188,29 +175,27 @@
                                     <i class="fas fa-car mr-2 text-green-500"></i>Informations sur le véhicule
                                 </h4>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div class="vehicle-info">
-                                        <div class="space-y-3">
-                                            <div class="flex items-center text-gray-600">
-                                                <i class="fas fa-car mr-2 text-blue-500"></i>
-                                                <span><strong>Marque :</strong>
-                                                    {{ $voiture->brand ?? 'Non spécifiée' }}</span>
-                                            </div>
-                                            <div class="flex items-center text-gray-600">
-                                                <i class="fas fa-cogs mr-2 text-blue-500"></i>
-                                                <span><strong>Modèle :</strong>
-                                                    {{ $voiture->model ?? 'Non spécifié' }}</span>
-                                            </div>
-                                            <div class="flex items-center text-gray-600">
-                                                <i class="fas fa-palette mr-2 text-blue-500"></i>
-                                                <span><strong>Couleur :</strong>
-                                                    {{ $voiture->color ?? 'Non spécifiée' }}</span>
-                                            </div>
-                                            <div class="flex items-center text-gray-600">
-                                                <i class="fas fa-leaf mr-2 text-green-500"></i>
-                                                <span><strong>Énergie :</strong>
-                                                    {{ $voiture->energie ?? 'Non spécifiée' }}</span>
-                                            </div>
+                                <div class="vehicle-info">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6">
+                                        <div class="flex items-center justify-center md:justify-start text-gray-600">
+                                            <i class="fas fa-car mr-2 text-blue-500"></i>
+                                            <span><strong>Marque :</strong>
+                                                {{ $voiture->brand ?? 'Non spécifiée' }}</span>
+                                        </div>
+                                        <div class="flex items-center justify-center md:justify-start text-gray-600">
+                                            <i class="fas fa-cogs mr-2 text-blue-500"></i>
+                                            <span><strong>Modèle :</strong>
+                                                {{ $voiture->model ?? 'Non spécifié' }}</span>
+                                        </div>
+                                        <div class="flex items-center justify-center md:justify-start text-gray-600">
+                                            <i class="fas fa-palette mr-2 text-blue-500"></i>
+                                            <span><strong>Couleur :</strong>
+                                                {{ $voiture->color ?? 'Non spécifiée' }}</span>
+                                        </div>
+                                        <div class="flex items-center justify-center md:justify-start text-gray-600">
+                                            <i class="fas fa-leaf mr-2 text-green-500"></i>
+                                            <span><strong>Énergie :</strong>
+                                                {{ $voiture->energie ?? 'Non spécifiée' }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -218,49 +203,19 @@
                         @endif
 
                         <!-- Avis des passagers -->
-                        @if ($avis->count() > 0)
-                            <div class="reviews-section">
-                                <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
-                                    <i class="fas fa-comments mr-2 text-green-500"></i>Avis des passagers
-                                    ({{ $avis->count() }})
-                                </h4>
-
-                                <div class="space-y-4 max-h-64 overflow-y-auto">
-                                    @foreach ($avis as $avis_item)
-                                        <div class="review-card bg-gray-50 rounded-lg p-4">
-                                            <div class="flex items-center justify-between mb-2">
-                                                <div class="flex items-center">
-                                                    @for ($i = 1; $i <= 5; $i++)
-                                                        @if ($i <= $avis_item->note)
-                                                            <i class="fas fa-star text-yellow-400"></i>
-                                                        @else
-                                                            <i class="far fa-star text-gray-300"></i>
-                                                        @endif
-                                                    @endfor
-                                                    <span
-                                                        class="ml-2 font-semibold text-gray-700">{{ $avis_item->note }}/5</span>
-                                                </div>
-                                                <span
-                                                    class="text-sm text-gray-500">{{ \Carbon\Carbon::parse($avis_item->date)->format('d/m/Y') }}</span>
-                                            </div>
-                                            @if ($avis_item->comment)
-                                                <p class="text-gray-600">{{ $avis_item->comment }}</p>
-                                            @endif
-                                        </div>
-                                    @endforeach
+                        <div class="reviews-section" data-driver-id="{{ $conducteur->user_id }}">
+                            <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
+                                <i class="fas fa-comments mr-2 text-green-500"></i>Avis des passagers
+                            </h4>
+                            <div id="confirmation-reviews-list" class="space-y-4 max-h-64 overflow-y-auto">
+                                <div class="text-center text-gray-500 py-8">
+                                    <div
+                                        class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto">
+                                    </div>
+                                    <p class="mt-4">Chargement des avis...</p>
                                 </div>
                             </div>
-                        @else
-                            <div class="reviews-section">
-                                <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
-                                    <i class="fas fa-comments mr-2 text-green-500"></i>Avis des passagers
-                                </h4>
-                                <div class="text-center py-8 text-gray-500">
-                                    <i class="fas fa-comment-slash text-4xl mb-4"></i>
-                                    <p>Aucun avis pour le moment</p>
-                                </div>
-                            </div>
-                        @endif
+                        </div>
                     </div>
                 </div>
             </div>
@@ -303,7 +258,7 @@
             <div class="modal-body p-6">
                 <div class="space-y-4">
                     <!-- Crédits actuels -->
-                    <div class="bg-blue-50 rounded-lg p-4">
+                    <div class="bg-blue-50 rounded-lg px-4 py-2">
                         <div class="flex justify-between items-center">
                             <span class="text-gray-700">Vos crédits actuels :</span>
                             <span class="font-bold text-blue-600">{{ $user->n_credit }} crédits</span>
@@ -311,7 +266,7 @@
                     </div>
 
                     <!-- Détails de la transaction -->
-                    <div class="space-y-2">
+                    <div class="space-y-2 px-4 py-2">
                         <div class="flex justify-between items-center">
                             <span class="text-gray-700">Prix par place :</span>
                             <span class="font-semibold">{{ $covoiturage->price }} crédits</span>
@@ -330,7 +285,7 @@
                     </div>
 
                     <!-- Crédits restants -->
-                    <div class="bg-green-50 rounded-lg p-4">
+                    <div class="bg-green-50 rounded-lg px-4 py-2">
                         <div class="flex justify-between items-center">
                             <span class="text-gray-700">Crédits restants :</span>
                             <span class="font-bold text-green-600"
@@ -417,6 +372,14 @@
                             validateBtn.textContent = 'Valider la transaction';
                         });
                 });
+            }
+
+            // Charger les avis
+            const reviewsSection = document.querySelector('.reviews-section');
+            const driverId = reviewsSection.dataset.driverId;
+            const reviewsContainer = document.getElementById('confirmation-reviews-list');
+            if (window.fetchAndDisplayReviews) {
+                window.fetchAndDisplayReviews(driverId, reviewsContainer);
             }
         });
     </script>

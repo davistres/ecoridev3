@@ -678,12 +678,15 @@ class CovoitController extends Controller
         $voiture = Voiture::find($covoiturage->voiture_id);
 
         // + Les avis du conducteur
-        $avis = Satisfaction::where('user_id', $conducteur->user_id)
-            ->orderBy('date', 'desc')
+        $covoiturageIds = $conducteur->covoiturages()->pluck('covoit_id');
+        $avis = Satisfaction::whereIn('covoit_id', $covoiturageIds)
+            ->with('user:user_id,name,photo,phototype') // On charge aussi le nom et la photo de l'utilisateur qui a laissé l'avis => pour les afficher dans "Avis sur le conducteur"
+            ->latest('date') // On trie par la date la plus récente
             ->get();
 
         // On calcul la note moyenne
-        $notesMoyenne = $avis->avg('note') ?? 0;
+        $notesMoyenne = $conducteur->averageRating();
+        $totalRatings = $conducteur->totalRatings();
         $placesRestantes = $covoiturage->n_tickets; // TODO: déduire les places réservées!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         return view('covoiturage-confirmation', [
@@ -692,6 +695,7 @@ class CovoitController extends Controller
             'voiture' => $voiture,
             'avis' => $avis,
             'notesMoyenne' => $notesMoyenne,
+            'totalRatings' => $totalRatings,
             'placesRestantes' => $placesRestantes,
             'user' => $user
         ]);

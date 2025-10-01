@@ -37,41 +37,59 @@
                         <div class="flex flex-col items-center md:items-start">
                             <h5 class="font-semibold text-gray-700 mb-2">Départ</h5>
                             <div class="space-y-2">
-                                <div class="flex items-center text-gray-600">
+                                <div class="flex items-center justify-center md:justify-start text-gray-600">
                                     <i class="fas fa-calendar mr-2 text-green-500"></i>
                                     <span id="modal-avenir-departure-date"></span>
                                 </div>
-                                <div class="flex items-center text-gray-600">
+                                <div class="flex items-center justify-center md:justify-start text-gray-600">
                                     <i class="fas fa-clock mr-2 text-green-500"></i>
                                     <span id="modal-avenir-departure-time"></span>
                                 </div>
                             </div>
                         </div>
-                        <div class="flex flex-col items-center md:items-start">
+                        <div class="flex flex-col items-center md:items-end">
                             <h5 class="font-semibold text-gray-700 mb-2">Arrivée</h5>
                             <div class="space-y-2">
-                                <div class="flex items-center text-gray-600">
+                                <div class="flex items-center justify-center md:justify-end text-gray-600">
                                     <i class="fas fa-calendar mr-2 text-green-500"></i>
                                     <span id="modal-avenir-arrival-date"></span>
                                 </div>
-                                <div class="flex items-center text-gray-600">
+                                <div class="flex items-center justify-center md:justify-end text-gray-600">
                                     <i class="fas fa-clock mr-2 text-green-500"></i>
                                     <span id="modal-avenir-arrival-time"></span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <!-- Prix, Places, Durée -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 text-center">
                         <div>
+                            <h5 class="font-semibold text-gray-700 mb-2">Prix par place</h5>
+                            <div id="modal-avenir-price" class="text-2xl font-bold text-green-600"></div>
+                        </div>
+                        <div>
+                            <h5 class="font-semibold text-gray-700 mb-2">Place(s) réservée(s)</h5>
+                            <div id="modal-avenir-reserved-seats" class="text-2xl font-bold text-blue-600"></div>
+                        </div>
+                        <div>
+                            <h5 class="font-semibold text-gray-700 mb-2">Durée maximale</h5>
+                            <div id="modal-avenir-max-travel-time" class="text-2xl font-bold text-purple-600"></div>
+                        </div>
+                    </div>
+                    <div id="modal-avenir-eco-travel" class="text-center mb-6"></div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex flex-col items-center md:items-start">
                             <h5 class="font-semibold text-gray-700 mb-2">Adresse de départ</h5>
-                            <div class="flex items-start text-gray-600">
+                            <div class="flex items-start justify-center md:justify-start text-gray-600">
                                 <i class="fas fa-map-marker-alt mr-2 text-green-500 mt-1"></i>
                                 <span id="modal-avenir-departure-address"></span>
                             </div>
                         </div>
-                        <div>
+                        <div class="flex flex-col items-center md:items-end">
                             <h5 class="font-semibold text-gray-700 mb-2">Adresse d'arrivée</h5>
-                            <div class="flex items-start text-gray-600">
+                            <div class="flex items-start justify-center md:justify-end text-gray-600">
                                 <i class="fas fa-map-marker-alt mr-2 text-green-500 mt-1"></i>
                                 <span id="modal-avenir-arrival-address"></span>
                             </div>
@@ -84,14 +102,27 @@
                     <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
                         <i class="fas fa-user mr-2 text-green-500"></i>Informations sur le conducteur
                     </h4>
-                    <div class="flex items-center space-x-4">
-                        <div id="modal-avenir-driver-photo"
-                            class="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center border-2 border-green-500">
-                            <i class="fas fa-user text-gray-600 text-xl"></i>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex justify-center md:justify-start">
+                            <div id="modal-avenir-driver-profile"></div>
                         </div>
-                        <div>
-                            <h5 class="font-semibold text-gray-800 text-lg" id="modal-avenir-driver-name"></h5>
-                            <div class="flex items-center" id="modal-avenir-driver-rating"></div>
+                        <div class="flex flex-col items-center md:items-start">
+                            <h5 class="font-semibold text-gray-700 mb-2">Préférences</h5>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-center md:justify-start text-gray-600">
+                                    <i class="fas fa-smoking mr-2 text-gray-500"></i>
+                                    <span id="modal-avenir-pref-smoke"></span>
+                                </div>
+                                <div class="flex items-center justify-center md:justify-start text-gray-600">
+                                    <i class="fas fa-paw mr-2 text-gray-500"></i>
+                                    <span id="modal-avenir-pref-pet"></span>
+                                </div>
+                                <div id="modal-avenir-pref-libre-container"
+                                    class="items-start flex items-start justify-center md:justify-start text-gray-600 text-gray-600">
+                                    <i class="fas fa-comment mr-2 text-gray-500 mt-1"></i>
+                                    <span id="modal-avenir-pref-libre"></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -101,11 +132,36 @@
                     <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
                         <i class="fas fa-car mr-2 text-green-500"></i>Informations sur le véhicule
                     </h4>
-                    <div class="space-y-3">
-                        <p><strong>Marque :</strong> <span id="modal-avenir-car-brand"></span></p>
-                        <p><strong>Modèle :</strong> <span id="modal-avenir-car-model"></span></p>
-                        <p><strong>Couleur :</strong> <span id="modal-avenir-car-color"></span></p>
-                        <p><strong>Énergie :</strong> <span id="modal-avenir-car-energy"></span></p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6">
+                        <div class="flex items-center justify-center md:justify-start text-gray-600">
+                            <i class="fas fa-car mr-2 text-blue-500"></i>
+                            <p><strong>Marque :</strong> <span id="modal-avenir-car-brand"></span></p>
+                        </div>
+                        <div class="flex items-center justify-center md:justify-start text-gray-600">
+                            <i class="fas fa-cogs mr-2 text-blue-500"></i>
+                            <p><strong>Modèle :</strong> <span id="modal-avenir-car-model"></span></p>
+                        </div>
+                        <div class="flex items-center justify-center md:justify-start text-gray-600">
+                            <i class="fas fa-palette mr-2 text-blue-500"></i>
+                            <p><strong>Couleur :</strong> <span id="modal-avenir-car-color"></span></p>
+                        </div>
+                        <div class="flex items-center justify-center md:justify-start text-gray-600">
+                            <i class="fas fa-leaf mr-2 text-green-500"></i>
+                            <p><strong>Énergie :</strong> <span id="modal-avenir-car-energy"></span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Avis -->
+                <div class="reviews-section">
+                    <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
+                        <i class="fas fa-star mr-2 text-green-500"></i>Avis sur le conducteur
+                    </h4>
+                    <div id="modal-avenir-reviews-list" class="space-y-4">
+                        <div class="text-center text-gray-500 py-8">
+                            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto"></div>
+                            <p class="mt-4">Chargement des avis...</p>
+                        </div>
                     </div>
                 </div>
             </div>
