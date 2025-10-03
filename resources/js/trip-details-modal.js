@@ -144,15 +144,16 @@ function populateModalFromData(data) {
     document.getElementById('modal-color').textContent = data.color || 'Non disponible';
     document.getElementById('modal-energie').textContent = data.energie || 'Non disponible';
 
-    // Pour gagner en vitesse, j'ai décidé de ne pas récupérer les infos en faisant un appel API...
-    // Mais pour les avis, je pensais que faire la même chose serait trop lent... Donc, je pensias devoir faire un appel api...
-    // Mais rien ne marche???? Après ce commit, je vais essayer encore... Mais en cas d'échec, je vais faire comme pour les autres infos... En limitant néanmoins le nombre d'avis à afficher...
-
-    // Pour afficher la liste des avis => on récupère le html qui a l'id modal-reviews-list
+    // Affiche la liste des avis
+    const reviewsSection = document.querySelector('#tripDetailsModal .reviews-section');
     const reviewsContainer = document.getElementById('modal-reviews-list');
-    // On récupére l'id du conducteur pour avoir ses avis
-    const driverId = data.driver_id;
-    if (window.fetchAndDisplayReviews) {
+    const driverId = data.driverId;
+
+    if (reviewsSection) {
+        reviewsSection.setAttribute('data-driver-id', driverId);
+    }
+
+    if (window.fetchAndDisplayReviews && driverId && reviewsContainer) {
         window.fetchAndDisplayReviews(driverId, reviewsContainer);
     }
 

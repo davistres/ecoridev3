@@ -4,6 +4,7 @@ import './covoit-form-validation.js';
 import './driverinfo-form-validation.js';
 import './edit-preferences-form-validation.js';
 import './addcovoit-addvehicle-validation.js';
+import './reviews-loader.js';
 
 import Alpine from 'alpinejs';
 

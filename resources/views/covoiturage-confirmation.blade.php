@@ -202,10 +202,10 @@
                             </div>
                         @endif
 
-                        <!-- Avis des passagers -->
+                        <!-- Avis sur le conducteur -->
                         <div class="reviews-section" data-driver-id="{{ $conducteur->user_id }}">
                             <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
-                                <i class="fas fa-comments mr-2 text-green-500"></i>Avis des passagers
+                                <i class="fas fa-comments mr-2 text-green-500"></i>Avis sur le conducteur
                             </h4>
                             <div id="confirmation-reviews-list" class="space-y-4 max-h-64 overflow-y-auto">
                                 <div class="text-center text-gray-500 py-8">

@@ -22,6 +22,7 @@ function generateStars(rating) {
 
 /** Formate date => YYYY-MM-DD en DD/MM/YYYY */
 function formatDate(dateString) {
+    if (!dateString) return 'Date inconnue';
     const date = new Date(dateString);
     return date.toLocaleDateString('fr-FR', {
         day: '2-digit',
@@ -30,9 +31,20 @@ function formatDate(dateString) {
     });
 }
 
+/** Échappe les caractères HTML => contre le XSS (Cross-Site Scripting) mais surtout pour éviter les problèmes d'affichage */
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 /** Récupére et affiche les avis */
 window.fetchAndDisplayReviews = function(driverId, container) {
+    console.log('fetchAndDisplayReviews appelé avec driverId:', driverId);
+
     if (!driverId || !container) {
+        console.error('driverId ou container manquant:', { driverId, container });
         return;
     }
 
@@ -45,12 +57,14 @@ window.fetchAndDisplayReviews = function(driverId, container) {
 
     fetch(`/api/avis/conducteur/${driverId}`)
         .then(response => {
+            console.log('Réponse reçue:', response.status);
             if (!response.ok) {
-                throw new Error('La réponse du réseau n\'était pas correcte');
+                throw new Error(`Erreur HTTP: ${response.status}`);
             }
             return response.json();
         })
         .then(data => {
+            console.log('Données reçues:', data);
             const { reviews, average_rating, total_ratings } = data;
 
             if (!reviews || reviews.length === 0) {
@@ -65,12 +79,14 @@ window.fetchAndDisplayReviews = function(driverId, container) {
             // Génération des avis
             let reviewsHtml = '';
             reviews.forEach(review => {
-                const reviewDate = review.date ? formatDate(review.date) : 'Date inconnue';
-                const stars = generateStars(review.note);
-                const authorName = review.user ? review.user.name : 'Anonyme';
+                const reviewDate = formatDate(review.date);
+                const stars = generateStars(review.note || 0);
+                const authorName = review.user && review.user.name ? escapeHtml(review.user.name) : 'Anonyme';
+                const reviewText = review.review ? escapeHtml(review.review) : '';
+                const commentText = review.comment ? escapeHtml(review.comment) : '';
 
                 reviewsHtml += `
-                    <div class="review-card bg-gray-50 rounded-lg p-4">
+                    <div class="review-card bg-gray-50 rounded-lg p-4 border border-gray-200">
                         <div class="flex items-start justify-between mb-2">
                             <div class="flex items-center">
                                 <div class="font-semibold text-gray-800 mr-3">${authorName}</div>
@@ -81,15 +97,21 @@ window.fetchAndDisplayReviews = function(driverId, container) {
                             </div>
                             <span class="text-sm text-gray-500">${reviewDate}</span>
                         </div>
-                        ${review.review ? `<p class="text-gray-600 italic">"${review.review}"</p>` : ''}
-                        ${review.comment ? `<p class="text-gray-600 italic">"${review.comment}"</p>` : ''}
+                        ${reviewText ? `<p class="text-gray-700 mt-2">"${reviewText}"</p>` : ''}
+                        ${commentText ? `<p class="text-gray-600 mt-1 text-sm italic">${commentText}</p>` : ''}
                     </div>`;
             });
 
             container.innerHTML = reviewsHtml;
+            console.log(`${reviews.length} avis affichés avec succès`);
         })
         .catch(error => {
             console.error('Erreur lors de la récupération des avis:', error);
-            container.innerHTML = '<div class="text-center text-red-500 py-8">Erreur lors du chargement des avis. Veuillez réessayer plus tard.</div>';
+            container.innerHTML = `
+                <div class="text-center text-red-500 py-8">
+                    <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+                    <p>Erreur lors du chargement des avis.</p>
+                    <p class="text-sm mt-2">Veuillez réessayer plus tard.</p>
+                </div>`;
         });
 }

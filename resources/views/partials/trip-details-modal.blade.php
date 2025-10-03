@@ -173,7 +173,7 @@
                 </div>
 
                 <!-- Avis -->
-                <div class="reviews-section">
+                <div class="reviews-section" data-driver-id="">
                     <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
                         <i class="fas fa-star mr-2 text-green-500"></i>Avis sur le conducteur
                     </h4>
