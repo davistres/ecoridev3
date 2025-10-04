@@ -102,6 +102,7 @@
     @include('dashboard.partials.create-covoit-modal')
     @include('dashboard.partials.modif-covoit-modal')
     @include('dashboard.partials.covoiturage-avenir-modal')
+    @include('dashboard.partials.my-trip-modal')
 
     <!-- Recharge Modal -->
     <div id="recharge-modal" data-recharge-url="{{ route('credits.recharge') }}"
@@ -585,5 +586,8 @@
                 }
             });
         </script>
+
+        <!-- Script pour la modale "Mon covoiturage" -->
+        @vite(['resources/js/my-trip-modal.js'])
     @endpush
 </x-app-layout>

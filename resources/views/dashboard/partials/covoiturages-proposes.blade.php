@@ -32,7 +32,26 @@
                         $isFull = $covoiturage->trip_started;
                     @endphp
                     <div class="covoiturage-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col transition-transform duration-300 hover:transform hover:-translate-y-1 border @if ($isFull) border-red-500 hover:shadow-lg hover:shadow-red-300/50 @else border-slate-200 hover:shadow-xl @endif"
-                        data-covoiturage-id="{{ $covoiturage->covoit_id }}">
+                        data-covoiturage-id="{{ $covoiturage->covoit_id }}" data-city-dep="{{ $covoiturage->city_dep }}"
+                        data-city-arr="{{ $covoiturage->city_arr }}"
+                        data-departure-address="{{ $covoiturage->departure_address }}"
+                        data-add-dep-address="{{ $covoiturage->add_dep_address ?? '' }}"
+                        data-postal-code-dep="{{ $covoiturage->postal_code_dep }}"
+                        data-arrival-address="{{ $covoiturage->arrival_address }}"
+                        data-add-arr-address="{{ $covoiturage->add_arr_address ?? '' }}"
+                        data-postal-code-arr="{{ $covoiturage->postal_code_arr }}"
+                        data-departure-date="{{ $departureDate->format('d/m/Y') }}"
+                        data-arrival-date="{{ $arrivalDate->format('d/m/Y') }}"
+                        data-departure-time="{{ \Carbon\Carbon::parse($covoiturage->departure_time)->format('H:i') }}"
+                        data-arrival-time="{{ \Carbon\Carbon::parse($covoiturage->arrival_time)->format('H:i') }}"
+                        data-max-travel-time="{{ $covoiturage->max_travel_time }}"
+                        data-n-tickets="{{ $covoiturage->n_tickets }}" data-price="{{ $covoiturage->price }}"
+                        data-eco="{{ $covoiturage->eco_travel ? 'true' : 'false' }}"
+                        data-immat="{{ $covoiturage->voiture->immat }}"
+                        data-brand="{{ $covoiturage->voiture->brand }}"
+                        data-model="{{ $covoiturage->voiture->model }}"
+                        data-color="{{ $covoiturage->voiture->color }}"
+                        data-energie="{{ $covoiturage->voiture->energie }}">
 
                         <!-- Header card -->
                         <div class="p-4 bg-slate-50 border-b border-slate-200">
@@ -166,7 +185,7 @@
                         <div
                             class="card-footer p-4 bg-slate-50 border-t border-slate-200 grid grid-cols-2 md:flex md:flex-wrap items-center justify-center md:justify-end gap-3">
                             <button
-                                class="action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-slate-500 rounded-lg hover:bg-slate-600 transition-colors duration-300">Détails</button>
+                                class="btn-my-trip-details action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-slate-500 rounded-lg hover:bg-slate-600 transition-colors duration-300">Détails</button>
                             <button onclick="openModifModal(this)" data-covoiturage-id="{{ $covoiturage->covoit_id }}"
                                 class="action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-[#3498db] rounded-lg hover:bg-blue-600 transition-colors duration-300"
                                 @disabled($isFull)>Modifier</button>
