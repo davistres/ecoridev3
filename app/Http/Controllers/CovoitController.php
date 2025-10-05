@@ -10,6 +10,7 @@ use App\Models\Confirmation;
 use App\Models\Satisfaction;
 use App\Models\User;
 use App\Models\Voiture;
+use App\Models\Flux;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
@@ -744,23 +745,51 @@ class CovoitController extends Controller
             }
 
 
+            // Pour comprendre ce qui va suivre, il faut expliquer plusieurs choses:
+            // Une résa peut avoir logiquement une ou plusieurs places...
+            // Au départ, je voulais créer dans la table CONFIRMATION, une entrée par réservation. Mais j'ai changé d'avis. Désormais, chaque place réservée aura une confirmation distincte dans la table CONFIRMATION (avec un n_conf différent)
+            // Pourquoi? Pour simplifier la gestion des annulations partielles (si l'utilisateur réserve 3 places et qu'il veut n'en annuler qu'une seule, par exemple)... Annulation partielle que je n'ai pas encore implémentée => TODO MAIS PAS OBLIGE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            // Cette partie est scindée en deux étapes... Dans le point 2, je crée la 1ère confirmation (n_conf=1) pour la première place réservée. Et si il y a plus que une place de réservée, je crée les autres confirmations (n_conf=2, 3, etc.) dans le point 4.
+            // Pourquoi cela? Parce que, quand on a le conf_id, la priorité est de réaliser le point 3, qui est l'enregistrement des mouvements de crédit dans la table FLUX. Ensuite, on peut créer les autres confirmations.
+
+            // Autre chose à savoir : il y a différent type de flux : « enum('reservation','part_plateforme','part_conducteur','paiement','bonus_inscription','remboursement','achat_crédit') »… Il y en a qui sont simples (comme 'bonus_inscription' et 'achat_crédit') et d’autres plus complexe. Le type 'reservation' est le parent de 'part_plateforme', 'part_conducteur' et de 'paiement'…
+            // 'part_plateforme', 'part_conducteur' ne sont pas vraiment des FLUX (des mouvements de crédit)… Ce sont juste des lignes permettant de comprendre la division la somme de crédit de la 'reservation' entre la plateforme et le conducteur… Ce sont juste donc, des lignes intermédiaire afin de préparer le 'paiement'… Et donc, il y aura deux lignes aussi de 'paiement' : l’une vers la plateforme (= vers le compte crédit de l’admin) et l’autre vers le compte du conducteur.
+            // TODO : créer le paiement vers le compte crédit de l’admin !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
             // Après VALIDATION:
             // 1. Enlever le prix en crédit de l'utilisateur
+            $montantInit = $user->n_credit;
             $user->n_credit -= $totalCost;
             $user->save();
 
-            // 2. Création des confirmations (ou de la conf)
-            for ($i = 0; $i < $requestedSeats; $i++) {
+            // 2. Création de la 1ère conf pour récupérer le conf_id
+            $firstConfirmation = Confirmation::create([
+                'covoit_id' => $id,
+                'user_id' => $user->user_id,
+                'statut' => 'En cours',
+                'n_conf' => 1
+            ]);
+
+            // 3. Enregistrer la résa et ses flux "enfants" dans la table FLUX
+            Flux::createReservation(
+                $firstConfirmation->conf_id,
+                $user->user_id,
+                $montantInit,
+                $totalCost,
+                $requestedSeats
+            );
+
+            // 4. Création des conf restantes (si plusieurs places)
+            for ($i = 1; $i < $requestedSeats; $i++) {
                 Confirmation::create([
                     'covoit_id' => $id,
                     'user_id' => $user->user_id,
                     'statut' => 'En cours',
-                    'n_conf' => $i + 1 // Numéro de la place réservée
+                    'n_conf' => $i + 1
                 ]);
             }
 
-            // 3. Le covoit est_il complet maintenant?
+            // 5. Le covoit est_il complet maintenant?
             $newReservedSeats = $reservedSeats + $requestedSeats;
             if ($covoiturage->n_tickets - $newReservedSeats <= 0) {
                 $covoiturage->trip_started = 1; // Si oui => on indique complet

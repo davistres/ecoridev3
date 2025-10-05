@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\RechargeRequest;
 use App\Models\Covoiturage;
 use App\Models\Voiture;
+use App\Models\Flux;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -60,8 +61,14 @@ class DashboardController extends Controller
     public function recharge(RechargeRequest $request): JsonResponse
     {
         $user = Auth::user();
-        $user->n_credit += (int) $request->input('amount');
+        $montantInit = $user->n_credit;
+        $montant = (int) $request->input('amount');
+
+        $user->n_credit += $montant;
         $user->save();
+
+        // Enregistre l'achat de crédit dans la table FLUX
+        Flux::createAchatCredit($user->user_id, $montantInit, $montant);
 
         return response()->json([
             'success' => true,
