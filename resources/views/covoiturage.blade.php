@@ -1,302 +1,324 @@
 <x-app-layout>
-    <div class="covoiturage-container max-w-7xl mx-auto py-12 sm:px-6 lg:px-8">
-        <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Rechercher un covoiturage</h1>
+    <main class="covoiturage-container max-w-7xl mx-auto py-12 sm:px-6 lg:px-8">
+        <h1 id="page-title" class="text-2xl font-bold text-center text-gray-800 mb-6">Rechercher un covoiturage</h1>
 
         <!-- Messages d'alerte -->
         @if ($searchPerformed && empty($errors))
-            <!-- Suggestions de dates -->
-            @if (session('suggestions'))
-                <div class="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6 text-left max-w-4xl mx-auto">
-                    <h4 class="text-sm font-medium text-blue-800 mb-2">💡 Suggestions de dates alternatives :</h4>
-                    <div class="text-sm text-blue-700">
-                        <p>Nous n'avons pas de covoiturage à la date recherchée. Néanmoins, nous en avons
-                            @foreach (session('suggestions') as $index => $suggestion)
-                                @if ($index == 0)
-                                    <a href="#"
-                                        class="suggestion-link text-blue-600 hover:text-blue-800 underline font-medium"
-                                        data-depart="{{ session('lieu_depart') }}"
-                                        data-arrivee="{{ session('lieu_arrivee') }}" data-date="{{ $suggestion['date'] }}"
-                                        data-seats="{{ session('requested_seats') }}">
-                                        {{ $suggestion['count'] }} le {{ $suggestion['formatted_date'] }}
-                                        ({{ $suggestion['relative_day'] }})
-                                    </a>
-                                @elseif ($index == count(session('suggestions')) - 1)
-                                    et
-                                    <a href="#"
-                                        class="suggestion-link text-blue-600 hover:text-blue-800 underline font-medium"
-                                        data-depart="{{ session('lieu_depart') }}"
-                                        data-arrivee="{{ session('lieu_arrivee') }}"
-                                        data-date="{{ $suggestion['date'] }}"
-                                        data-seats="{{ session('requested_seats') }}">
-                                        @if ($suggestion['count'] > 1)
-                                            {{ $suggestion['count'] }}
-                                        @endif le {{ $suggestion['formatted_date'] }}
-                                        ({{ $suggestion['relative_day'] }})
-                                    </a>
-                                @else
-                                    ,
-                                    <a href="#"
-                                        class="suggestion-link text-blue-600 hover:text-blue-800 underline font-medium"
-                                        data-depart="{{ session('lieu_depart') }}"
-                                        data-arrivee="{{ session('lieu_arrivee') }}"
-                                        data-date="{{ $suggestion['date'] }}"
-                                        data-seats="{{ session('requested_seats') }}">
-                                        @if ($suggestion['count'] > 1)
-                                            {{ $suggestion['count'] }}
-                                        @endif le {{ $suggestion['formatted_date'] }}
-                                        ({{ $suggestion['relative_day'] }})
-                                    </a>
-                                @endif
-                            @endforeach
-                            ... Si vous êtes flexible, ils n'attendent que vous !
-                        </p>
-                    </div>
-                </div>
-            @elseif (session('distant_dates'))
-                <!-- Message pour dates distantes -->
-                <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-6 text-left max-w-4xl mx-auto">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <h4 class="text-sm font-medium text-yellow-800 mb-2">Trajets disponibles mais éloignés de
-                                votre
-                                date</h4>
-                            <p class="text-sm text-yellow-700 mb-3">
-                                Les trajets entre <strong>{{ session('lieu_depart') }}</strong> et
-                                <strong>{{ session('lieu_arrivee') }}</strong> sont assez loin de la date voulue.
+            <section aria-label="Notifications et suggestions">
+                <!-- Suggestions de dates -->
+                @if (session('suggestions'))
+                    <div class="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6 text-left max-w-4xl mx-auto"
+                        role="alert">
+                        <h4 class="text-sm font-medium text-blue-800 mb-2">💡 Suggestions de dates alternatives :</h4>
+                        <div class="text-sm text-blue-700">
+                            <p>Nous n'avons pas de covoiturage à la date recherchée. Néanmoins, nous en avons
+                                @foreach (session('suggestions') as $index => $suggestion)
+                                    @if ($index == 0)
+                                        <a href="#"
+                                            class="suggestion-link text-blue-600 hover:text-blue-800 underline font-medium"
+                                            data-depart="{{ session('lieu_depart') }}"
+                                            data-arrivee="{{ session('lieu_arrivee') }}"
+                                            data-date="{{ $suggestion['date'] }}"
+                                            data-seats="{{ session('requested_seats') }}">
+                                            {{ $suggestion['count'] }} le {{ $suggestion['formatted_date'] }}
+                                            ({{ $suggestion['relative_day'] }})
+                                        </a>
+                                    @elseif ($index == count(session('suggestions')) - 1)
+                                        et
+                                        <a href="#"
+                                            class="suggestion-link text-blue-600 hover:text-blue-800 underline font-medium"
+                                            data-depart="{{ session('lieu_depart') }}"
+                                            data-arrivee="{{ session('lieu_arrivee') }}"
+                                            data-date="{{ $suggestion['date'] }}"
+                                            data-seats="{{ session('requested_seats') }}">
+                                            @if ($suggestion['count'] > 1)
+                                                {{ $suggestion['count'] }}
+                                            @endif le {{ $suggestion['formatted_date'] }}
+                                            ({{ $suggestion['relative_day'] }})
+                                        </a>
+                                    @else
+                                        ,
+                                        <a href="#"
+                                            class="suggestion-link text-blue-600 hover:text-blue-800 underline font-medium"
+                                            data-depart="{{ session('lieu_depart') }}"
+                                            data-arrivee="{{ session('lieu_arrivee') }}"
+                                            data-date="{{ $suggestion['date'] }}"
+                                            data-seats="{{ session('requested_seats') }}">
+                                            @if ($suggestion['count'] > 1)
+                                                {{ $suggestion['count'] }}
+                                            @endif le {{ $suggestion['formatted_date'] }}
+                                            ({{ $suggestion['relative_day'] }})
+                                        </a>
+                                    @endif
+                                @endforeach
+                                ... Si vous êtes flexible, ils n'attendent que vous !
                             </p>
-                            <div class="text-sm text-yellow-700 mb-3">
-                                @if (session('distant_dates')['closest_before'])
-                                    <p>• <strong>Avant votre date</strong>, le premier que l'on a est le :
-                                        <a href="#"
-                                            class="suggestion-link text-yellow-800 hover:text-yellow-900 underline font-medium"
-                                            data-depart="{{ session('lieu_depart') }}"
-                                            data-arrivee="{{ session('lieu_arrivee') }}"
-                                            data-date="{{ session('distant_dates')['closest_before']['date'] }}"
-                                            data-seats="{{ session('requested_seats') }}">
-                                            {{ session('distant_dates')['closest_before']['formatted_date'] }}
-                                        </a>
+                        </div>
+                    </div>
+                @elseif (session('distant_dates'))
+                    <!-- Message pour dates distantes -->
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-6 text-left max-w-4xl mx-auto"
+                        role="alert">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium text-yellow-800 mb-2">Trajets disponibles mais éloignés
+                                    de
+                                    votre
+                                    date</h4>
+                                <p class="text-sm text-yellow-700 mb-3">
+                                    Les trajets entre <strong>{{ session('lieu_depart') }}</strong> et
+                                    <strong>{{ session('lieu_arrivee') }}</strong> sont assez loin de la date voulue.
+                                </p>
+                                <div class="text-sm text-yellow-700 mb-3">
+                                    @if (session('distant_dates')['closest_before'])
+                                        <p>• <strong>Avant votre date</strong>, le premier que l'on a est le :
+                                            <a href="#"
+                                                class="suggestion-link text-yellow-800 hover:text-yellow-900 underline font-medium"
+                                                data-depart="{{ session('lieu_depart') }}"
+                                                data-arrivee="{{ session('lieu_arrivee') }}"
+                                                data-date="{{ session('distant_dates')['closest_before']['date'] }}"
+                                                data-seats="{{ session('requested_seats') }}">
+                                                {{ session('distant_dates')['closest_before']['formatted_date'] }}
+                                            </a>
+                                        </p>
+                                    @endif
+                                    @if (session('distant_dates')['closest_after'])
+                                        <p>• <strong>Après votre date</strong>, nous en avons un le :
+                                            <a href="#"
+                                                class="suggestion-link text-yellow-800 hover:text-yellow-900 underline font-medium"
+                                                data-depart="{{ session('lieu_depart') }}"
+                                                data-arrivee="{{ session('lieu_arrivee') }}"
+                                                data-date="{{ session('distant_dates')['closest_after']['date'] }}"
+                                                data-seats="{{ session('requested_seats') }}">
+                                                {{ session('distant_dates')['closest_after']['formatted_date'] }}
+                                            </a>
+                                        </p>
+                                    @endif
+                                </div>
+                                <p class="text-sm text-yellow-700">
+                                    Si cela ne vous convient pas, et si votre situation le permet, nous vous conseillons
+                                    de
+                                    cibler des
+                                    villes proches de votre ville de départ et d'arrivée. Ou d'essayer de découper votre
+                                    trajet
+                                    en
+                                    plusieurs arrêts... Ainsi, nous espérons que vous aurez plus de choix... Bonne route
+                                    !
+                                    🚗
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @elseif (session('insufficient_seats_cumulative'))
+                    <div class="bg-green-50 border border-green-200 rounded-md p-4 mb-6 text-left max-w-4xl mx-auto"
+                        role="alert">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium text-green-800 mb-2">Covoiturages disponibles le jour
+                                    souhaité
+                                </h4>
+                                <p class="text-sm text-green-700 mb-3">
+                                    Le jour souhaité, nous avons des covoiturages entre
+                                    <strong>{{ session('lieu_depart') }}</strong>
+                                    et <strong>{{ session('lieu_arrivee') }}</strong>.
+                                    Cependant, aucun, individuellement, n'a le nombre de places désiré
+                                    ({{ session('requested_seats') }} places).
+                                </p>
+                                <p class="text-sm text-green-700">
+                                    Si votre situation le permet, nous vous conseillons de réserver plusieurs
+                                    covoiturages
+                                    pour
+                                    atteindre la réservation voulue !
+                                    <strong>Total disponible : {{ session('total_seats_today') }} places</strong>.
+                                    Bonne
+                                    route
+                                    ! 🚗
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @elseif (session('insufficient_seats_alternatives'))
+                    <div class="bg-orange-50 border border-orange-200 rounded-md p-4 mb-6 text-left max-w-4xl mx-auto"
+                        role="alert">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-orange-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium text-orange-800 mb-2">Places limitées le jour souhaité
+                                </h4>
+                                <p class="text-sm text-orange-700 mb-3">
+                                    Pour les villes choisis, à la date recherchée, nous avons uniquement
+                                    {{ count(session('trips_today')) > 1 ? 'les propositions' : 'la proposition' }} que
+                                    vous
+                                    voyez.
+                                    Le jour voulu, nous n'avons donc pas assez de places à vous proposer
+                                    ({{ session('requested_seats') }} demandées, {{ session('total_seats_today') }}
+                                    disponibles).
+                                </p>
+                                @if (session('seat_alternatives') && count(session('seat_alternatives')) > 0)
+                                    <p class="text-sm text-orange-700 mb-2">
+                                        Cependant, si votre situation vous le permet, nous vous informons que nous avons
+                                        d'autres
+                                        alternatives :
                                     </p>
-                                @endif
-                                @if (session('distant_dates')['closest_after'])
-                                    <p>• <strong>Après votre date</strong>, nous en avons un le :
-                                        <a href="#"
-                                            class="suggestion-link text-yellow-800 hover:text-yellow-900 underline font-medium"
-                                            data-depart="{{ session('lieu_depart') }}"
-                                            data-arrivee="{{ session('lieu_arrivee') }}"
-                                            data-date="{{ session('distant_dates')['closest_after']['date'] }}"
-                                            data-seats="{{ session('requested_seats') }}">
-                                            {{ session('distant_dates')['closest_after']['formatted_date'] }}
-                                        </a>
-                                    </p>
+                                    <div class="text-sm text-orange-700">
+                                        @foreach (session('seat_alternatives') as $index => $alternative)
+                                            @if ($index > 0)
+                                                ,
+                                            @endif
+                                            le <a href="#"
+                                                class="suggestion-link text-orange-800 hover:text-orange-900 underline font-medium"
+                                                data-depart="{{ session('lieu_depart') }}"
+                                                data-arrivee="{{ session('lieu_arrivee') }}"
+                                                data-date="{{ $alternative['date'] }}"
+                                                data-seats="{{ session('requested_seats') }}"><strong>{{ $alternative['formatted_date'] }}</strong></a>
+                                            ({{ $alternative['relative_day'] }})
+                                            nous avons un total de
+                                            <strong>{{ $alternative['total_seats'] }} places</strong>
+                                        @endforeach
+                                        . Vous pouvez même les cumuler (si besoin) !!!
+                                    </div>
                                 @endif
                             </div>
-                            <p class="text-sm text-yellow-700">
-                                Si cela ne vous convient pas, et si votre situation le permet, nous vous conseillons de
-                                cibler des
-                                villes proches de votre ville de départ et d'arrivée. Ou d'essayer de découper votre
-                                trajet
-                                en
-                                plusieurs arrêts... Ainsi, nous espérons que vous aurez plus de choix... Bonne route !
-                                🚗
-                            </p>
                         </div>
                     </div>
-                </div>
-            @elseif (session('insufficient_seats_cumulative'))
-                <div class="bg-green-50 border border-green-200 rounded-md p-4 mb-6 text-left max-w-4xl mx-auto">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <h4 class="text-sm font-medium text-green-800 mb-2">Covoiturages disponibles le jour
-                                souhaité
-                            </h4>
-                            <p class="text-sm text-green-700 mb-3">
-                                Le jour souhaité, nous avons des covoiturages entre
-                                <strong>{{ session('lieu_depart') }}</strong>
-                                et <strong>{{ session('lieu_arrivee') }}</strong>.
-                                Cependant, aucun, individuellement, n'a le nombre de places désiré
-                                ({{ session('requested_seats') }} places).
-                            </p>
-                            <p class="text-sm text-green-700">
-                                Si votre situation le permet, nous vous conseillons de réserver plusieurs covoiturages
-                                pour
-                                atteindre la réservation voulue !
-                                <strong>Total disponible : {{ session('total_seats_today') }} places</strong>. Bonne
-                                route
-                                ! 🚗
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            @elseif (session('insufficient_seats_alternatives'))
-                <div class="bg-orange-50 border border-orange-200 rounded-md p-4 mb-6 text-left max-w-4xl mx-auto">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-orange-400" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <h4 class="text-sm font-medium text-orange-800 mb-2">Places limitées le jour souhaité</h4>
-                            <p class="text-sm text-orange-700 mb-3">
-                                Pour les villes choisis, à la date recherchée, nous avons uniquement
-                                {{ count(session('trips_today')) > 1 ? 'les propositions' : 'la proposition' }} que
-                                vous
-                                voyez.
-                                Le jour voulu, nous n'avons donc pas assez de places à vous proposer
-                                ({{ session('requested_seats') }} demandées, {{ session('total_seats_today') }}
-                                disponibles).
-                            </p>
-                            @if (session('seat_alternatives') && count(session('seat_alternatives')) > 0)
-                                <p class="text-sm text-orange-700 mb-2">
-                                    Cependant, si votre situation vous le permet, nous vous informons que nous avons
-                                    d'autres
-                                    alternatives :
-                                </p>
-                                <div class="text-sm text-orange-700">
-                                    @foreach (session('seat_alternatives') as $index => $alternative)
-                                        @if ($index > 0)
-                                            ,
-                                        @endif
-                                        le <a href="#"
-                                            class="suggestion-link text-orange-800 hover:text-orange-900 underline font-medium"
-                                            data-depart="{{ session('lieu_depart') }}"
-                                            data-arrivee="{{ session('lieu_arrivee') }}"
-                                            data-date="{{ $alternative['date'] }}"
-                                            data-seats="{{ session('requested_seats') }}"><strong>{{ $alternative['formatted_date'] }}</strong></a>
-                                        ({{ $alternative['relative_day'] }})
-                                        nous avons un total de
-                                        <strong>{{ $alternative['total_seats'] }} places</strong>
-                                    @endforeach
-                                    . Vous pouvez même les cumuler (si besoin) !!!
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            @elseif (session('distant_perfect_matches'))
-                <div class="bg-purple-50 border border-purple-200 rounded-md p-4 mb-6 text-left max-w-4xl mx-auto">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-purple-400" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <h4 class="text-sm font-medium text-purple-800 mb-2">Correspondances parfaites à des dates
-                                différentes</h4>
-                            <p class="text-sm text-purple-700 mb-3">
-                                Nous vous informons que nous avons bien un ou des résultats correspondants à vos
-                                critères
-                                ({{ session('requested_seats') }} places entre
-                                <strong>{{ session('lieu_depart') }}</strong> et
-                                <strong>{{ session('lieu_arrivee') }}</strong>)
-                                mais à différentes dates.
-                            </p>
-                            @if (session('perfect_matches'))
+                @elseif (session('distant_perfect_matches'))
+                    <div class="bg-purple-50 border border-purple-200 rounded-md p-4 mb-6 text-left max-w-4xl mx-auto"
+                        role="alert">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-purple-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium text-purple-800 mb-2">Correspondances parfaites à des
+                                    dates
+                                    différentes</h4>
                                 <p class="text-sm text-purple-700 mb-3">
-                                    Si votre situation vous le permet, vous pourrez les trouver
-                                    @if (isset(session('perfect_matches')['before']) && isset(session('perfect_matches')['after']))
-                                        le <strong><a href="#"
-                                                class="suggestion-link text-purple-800 hover:text-purple-900 underline font-medium"
-                                                data-depart="{{ session('lieu_depart') }}"
-                                                data-arrivee="{{ session('lieu_arrivee') }}"
-                                                data-date="{{ session('perfect_matches')['before']['date'] }}"
-                                                data-seats="{{ session('requested_seats') }}">{{ session('perfect_matches')['before']['formatted_date'] }}</a></strong>
-                                        et
-                                        le
-                                        <strong><a href="#"
-                                                class="suggestion-link text-purple-800 hover:text-purple-900 underline font-medium"
-                                                data-depart="{{ session('lieu_depart') }}"
-                                                data-arrivee="{{ session('lieu_arrivee') }}"
-                                                data-date="{{ session('perfect_matches')['after']['date'] }}"
-                                                data-seats="{{ session('requested_seats') }}">{{ session('perfect_matches')['after']['formatted_date'] }}</a></strong>.
-                                    @elseif (isset(session('perfect_matches')['before']))
-                                        le <strong><a href="#"
-                                                class="suggestion-link text-purple-800 hover:text-purple-900 underline font-medium"
-                                                data-depart="{{ session('lieu_depart') }}"
-                                                data-arrivee="{{ session('lieu_arrivee') }}"
-                                                data-date="{{ session('perfect_matches')['before']['date'] }}"
-                                                data-seats="{{ session('requested_seats') }}">{{ session('perfect_matches')['before']['formatted_date'] }}</a></strong>.
-                                    @elseif (isset(session('perfect_matches')['after']))
-                                        le <strong><a href="#"
-                                                class="suggestion-link text-purple-800 hover:text-purple-900 underline font-medium"
-                                                data-depart="{{ session('lieu_depart') }}"
-                                                data-arrivee="{{ session('lieu_arrivee') }}"
-                                                data-date="{{ session('perfect_matches')['after']['date'] }}"
-                                                data-seats="{{ session('requested_seats') }}">{{ session('perfect_matches')['after']['formatted_date'] }}</a></strong>.
-                                    @endif
+                                    Nous vous informons que nous avons bien un ou des résultats correspondants à vos
+                                    critères
+                                    ({{ session('requested_seats') }} places entre
+                                    <strong>{{ session('lieu_depart') }}</strong> et
+                                    <strong>{{ session('lieu_arrivee') }}</strong>)
+                                    mais à différentes dates.
                                 </p>
-                            @endif
-                            <p class="text-sm text-purple-700">
-                                Nous espérons que ces trajets ne seront pas trop lointains pour vous... À défaut, si
-                                cela ne
-                                vous
-                                satisfait pas,
-                                vous pouvez démultiplier les possibilités en réservant plusieurs covoiturages, en
-                                choisissant des
-                                villes proches
-                                de celles désirées ou en découpant votre trajet en plusieurs covoiturages. En faisant
-                                cela,
-                                nous
-                                espérons que vous
-                                trouverez votre bonheur ! Bonne route ! 🚗
-                            </p>
+                                @if (session('perfect_matches'))
+                                    <p class="text-sm text-purple-700 mb-3">
+                                        Si votre situation vous le permet, vous pourrez les trouver
+                                        @if (isset(session('perfect_matches')['before']) && isset(session('perfect_matches')['after']))
+                                            le <strong><a href="#"
+                                                    class="suggestion-link text-purple-800 hover:text-purple-900 underline font-medium"
+                                                    data-depart="{{ session('lieu_depart') }}"
+                                                    data-arrivee="{{ session('lieu_arrivee') }}"
+                                                    data-date="{{ session('perfect_matches')['before']['date'] }}"
+                                                    data-seats="{{ session('requested_seats') }}">{{ session('perfect_matches')['before']['formatted_date'] }}</a></strong>
+                                            et
+                                            le
+                                            <strong><a href="#"
+                                                    class="suggestion-link text-purple-800 hover:text-purple-900 underline font-medium"
+                                                    data-depart="{{ session('lieu_depart') }}"
+                                                    data-arrivee="{{ session('lieu_arrivee') }}"
+                                                    data-date="{{ session('perfect_matches')['after']['date'] }}"
+                                                    data-seats="{{ session('requested_seats') }}">{{ session('perfect_matches')['after']['formatted_date'] }}</a></strong>.
+                                        @elseif (isset(session('perfect_matches')['before']))
+                                            le <strong><a href="#"
+                                                    class="suggestion-link text-purple-800 hover:text-purple-900 underline font-medium"
+                                                    data-depart="{{ session('lieu_depart') }}"
+                                                    data-arrivee="{{ session('lieu_arrivee') }}"
+                                                    data-date="{{ session('perfect_matches')['before']['date'] }}"
+                                                    data-seats="{{ session('requested_seats') }}">{{ session('perfect_matches')['before']['formatted_date'] }}</a></strong>.
+                                        @elseif (isset(session('perfect_matches')['after']))
+                                            le <strong><a href="#"
+                                                    class="suggestion-link text-purple-800 hover:text-purple-900 underline font-medium"
+                                                    data-depart="{{ session('lieu_depart') }}"
+                                                    data-arrivee="{{ session('lieu_arrivee') }}"
+                                                    data-date="{{ session('perfect_matches')['after']['date'] }}"
+                                                    data-seats="{{ session('requested_seats') }}">{{ session('perfect_matches')['after']['formatted_date'] }}</a></strong>.
+                                        @endif
+                                    </p>
+                                @endif
+                                <p class="text-sm text-purple-700">
+                                    Nous espérons que ces trajets ne seront pas trop lointains pour vous... À défaut, si
+                                    cela ne
+                                    vous
+                                    satisfait pas,
+                                    vous pouvez démultiplier les possibilités en réservant plusieurs covoiturages, en
+                                    choisissant des
+                                    villes proches
+                                    de celles désirées ou en découpant votre trajet en plusieurs covoiturages. En
+                                    faisant
+                                    cela,
+                                    nous
+                                    espérons que vous
+                                    trouverez votre bonheur ! Bonne route ! 🚗
+                                </p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            @elseif (session('general_criteria_mismatch'))
-                <!-- Si on ne peut rien proposer d'acceptable -->
-                <div class="bg-gray-50 border border-gray-200 rounded-md p-4 mb-6 text-left max-w-4xl mx-auto">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <h4 class="text-sm font-medium text-gray-800 mb-2">Critères non satisfaits</h4>
-                            <p class="text-sm text-gray-700 mb-3">
-                                Nous vous informons que nous avons bien un ou des trajets entre
-                                <strong>{{ session('lieu_depart') }}</strong> et
-                                <strong>{{ session('lieu_arrivee') }}</strong>... Cependant, nous ne pouvons
-                                satisfaire tous vos autres critères... Et actuellement, nous ne pouvons même pas vous
-                                proposer des alternatives acceptables... Nous comprenons votre déception ! Cependant, si
-                                votre situation vous le permet, nous vous invitons à essayer de démultiplier les
-                                possibilités en cherchant des trajets dans des villes proches de celles désirées, en
-                                découpant votre trajet en plusieurs covoiturage, en changeant le nombre de place et même
-                                pourquoi pas, en changeant la date. En faisant cela, nous espérons que vous trouverez
-                                votre bonheur ! Bonne route ! 🚗
-                            </p>
+                @elseif (session('general_criteria_mismatch'))
+                    <!-- Si on ne peut rien proposer d'acceptable -->
+                    <div class="bg-gray-50 border border-gray-200 rounded-md p-4 mb-6 text-left max-w-4xl mx-auto"
+                        role="alert">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium text-gray-800 mb-2">Critères non satisfaits</h4>
+                                <p class="text-sm text-gray-700 mb-3">
+                                    Nous vous informons que nous avons bien un ou des trajets entre
+                                    <strong>{{ session('lieu_depart') }}</strong> et
+                                    <strong>{{ session('lieu_arrivee') }}</strong>... Cependant, nous ne pouvons
+                                    satisfaire tous vos autres critères... Et actuellement, nous ne pouvons même pas
+                                    vous
+                                    proposer des alternatives acceptables... Nous comprenons votre déception !
+                                    Cependant, si
+                                    votre situation vous le permet, nous vous invitons à essayer de démultiplier les
+                                    possibilités en cherchant des trajets dans des villes proches de celles désirées, en
+                                    découpant votre trajet en plusieurs covoiturage, en changeant le nombre de place et
+                                    même
+                                    pourquoi pas, en changeant la date. En faisant cela, nous espérons que vous
+                                    trouverez
+                                    votre bonheur ! Bonne route ! 🚗
+                                </p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            @endif
+                @endif
+            </section>
         @endif
 
-        <section class="search-section bg-white rounded-xl shadow-lg p-6 md:p-8 max-w-4xl mx-auto mb-12">
+        <section class="search-section bg-white rounded-xl shadow-lg p-6 md:p-8 max-w-4xl mx-auto mb-12"
+            aria-labelledby="page-title">
             <!-- Message d'erreur de validation -->
             @if (isset($errors) && !empty($errors))
-                <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+                <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md" role="alert">
                     <div class="flex">
                         <div class="flex-shrink-0">
                             <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -414,210 +436,218 @@
 
         <!-- Section des résultats ou message si pas de résultats -->
         @if ($covoiturages->isNotEmpty())
-            <div class="results-title flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-gray-800">Trajets disponibles</h2>
-                <p class="text-gray-600" id="results-count">{{ $covoiturages->count() }} résultat(s) trouvé(s)</p>
-            </div>
-            <section class="covoiturage-list grid gap-6">
-                @foreach ($covoiturages as $covoiturage)
-                    @if (isset($covoiturage->button_status['show_credit_warning']) && $covoiturage->button_status['show_credit_warning'])
-                        <div class="text-red-500 font-bold text-center mt-4">
-                            Vous avez {{ $covoiturage->button_status['user_credits'] }}
-                            crédit{{ $covoiturage->button_status['user_credits'] > 1 ? 's' : '' }} ! Pour réserver
-                            {{ $covoiturage->button_status['requested_seats'] }}
-                            place{{ $covoiturage->button_status['requested_seats'] > 1 ? 's' : '' }} sur ce
-                            covoiturage, il vous faut {{ $covoiturage->button_status['total_cost'] }} crédits !
-                        </div>
-                    @endif
-                    <!-- covoiturage-card !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
-                    <div class="covoiturage-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row transition-transform duration-300 hover:transform hover:-translate-y-1 hover:shadow-xl"
-                        data-id="{{ $covoiturage->covoit_id }}"
-                        data-max-travel-time="{{ $covoiturage->max_travel_time ?? 120 }}"
-                        data-price="{{ $covoiturage->price }}"
-                        data-eco="{{ $covoiturage->eco_travel ? 'true' : 'false' }}"
-                        data-rating="{{ $covoiturage->user->average_rating ?? 0 }}"
-                        data-departure-address="{{ $covoiturage->departure_address }}"
-                        data-add-dep-address="{{ $covoiturage->add_dep_address }}"
-                        data-postal-code-dep="{{ $covoiturage->postal_code_dep }}"
-                        data-city-dep="{{ $covoiturage->city_dep }}"
-                        data-arrival-address="{{ $covoiturage->arrival_address }}"
-                        data-add-arr-address="{{ $covoiturage->add_arr_address }}"
-                        data-postal-code-arr="{{ $covoiturage->postal_code_arr }}"
-                        data-city-arr="{{ $covoiturage->city_arr }}"
-                        data-departure-date="{{ \Carbon\Carbon::parse($covoiturage->departure_date)->format('d/m/Y') }}"
-                        data-departure-time="{{ \Carbon\Carbon::parse($covoiturage->departure_time)->format('H:i') }}"
-                        data-arrival-date="{{ \Carbon\Carbon::parse($covoiturage->arrival_date)->format('d/m/Y') }}"
-                        data-arrival-time="{{ \Carbon\Carbon::parse($covoiturage->arrival_time)->format('H:i') }}"
-                        data-n-tickets="{{ $covoiturage->n_tickets }}"
-                        data-driver-pseudo="{{ $covoiturage->user->name }}"
-                        data-driver-photo="{{ $covoiturage->user->photo ? 'data:' . $covoiturage->user->phototype . ';base64,' . base64_encode($covoiturage->user->photo) : '' }}"
-                        data-driver-rating-avg="{{ $covoiturage->user->average_rating ?? 0 }}"
-                        data-driver-total-ratings="{{ $covoiturage->user->total_ratings ?? 0 }}"
-                        data-pref-smoke="{{ $covoiturage->user->pref_smoke }}"
-                        data-pref-pet="{{ $covoiturage->user->pref_pet }}"
-                        data-pref-libre="{{ $covoiturage->user->pref_libre }}"
-                        data-immat="{{ $covoiturage->voiture->immat ?? 'N/A' }}"
-                        data-brand="{{ $covoiturage->voiture->brand ?? 'N/A' }}"
-                        data-model="{{ $covoiturage->voiture->model ?? 'N/A' }}"
-                        data-color="{{ $covoiturage->voiture->color ?? 'N/A' }}"
-                        data-energie="{{ $covoiturage->voiture->energie ?? 'N/A' }}"
-                        data-button-text="{{ $covoiturage->button_status['button_text'] }}"
-                        data-button-redirect="{{ $covoiturage->button_status['redirect_to'] }}"
-                        data-button-class="{{ $covoiturage->button_status['button_class'] }}"
-                        data-can-participate="{{ $covoiturage->button_status['can_participate'] ? 'true' : 'false' }}"
-                        data-driver-id="{{ $covoiturage->user->user_id }}">
-                        <div
-                            class="covoiturage-driver w-full md:w-[26%] p-6 md:p-5 bg-gray-50 border-b md:border-b-0 md:border-r border-gray-200 flex flex-col items-center justify-center text-center">
-                            <div
-                                class="driver-photo w-24 h-24 rounded-full border-4 border-green-400 shadow-md mb-4 bg-gray-200 flex items-center justify-center">
-                                <i class="fas fa-user text-4xl text-gray-500"></i>
+            <section class="results-section" aria-labelledby="results-title">
+                <div class="results-title flex justify-between items-center mb-6">
+                    <h2 id="results-title" class="text-xl font-bold text-gray-800">Trajets disponibles</h2>
+                    <p class="text-gray-600" id="results-count">{{ $covoiturages->count() }} résultat(s) trouvé(s)
+                    </p>
+                </div>
+                <div class="covoiturage-list grid gap-6">
+                    @foreach ($covoiturages as $covoiturage)
+                        @if (isset($covoiturage->button_status['show_credit_warning']) && $covoiturage->button_status['show_credit_warning'])
+                            <div class="text-red-500 font-bold text-center mt-4" role="alert">
+                                Vous avez {{ $covoiturage->button_status['user_credits'] }}
+                                crédit{{ $covoiturage->button_status['user_credits'] > 1 ? 's' : '' }} ! Pour réserver
+                                {{ $covoiturage->button_status['requested_seats'] }}
+                                place{{ $covoiturage->button_status['requested_seats'] > 1 ? 's' : '' }} sur ce
+                                covoiturage, il vous faut {{ $covoiturage->button_status['total_cost'] }} crédits !
                             </div>
-                            <h3 class="text-lg font-semibold text-gray-800">{{ $covoiturage->user->name }}</h3>
-                            <div class="driver-rating flex items-center gap-2 mt-1">
-                                @if ($covoiturage->user->average_rating && $covoiturage->user->total_ratings > 0)
-                                    <span
-                                        class="rating-value font-bold text-yellow-500">{{ number_format($covoiturage->user->average_rating, 1) }}/5</span>
-                                    <span class="rating-stars text-yellow-500"
-                                        data-rating="{{ $covoiturage->user->average_rating }}"></span>
-                                    <span class="text-xs text-gray-500">({{ $covoiturage->user->total_ratings }}
-                                        avis)</span>
+                        @endif
+                        <!-- covoiturage-card !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
+                        <article
+                            class="covoiturage-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row transition-transform duration-300 hover:transform hover:-translate-y-1 hover:shadow-xl"
+                            data-id="{{ $covoiturage->covoit_id }}"
+                            data-max-travel-time="{{ $covoiturage->max_travel_time ?? 120 }}"
+                            data-price="{{ $covoiturage->price }}"
+                            data-eco="{{ $covoiturage->eco_travel ? 'true' : 'false' }}"
+                            data-rating="{{ $covoiturage->user->average_rating ?? 0 }}"
+                            data-departure-address="{{ $covoiturage->departure_address }}"
+                            data-add-dep-address="{{ $covoiturage->add_dep_address }}"
+                            data-postal-code-dep="{{ $covoiturage->postal_code_dep }}"
+                            data-city-dep="{{ $covoiturage->city_dep }}"
+                            data-arrival-address="{{ $covoiturage->arrival_address }}"
+                            data-add-arr-address="{{ $covoiturage->add_arr_address }}"
+                            data-postal-code-arr="{{ $covoiturage->postal_code_arr }}"
+                            data-city-arr="{{ $covoiturage->city_arr }}"
+                            data-departure-date="{{ \Carbon\Carbon::parse($covoiturage->departure_date)->format('d/m/Y') }}"
+                            data-departure-time="{{ \Carbon\Carbon::parse($covoiturage->departure_time)->format('H:i') }}"
+                            data-arrival-date="{{ \Carbon\Carbon::parse($covoiturage->arrival_date)->format('d/m/Y') }}"
+                            data-arrival-time="{{ \Carbon\Carbon::parse($covoiturage->arrival_time)->format('H:i') }}"
+                            data-n-tickets="{{ $covoiturage->n_tickets }}"
+                            data-driver-pseudo="{{ $covoiturage->user->name }}"
+                            data-driver-photo="{{ $covoiturage->user->photo ? 'data:' . $covoiturage->user->phototype . ';base64,' . base64_encode($covoiturage->user->photo) : '' }}"
+                            data-driver-rating-avg="{{ $covoiturage->user->average_rating ?? 0 }}"
+                            data-driver-total-ratings="{{ $covoiturage->user->total_ratings ?? 0 }}"
+                            data-pref-smoke="{{ $covoiturage->user->pref_smoke }}"
+                            data-pref-pet="{{ $covoiturage->user->pref_pet }}"
+                            data-pref-libre="{{ $covoiturage->user->pref_libre }}"
+                            data-immat="{{ $covoiturage->voiture->immat ?? 'N/A' }}"
+                            data-brand="{{ $covoiturage->voiture->brand ?? 'N/A' }}"
+                            data-model="{{ $covoiturage->voiture->model ?? 'N/A' }}"
+                            data-color="{{ $covoiturage->voiture->color ?? 'N/A' }}"
+                            data-energie="{{ $covoiturage->voiture->energie ?? 'N/A' }}"
+                            data-button-text="{{ $covoiturage->button_status['button_text'] }}"
+                            data-button-redirect="{{ $covoiturage->button_status['redirect_to'] }}"
+                            data-button-class="{{ $covoiturage->button_status['button_class'] }}"
+                            data-can-participate="{{ $covoiturage->button_status['can_participate'] ? 'true' : 'false' }}"
+                            data-driver-id="{{ $covoiturage->user->user_id }}">
+                            <div
+                                class="covoiturage-driver w-full md:w-[26%] p-6 md:p-5 bg-gray-50 border-b md:border-b-0 md:border-r border-gray-200 flex flex-col items-center justify-center text-center">
+                                <div
+                                    class="driver-photo w-24 h-24 rounded-full border-4 border-green-400 shadow-md mb-4 bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-user text-4xl text-gray-500"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-800">{{ $covoiturage->user->name }}</h3>
+                                <div class="driver-rating flex items-center gap-2 mt-1">
+                                    @if ($covoiturage->user->average_rating && $covoiturage->user->total_ratings > 0)
+                                        <span
+                                            class="rating-value font-bold text-yellow-500">{{ number_format($covoiturage->user->average_rating, 1) }}/5</span>
+                                        <span class="rating-stars text-yellow-500"
+                                            data-rating="{{ $covoiturage->user->average_rating }}"></span>
+                                        <span class="text-xs text-gray-500">({{ $covoiturage->user->total_ratings }}
+                                            avis)</span>
+                                    @else
+                                        <span class="rating-value font-bold text-yellow-500">Nouveau conducteur</span>
+                                        <span class="rating-stars text-yellow-500" data-rating="0">
+                                            @for ($i = 0; $i < 5; $i++)
+                                                <i class="far fa-star"></i>
+                                            @endfor
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="covoiturage-details w-full md:w-1/2 p-6 flex flex-col justify-center">
+                                <div class="trip-info-container">
+                                    <div
+                                        class="trip-route flex items-center justify-center text-2xl font-bold text-gray-800 mb-4">
+                                        <span class="from">{{ $covoiturage->city_dep }}</span>
+                                        <span class="route-arrow mx-4 text-gray-400">→</span>
+                                        <span class="to">{{ $covoiturage->city_arr }}</span>
+                                    </div>
+                                    <div class="trip-date text-center text-lg font-medium text-gray-700 mb-4">
+                                        <i class="fas fa-calendar-alt mr-2 text-green-500"></i>
+                                        {{ \Carbon\Carbon::parse($covoiturage->departure_date)->format('d/m/Y') }}
+                                    </div>
+                                    <div class="trip-time flex justify-between text-gray-600">
+                                        <span class="departure-time">
+                                            <i class="fas fa-clock mr-2 text-green-500"></i>
+                                            Départ:
+                                            {{ \Carbon\Carbon::parse($covoiturage->departure_time)->format('H:i') }}
+                                        </span>
+                                        <span class="arrival-time">
+                                            <i class="fas fa-clock mr-2 text-green-500"></i>
+                                            Arrivée:
+                                            {{ \Carbon\Carbon::parse($covoiturage->arrival_time)->format('H:i') }}
+                                        </span>
+                                    </div>
+                                </div>
+                                @if ($covoiturage->eco_travel)
+                                    <div
+                                        class="trip-eco-badge eco self-center mt-4 px-4 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
+                                        <i class="fas fa-leaf mr-2"></i>Voyage écologique
+                                    </div>
                                 @else
-                                    <span class="rating-value font-bold text-yellow-500">Nouveau conducteur</span>
-                                    <span class="rating-stars text-yellow-500" data-rating="0">
-                                        @for ($i = 0; $i < 5; $i++)
-                                            <i class="far fa-star"></i>
-                                        @endfor
-                                    </span>
+                                    <div
+                                        class="trip-eco-badge standard self-center mt-4 px-4 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-semibold">
+                                        <i class="fas fa-car mr-2"></i>Voyage standard
+                                    </div>
                                 @endif
                             </div>
-                        </div>
-                        <div class="covoiturage-details w-full md:w-1/2 p-6 flex flex-col justify-center">
-                            <div class="trip-info-container">
-                                <div
-                                    class="trip-route flex items-center justify-center text-2xl font-bold text-gray-800 mb-4">
-                                    <span class="from">{{ $covoiturage->city_dep }}</span>
-                                    <span class="route-arrow mx-4 text-gray-400">→</span>
-                                    <span class="to">{{ $covoiturage->city_arr }}</span>
+                            <div
+                                class="covoiturage-booking w-full md:w-1/4 p-6 bg-gray-50 border-t md:border-t-0 md:border-l border-gray-200 flex flex-col items-center justify-center">
+                                <div class="trip-seats text-gray-600 mb-4">
+                                    <i class="fas fa-user-friends mr-2"></i>
+                                    {{ $covoiturage->n_tickets }}
+                                    {{ $covoiturage->n_tickets > 1 ? 'places disponibles' : 'place disponible' }}
                                 </div>
-                                <div class="trip-date text-center text-lg font-medium text-gray-700 mb-4">
-                                    <i class="fas fa-calendar-alt mr-2 text-green-500"></i>
-                                    {{ \Carbon\Carbon::parse($covoiturage->departure_date)->format('d/m/Y') }}
+                                <div class="trip-price text-center mb-4">
+                                    <span
+                                        class="price-value text-3xl font-bold text-green-500">{{ $covoiturage->price }}
+                                        crédits</span>
+                                    <span class="price-per-person text-sm text-gray-500">
+                                        <br>par personne</span>
                                 </div>
-                                <div class="trip-time flex justify-between text-gray-600">
-                                    <span class="departure-time">
-                                        <i class="fas fa-clock mr-2 text-green-500"></i>
-                                        Départ:
-                                        {{ \Carbon\Carbon::parse($covoiturage->departure_time)->format('H:i') }}
-                                    </span>
-                                    <span class="arrival-time">
-                                        <i class="fas fa-clock mr-2 text-green-500"></i>
-                                        Arrivée:
-                                        {{ \Carbon\Carbon::parse($covoiturage->arrival_time)->format('H:i') }}
-                                    </span>
+                                <div class="booking-buttons flex flex-col gap-2 w-full">
+                                    <a href="#"
+                                        class="btn-details bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded text-center transition-colors duration-300"
+                                        data-id="{{ $covoiturage->covoit_id }}">
+                                        Détails
+                                    </a>
+                                    <a href="{{ $covoiturage->button_status['redirect_to'] }}"
+                                        class="btn-participate {{ $covoiturage->button_status['button_class'] }} text-white font-bold py-2 px-4 rounded text-center transition-colors duration-300"
+                                        data-id="{{ $covoiturage->covoit_id }}">
+                                        {{ $covoiturage->button_status['button_text'] }}
+                                    </a>
                                 </div>
                             </div>
-                            @if ($covoiturage->eco_travel)
-                                <div
-                                    class="trip-eco-badge eco self-center mt-4 px-4 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
-                                    <i class="fas fa-leaf mr-2"></i>Voyage écologique
-                                </div>
-                            @else
-                                <div
-                                    class="trip-eco-badge standard self-center mt-4 px-4 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-semibold">
-                                    <i class="fas fa-car mr-2"></i>Voyage standard
-                                </div>
-                            @endif
-                        </div>
-                        <div
-                            class="covoiturage-booking w-full md:w-1/4 p-6 bg-gray-50 border-t md:border-t-0 md:border-l border-gray-200 flex flex-col items-center justify-center">
-                            <div class="trip-seats text-gray-600 mb-4">
-                                <i class="fas fa-user-friends mr-2"></i>
-                                {{ $covoiturage->n_tickets }}
-                                {{ $covoiturage->n_tickets > 1 ? 'places disponibles' : 'place disponible' }}
-                            </div>
-                            <div class="trip-price text-center mb-4">
-                                <span class="price-value text-3xl font-bold text-green-500">{{ $covoiturage->price }}
-                                    crédits</span>
-                                <span class="price-per-person text-sm text-gray-500">
-                                    <br>par personne</span>
-                            </div>
-                            <div class="booking-buttons flex flex-col gap-2 w-full">
-                                <a href="#"
-                                    class="btn-details bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded text-center transition-colors duration-300"
-                                    data-id="{{ $covoiturage->covoit_id }}">
-                                    Détails
-                                </a>
-                                <a href="{{ $covoiturage->button_status['redirect_to'] }}"
-                                    class="btn-participate {{ $covoiturage->button_status['button_class'] }} text-white font-bold py-2 px-4 rounded text-center transition-colors duration-300"
-                                    data-id="{{ $covoiturage->covoit_id }}">
-                                    {{ $covoiturage->button_status['button_text'] }}
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
+                        </article>
+                    @endforeach
+                </div>
             </section>
         @else
-            <!-- Message si pas de résultats -->
-            @if ($searchPerformed && empty($errors) && session('no_trips_between_cities'))
-                <div class="text-center mt-12">
-                    <div
-                        class="inline-block bg-red-50 border-2 border-red-200 rounded-2xl p-8 shadow-sm max-w-2xl mx-auto">
-                        <div class="mb-6">
-                            <svg class="mx-auto h-16 w-16 text-red-400" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                            </svg>
-                        </div>
-                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Aucun trajet disponible</h2>
-                        <p class="text-gray-600 text-lg mb-6">
-                            Aucun trajet entre <strong>{{ session('lieu_depart') }}</strong> et
-                            <strong>{{ session('lieu_arrivee') }}</strong> n'est disponible pour le moment.
-                        </p>
-                        <div class="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6 text-left">
-                            <h4 class="text-sm font-medium text-blue-800 mb-2">💡 Nos conseils :</h4>
-                            <p class="text-sm text-blue-700 mb-2">
-                                Si votre situation le permet, pour avoir plus d'option, nous vous conseillons
-                                soit de chercher des
-                                correspondances entre des villes proches de votre lieu de départ et d'arrivée. Soit de
-                                découper votre trajet en plusieurs covoiturages.
+            <section class="no-results-section" aria-label="Aucun résultat">
+                <!-- Message si pas de résultats -->
+                @if ($searchPerformed && empty($errors) && session('no_trips_between_cities'))
+                    <div class="text-center mt-12">
+                        <div
+                            class="inline-block bg-red-50 border-2 border-red-200 rounded-2xl p-8 shadow-sm max-w-2xl mx-auto">
+                            <div class="mb-6">
+                                <svg class="mx-auto h-16 w-16 text-red-400" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                </svg>
+                            </div>
+                            <h2 class="text-3xl font-bold text-gray-800 mb-4">Aucun trajet disponible</h2>
+                            <p class="text-gray-600 text-lg mb-6">
+                                Aucun trajet entre <strong>{{ session('lieu_depart') }}</strong> et
+                                <strong>{{ session('lieu_arrivee') }}</strong> n'est disponible pour le moment.
                             </p>
-                            <p class="text-sm text-blue-700">
-                                Nous espérons ainsi que vous trouverez votre bonheur... Bonne route ! 🚗
-                            </p>
-                        </div>
-                        <button onclick="resetSearchForm()"
-                            class="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition-colors font-medium">
-                            🔄 Nouvelle recherche
-                        </button>
-                    </div>
-                </div>
-            @else
-                <div class="text-center mt-12">
-                    <div
-                        class="inline-block bg-green-50 border-2 border-green-200 rounded-2xl p-8 shadow-sm max-w-2xl mx-auto">
-                        <img src="https://img.icons8.com/color/96/000000/carpool.png" alt="Icône de covoiturage"
-                            class="mx-auto mb-6 h-20 w-20">
-                        <h2 class="text-3xl font-bold text-gray-800 mb-4">
-                            Bienvenue sur la page de covoiturage
-                        </h2>
-                        <p class="text-gray-600 text-lg mb-6">
-                            Utilisez le formulaire ci-dessus pour trouver votre prochain trajet écologique et
-                            économique.
-                        </p>
-                        <div class="bg-white rounded-lg p-6 text-left text-gray-700">
-                            <h3 class="font-semibold text-xl mb-3 text-green-700">Conseils pour votre recherche :
-                            </h3>
-                            <ul class="list-disc list-inside space-y-2">
-                                <li>Soyez précis sur les noms de villes</li>
-                                <li>Essayez différentes dates pour plus d'options</li>
-                                <li>Les voyages écologiques sont indiqués par un badge vert</li>
-                            </ul>
+                            <div class="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6 text-left">
+                                <h4 class="text-sm font-medium text-blue-800 mb-2">💡 Nos conseils :</h4>
+                                <p class="text-sm text-blue-700 mb-2">
+                                    Si votre situation le permet, pour avoir plus d'option, nous vous conseillons
+                                    soit de chercher des
+                                    correspondances entre des villes proches de votre lieu de départ et d'arrivée. Soit
+                                    de
+                                    découper votre trajet en plusieurs covoiturages.
+                                </p>
+                                <p class="text-sm text-blue-700">
+                                    Nous espérons ainsi que vous trouverez votre bonheur... Bonne route ! 🚗
+                                </p>
+                            </div>
+                            <button onclick="resetSearchForm()"
+                                class="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition-colors font-medium">
+                                🔄 Nouvelle recherche
+                            </button>
                         </div>
                     </div>
-                </div>
-            @endif
+                @else
+                    <div class="text-center mt-12">
+                        <div
+                            class="inline-block bg-green-50 border-2 border-green-200 rounded-2xl p-8 shadow-sm max-w-2xl mx-auto">
+                            <img src="https://img.icons8.com/color/96/000000/carpool.png" alt="Icône de covoiturage"
+                                class="mx-auto mb-6 h-20 w-20">
+                            <h2 class="text-3xl font-bold text-gray-800 mb-4">
+                                Bienvenue sur la page de covoiturage
+                            </h2>
+                            <p class="text-gray-600 text-lg mb-6">
+                                Utilisez le formulaire ci-dessus pour trouver votre prochain trajet écologique et
+                                économique.
+                            </p>
+                            <div class="bg-white rounded-lg p-6 text-left text-gray-700">
+                                <h3 class="font-semibold text-xl mb-3 text-green-700">Conseils pour votre recherche :
+                                </h3>
+                                <ul class="list-disc list-inside space-y-2">
+                                    <li>Soyez précis sur les noms de villes</li>
+                                    <li>Essayez différentes dates pour plus d'options</li>
+                                    <li>Les voyages écologiques sont indiqués par un badge vert</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            </section>
         @endif
 
         <!-- Formulaire caché pour les suggestions -->
@@ -627,7 +657,7 @@
             <input type="hidden" id="suggestion-date" name="date" value="">
             <input type="hidden" id="suggestion-seats" name="seats" value="">
         </form>
-    </div>
+    </main>
 
     <!-- Modale détails du covoiturage -->
     @include('partials.trip-details-modal')

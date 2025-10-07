@@ -1,9 +1,9 @@
 <x-app-layout>
 
     <!-- Barre de recherche covoit -->
-    <div class="bg-gray-100 py-20">
+    <section class="bg-gray-100 py-20" aria-labelledby="search-title">
         <div class="container mx-auto px-6 text-center">
-            <h2 class="text-4xl font-bold text-gray-800 mb-2">Trouvez votre prochain covoiturage</h2>
+            <h2 id="search-title" class="text-4xl font-bold text-gray-800 mb-2">Trouvez votre prochain covoiturage</h2>
             <p class="text-lg text-gray-600 mb-8">Économique, écologique et convivial.</p>
 
             <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 max-w-4xl mx-auto">
@@ -88,14 +88,14 @@
                 
             </div>
         </div>
-    </div>
+    </section>
 
     <!-- Présentation de l'entreprise -->
-    <div class="py-16 bg-white">
+    <section class="py-16 bg-white" aria-labelledby="presentation-title">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
             <!-- Son histoire -->
-            <div class="flex flex-wrap items-center mb-16">
+            <article class="flex flex-wrap items-center mb-16">
                 <div class="w-full md:w-1/2 px-6">
                     <h3 class="text-3xl font-bold text-gray-800 mb-4">L'aventure EcoRide : bien plus qu'un simple
                         trajet
@@ -115,11 +115,11 @@
                     <img src="{{ asset('images/covoit_smile.jpg') }}" alt="Des gens souriants en covoiturage"
                         class="rounded-lg shadow-lg">
                 </div>
-            </div>
+            </article>
 
             <!-- 3 missions -->
             <div class="text-center my-16">
-                <h3 class="text-3xl font-bold text-gray-800 mb-4">Nos Valeurs</h3>
+                <h3 id="presentation-title" class="text-3xl font-bold text-gray-800 mb-4">Nos Valeurs</h3>
                 <p class="text-gray-600 max-w-2xl mx-auto">Au cœur de notre mission, trois piliers qui guident chacune
                     de nos actions.</p>
             </div>
@@ -158,7 +158,7 @@
             </div>
 
             <!-- Facile à utiliser -->
-            <div class="flex flex-wrap items-center mt-20">
+            <article class="flex flex-wrap items-center mt-20">
                 <div class="w-full md:w-1/2 px-6">
                     <img src="{{ asset('images/appli.jpg') }}" alt="Application EcoRide sur un téléphone"
                         class="rounded-lg shadow-lg">
@@ -174,10 +174,10 @@
                         et laissez-nous faire le reste. Réserver un covoiturage n'a jamais été aussi simple !
                     </p>
                 </div>
-            </div>
+            </article>
 
         </div>
-    </div>
+    </section>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

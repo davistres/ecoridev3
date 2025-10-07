@@ -1,5 +1,5 @@
 <!-- Modale "Mon covoiturage" pour les covoit proposés par un conducteur -->
-<div class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center hidden z-50" id="myTripModal">
+<div class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center hidden z-50" id="myTripModal" role="dialog" aria-modal="true" aria-labelledby="myTripModalTitle">
     <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
 
     <div
@@ -7,7 +7,7 @@
 
         <!-- Header -->
         <div class="modal-header flex justify-between items-center p-6 border-b border-gray-200">
-            <h1 class="text-2xl font-bold text-gray-800">Mon covoiturage</h1>
+            <h2 id="myTripModalTitle" class="text-2xl font-bold text-gray-800">Mon covoiturage</h2>
             <button class="modal-close text-gray-400 hover:text-gray-600 transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
@@ -23,8 +23,8 @@
             <div id="my-trip-content" class="space-y-6">
 
                 <!-- Info du trajet -->
-                <div class="trip-details-section">
-                    <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
+                <section aria-labelledby="my-trip-info-title" class="trip-details-section">
+                    <h4 id="my-trip-info-title" class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
                         <i class="fas fa-route mr-2 text-green-500"></i>Informations sur le trajet
                     </h4>
 
@@ -109,11 +109,11 @@
                     <div class="mt-4 text-center">
                         <div id="my-trip-eco-travel"></div>
                     </div>
-                </div>
+                </section>
 
                 <!-- Véhicule -->
-                <div class="vehicle-details-section">
-                    <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
+                <section aria-labelledby="my-trip-vehicle-info-title" class="vehicle-details-section">
+                    <h4 id="my-trip-vehicle-info-title" class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
                         <i class="fas fa-car mr-2 text-green-500"></i>Informations sur le véhicule
                     </h4>
 
@@ -141,7 +141,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
             </div>
         </div>

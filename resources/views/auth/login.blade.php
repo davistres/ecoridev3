@@ -1,11 +1,11 @@
 <x-guest-layout>
     <!-- TODO: Remettre "Remember me" et "Forgot your password?"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
 
-    <div class="bg-gray-100 py-16">
+    <main class="bg-gray-100 py-16">
         <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <section aria-labelledby="login-title" class="bg-white rounded-lg shadow-lg overflow-hidden">
                 <div class="p-8">
-                    <h2 class="text-2xl font-bold text-center text-gray-800 mb-8">Connexion</h2>
+                    <h2 id="login-title" class="text-2xl font-bold text-center text-gray-800 mb-8">Connexion</h2>
 
                     <!-- Session Status -->
                     <x-auth-session-status class="mb-4" :status="session('status')" />
@@ -58,7 +58,7 @@
                         </div>
                     </form>
                 </div>
-            </div>
+            </section>
         </div>
-    </div>
+    </main>
 </x-guest-layout>

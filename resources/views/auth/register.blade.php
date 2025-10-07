@@ -1,9 +1,9 @@
 <x-guest-layout>
-    <div class="bg-gray-100 py-16">
+    <main class="bg-gray-100 py-16">
         <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <section aria-labelledby="register-title" class="bg-white rounded-lg shadow-lg overflow-hidden">
                 <div class="p-8">
-                    <h2 class="text-2xl font-bold text-center text-gray-800 mb-3">Inscription</h2>
+                    <h2 id="register-title" class="text-2xl font-bold text-center text-gray-800 mb-3">Inscription</h2>
 
                     <div class="bg-blue-500 text-gray-100 p-4 rounded-md text-center mb-8">
                         <p class="font-extrabold">20 crédits vous seront offerts à votre première inscription !!!</p>
@@ -90,9 +90,9 @@
                         </div>
                     </form>
                 </div>
-            </div>
+            </section>
         </div>
-    </div>
+    </main>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

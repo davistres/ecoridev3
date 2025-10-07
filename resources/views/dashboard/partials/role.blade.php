@@ -1,8 +1,7 @@
 <!-- Block du dashboard: rôle -->
-<div
-    class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl h-full flex flex-col">
+<section aria-labelledby="role-title" class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl h-full flex flex-col">
     <div class="bg-slate-50 px-6 py-4 border-b border-slate-200">
-        <h3 class="text-xl font-bold text-[#2c3e50]">Mon rôle</h3>
+        <h3 id="role-title" class="text-xl font-bold text-[#2c3e50]">Mon rôle</h3>
     </div>
     <div class="p-6">
         <div class="flex items-center justify-between mb-4">
@@ -41,4 +40,4 @@
             </button>
         </form>
     </div>
-</div>
+</section>

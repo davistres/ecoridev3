@@ -1,13 +1,13 @@
 <!-- Block du dashboard: covoiturage futur -->
-<div class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl">
+<section aria-labelledby="reservations-title" class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl">
     <div class="bg-slate-50 px-6 py-4 border-b border-slate-200">
-        <h3 class="text-xl font-bold text-[#2c3e50]">Mes covoiturages à venir</h3>
+        <h3 id="reservations-title" class="text-xl font-bold text-[#2c3e50]">Mes covoiturages à venir</h3>
     </div>
     <div class="p-6">
         @if ($reservations->isNotEmpty())
             <div class="space-y-4">
                 @foreach ($reservations as $reservation)
-                    <div class="reservation-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col sm:flex-row transition-transform duration-300 hover:transform hover:-translate-y-1 hover:shadow-xl border border-slate-200 cursor-pointer"
+                    <article class="reservation-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col sm:flex-row transition-transform duration-300 hover:transform hover:-translate-y-1 hover:shadow-xl border border-slate-200 cursor-pointer"
                         data-confirmation-id="{{ $reservation->conf_id }}" data-user-name="{{ Auth::user()->name }}"
                         data-departure-date="{{ \Carbon\Carbon::parse($reservation->covoiturage->departure_date)->format('d/m/Y') }}"
                         data-departure-time="{{ \Carbon\Carbon::parse($reservation->covoiturage->departure_time)->format('H:i') }}"
@@ -63,7 +63,7 @@
                             <div class="text-2xl font-bold text-[#2ecc71]">{{ $reservation->covoiturage->price }}</div>
                             <div class="text-sm text-gray-500">crédits</div>
                         </div>
-                    </div>
+                    </article>
                 @endforeach
             </div>
         @else
@@ -79,4 +79,4 @@
             </div>
         @endif
     </div>
-</div>
+</section>

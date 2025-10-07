@@ -1,6 +1,6 @@
 <!-- Modale "Mes covoiturages à venir" = "Trajet planifié" -->
 <div class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center hidden z-50"
-    id="covoiturage-avenir-modal">
+    id="covoiturage-avenir-modal" role="dialog" aria-modal="true" aria-labelledby="covoiturageAvenirModalTitle">
     <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
 
     <div
@@ -8,7 +8,7 @@
 
         <!-- Header -->
         <div class="modal-header flex justify-between items-center p-6 border-b border-gray-200">
-            <h3 class="text-2xl font-bold text-gray-800">Trajet planifié</h3>
+            <h3 id="covoiturageAvenirModalTitle" class="text-2xl font-bold text-gray-800">Trajet planifié</h3>
             <button class="modal-close text-gray-400 hover:text-gray-600 transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
@@ -29,8 +29,8 @@
                 </div>
 
                 <!-- Info du trajet -->
-                <div class="trip-details-section">
-                    <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
+                <section aria-labelledby="avenir-trip-info-title" class="trip-details-section">
+                    <h4 id="avenir-trip-info-title" class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
                         <i class="fas fa-route mr-2 text-green-500"></i>Informations sur le trajet
                     </h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -95,11 +95,11 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
                 <!-- Info du conducteur -->
-                <div class="driver-details-section">
-                    <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
+                <section aria-labelledby="avenir-driver-info-title" class="driver-details-section">
+                    <h4 id="avenir-driver-info-title" class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
                         <i class="fas fa-user mr-2 text-green-500"></i>Informations sur le conducteur
                     </h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -125,11 +125,11 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
                 <!-- Info du véhicule -->
-                <div class="vehicle-details-section">
-                    <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
+                <section aria-labelledby="avenir-vehicle-info-title" class="vehicle-details-section">
+                    <h4 id="avenir-vehicle-info-title" class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
                         <i class="fas fa-car mr-2 text-green-500"></i>Informations sur le véhicule
                     </h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6">
@@ -150,11 +150,11 @@
                             <p><strong>Énergie :</strong> <span id="modal-avenir-car-energy"></span></p>
                         </div>
                     </div>
-                </div>
+                </section>
 
                 <!-- Avis -->
-                <div class="reviews-section">
-                    <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
+                <section aria-labelledby="avenir-reviews-title" class="reviews-section">
+                    <h4 id="avenir-reviews-title" class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
                         <i class="fas fa-star mr-2 text-green-500"></i>Avis sur le conducteur
                     </h4>
                     <div id="modal-avenir-reviews-list" class="space-y-4">
@@ -163,7 +163,7 @@
                             <p class="mt-4">Chargement des avis...</p>
                         </div>
                     </div>
-                </div>
+                </section>
             </div>
         </div>
 

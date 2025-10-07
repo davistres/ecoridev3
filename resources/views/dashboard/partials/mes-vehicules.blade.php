@@ -1,7 +1,7 @@
 <!-- Block Mes véhicules -->
-<div class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl">
+<section aria-labelledby="mes-vehicules-title" class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl">
     <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
-        <h3 class="text-xl font-bold text-[#2c3e50]">Mes véhicules</h3>
+        <h3 id="mes-vehicules-title" class="text-xl font-bold text-[#2c3e50]">Mes véhicules</h3>
         <button onclick="openModal('add-vehicle-modal')"
             class="h-8 w-8 rounded-full bg-[#2ecc71] hover:bg-[#27ae60] text-white flex items-center justify-center transition-transform duration-300 hover:scale-110">
             <i class="fas fa-plus"></i>
@@ -60,4 +60,4 @@
             </div>
         @endif
     </div>
-</div>
+</section>

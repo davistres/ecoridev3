@@ -1,8 +1,8 @@
 <!-- Pop-up photo de profil -->
-<div id="photoModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
+<div id="photoModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="photoModalTitle">
     <div class="bg-white rounded-lg p-8 max-w-md w-full">
         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl font-bold">Changer la photo de profil</h2>
+            <h2 id="photoModalTitle" class="text-2xl font-bold">Changer la photo de profil</h2>
             <button onclick="closeModal('photoModal')"
                 class="text-gray-500 hover:text-gray-800 text-3xl leading-none">&times;</button>
         </div>
@@ -61,7 +61,7 @@
 </div>
 
 <!-- Pop-up profil -->
-<div id="profileModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
+<div id="profileModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
     <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
         <!-- Header -->
         <div class="flex justify-between items-center p-4 border-b">
@@ -72,10 +72,10 @@
 
         <!-- Les onglets -->
         <div class="bg-slate-100 p-1">
-            <nav class="flex space-x-1" aria-label="Tabs">
-                <button id="tab-btn-profil"
+            <nav class="flex space-x-1" role="tablist" aria-label="Tabs">
+                <button id="tab-btn-profil" role="tab"
                     class="tab-btn flex-1 py-2 px-1 text-center font-medium text-sm rounded-md bg-[#3b82f6] text-[#f1f8e9]">Profil</button>
-                <button id="tab-btn-password"
+                <button id="tab-btn-password" role="tab"
                     class="tab-btn flex-1 py-2 px-1 text-center font-medium text-sm rounded-md text-gray-600 hover:bg-slate-200">Mot
                     de passe</button>
             </nav>
@@ -92,7 +92,7 @@
         <!-- Onglets -->
         <div class="p-6 pt-0">
             <!-- Onglet profil -->
-            <div id="tab-panel-profil">
+            <div id="tab-panel-profil" role="tabpanel">
                 <form id="profileEditForm" action="{{ route('profile.update') }}" method="POST">
                     @csrf
                     @method('PATCH')
@@ -123,7 +123,7 @@
             </div>
 
             <!-- Onglet mot de passe -->
-            <div id="tab-panel-password" class="hidden">
+            <div id="tab-panel-password" role="tabpanel" class="hidden">
                 <form id="passwordUpdateForm" action="{{ route('profile.password.update') }}" method="POST">
                     @csrf
                     @method('PATCH')

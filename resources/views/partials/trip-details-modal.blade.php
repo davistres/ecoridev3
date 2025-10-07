@@ -1,5 +1,5 @@
 <!-- Modale au clic sur le btn "Détails" des covoiturage-card -->
-<div class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center hidden z-50" id="tripDetailsModal">
+<div class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center hidden z-50" id="tripDetailsModal" role="dialog" aria-modal="true" aria-labelledby="tripDetailsModalTitle">
     <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
 
     <div
@@ -7,7 +7,7 @@
 
         <!-- Header -->
         <div class="modal-header flex justify-between items-center p-6 border-b border-gray-200">
-            <h3 class="text-2xl font-bold text-gray-800">Détails du covoiturage</h3>
+            <h3 id="tripDetailsModalTitle" class="text-2xl font-bold text-gray-800">Détails du covoiturage</h3>
             <button class="modal-close text-gray-400 hover:text-gray-600 transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
@@ -23,8 +23,8 @@
             <div id="modal-content" class="space-y-6">
 
                 <!-- Info du trajet -->
-                <div class="trip-details-section">
-                    <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
+                <section aria-labelledby="modal-trip-info-title" class="trip-details-section">
+                    <h4 id="modal-trip-info-title" class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
                         <i class="fas fa-route mr-2 text-green-500"></i>Informations sur le trajet
                     </h4>
 
@@ -109,11 +109,11 @@
                     <div class="mt-4 text-center">
                         <div id="modal-eco-travel"></div>
                     </div>
-                </div>
+                </section>
 
                 <!-- Conducteur -->
-                <div class="driver-details-section">
-                    <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
+                <section aria-labelledby="modal-driver-info-title" class="driver-details-section">
+                    <h4 id="modal-driver-info-title" class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
                         <i class="fas fa-user mr-2 text-green-500"></i>Informations sur le conducteur
                     </h4>
 
@@ -170,11 +170,11 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
                 <!-- Avis -->
-                <div class="reviews-section" data-driver-id="">
-                    <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
+                <section aria-labelledby="modal-reviews-title" class="reviews-section" data-driver-id="">
+                    <h4 id="modal-reviews-title" class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
                         <i class="fas fa-star mr-2 text-green-500"></i>Avis sur le conducteur
                     </h4>
                     <div class="reviews-container">
@@ -186,7 +186,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
             </div>
         </div>
 

@@ -1,11 +1,11 @@
 <!-- Pop-up edit-preferences-modal -->
 <div id="edit-preferences-modal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden"
-    onclick="closeModal('edit-preferences-modal')">
+    role="dialog" aria-modal="true" aria-labelledby="editPreferencesModalTitle" onclick="closeModal('edit-preferences-modal')">
     <div class="bg-white rounded-lg p-8 max-w-2xl w-full mx-4"
         onclick="event.stopPropagation()">
         <!-- Header -->
         <div class="flex justify-between items-center mb-6 border-b pb-4">
-            <h2 class="text-2xl font-bold text-gray-800">Modifier mes préférences</h2>
+            <h2 id="editPreferencesModalTitle" class="text-2xl font-bold text-gray-800">Modifier mes préférences</h2>
             <button onclick="closeModal('edit-preferences-modal')"
                 class="text-gray-500 hover:text-gray-800 text-3xl leading-none">&times;</button>
         </div>

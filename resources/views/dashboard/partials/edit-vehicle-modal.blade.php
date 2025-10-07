@@ -1,11 +1,11 @@
 <!-- Pop-up edit-vehicle-modal -->
 <div id="edit-vehicle-modal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden"
-    onclick="closeModal('edit-vehicle-modal')">
+    role="dialog" aria-modal="true" aria-labelledby="editVehicleModalTitle" onclick="closeModal('edit-vehicle-modal')">
     <div class="bg-white rounded-lg p-8 max-w-2xl w-full mx-4 overflow-y-auto max-h-screen"
         onclick="event.stopPropagation()">
         <!-- Header -->
         <div class="flex justify-between items-center mb-6 border-b pb-4">
-            <h2 class="text-2xl font-bold text-gray-800">Modifier le véhicule</h2>
+            <h2 id="editVehicleModalTitle" class="text-2xl font-bold text-gray-800">Modifier le véhicule</h2>
             <button onclick="closeModal('edit-vehicle-modal')"
                 class="text-gray-500 hover:text-gray-800 text-3xl leading-none">&times;</button>
         </div>

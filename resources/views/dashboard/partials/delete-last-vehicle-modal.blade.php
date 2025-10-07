@@ -1,10 +1,10 @@
 <!-- Pop-up delete-last-vehicle-modal -->
 <div id="delete-last-vehicle-modal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden"
-    onclick="closeModal('delete-last-vehicle-modal')">
+    role="dialog" aria-modal="true" aria-labelledby="deleteLastVehicleModalTitle" onclick="closeModal('delete-last-vehicle-modal')">
     <div class="bg-white rounded-lg p-8 max-w-lg w-full mx-4" onclick="event.stopPropagation()">
         <!-- Header -->
         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl font-bold text-red-700">Attention !</h2>
+            <h2 id="deleteLastVehicleModalTitle" class="text-2xl font-bold text-red-700">Attention !</h2>
             <button onclick="closeModal('delete-last-vehicle-modal')"
                 class="text-gray-500 hover:text-gray-800 text-3xl leading-none">&times;</button>
         </div>

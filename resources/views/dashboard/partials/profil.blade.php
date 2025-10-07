@@ -1,8 +1,8 @@
 <!-- Block du dashboard: profil -->
-<div class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl">
+<section aria-labelledby="profile-title" class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl">
     <!-- header -->
     <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
-        <h3 class="text-xl font-bold text-[#2c3e50]">Mon profil</h3>
+        <h3 id="profile-title" class="text-xl font-bold text-[#2c3e50]">Mon profil</h3>
         <button onclick="resetProfileModal(); openModal('profileModal')"
             class="h-8 w-8 rounded-full bg-[#2ecc71] hover:bg-[#27ae60] text-white flex items-center justify-center transition-transform duration-300 hover:scale-110">
             <i class="fas fa-edit"></i>
@@ -46,4 +46,4 @@
             </div>
         </div>
     </div>
-</div>
+</section>

@@ -1,7 +1,7 @@
 <!-- Block du dashboard: covoiturage proposé -->
-<div class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl">
+<section aria-labelledby="covoiturages-proposes-title" class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl">
     <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
-        <h3 class="text-xl font-bold text-[#2c3e50]">Mes covoiturages proposés</h3>
+        <h3 id="covoiturages-proposes-title" class="text-xl font-bold text-[#2c3e50]">Mes covoiturages proposés</h3>
         @if ($covoiturages->isNotEmpty())
             <button onclick="openModal('create-covoit-modal')"
                 class="h-8 w-8 rounded-full bg-[#3498db] hover:bg-blue-600 text-white flex items-center justify-center transition-transform duration-300 hover:scale-110">
@@ -31,7 +31,7 @@
                         $diffInDays = $departureDate->diffInDays($arrivalDate);
                         $isFull = $covoiturage->trip_started;
                     @endphp
-                    <div class="covoiturage-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col transition-transform duration-300 hover:transform hover:-translate-y-1 border @if ($isFull) border-red-500 hover:shadow-lg hover:shadow-red-300/50 @else border-slate-200 hover:shadow-xl @endif"
+                    <article class="covoiturage-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col transition-transform duration-300 hover:transform hover:-translate-y-1 border @if ($isFull) border-red-500 hover:shadow-lg hover:shadow-red-300/50 @else border-slate-200 hover:shadow-xl @endif"
                         data-covoiturage-id="{{ $covoiturage->covoit_id }}" data-city-dep="{{ $covoiturage->city_dep }}"
                         data-city-arr="{{ $covoiturage->city_arr }}"
                         data-departure-address="{{ $covoiturage->departure_address }}"
@@ -206,7 +206,7 @@
                                     êtes arrivé ?</button>
                             </div>
                         </div>
-                    </div>
+                    </article>
                 @endforeach
             </div>
             <div class="mt-8 text-center">
@@ -217,4 +217,4 @@
             </div>
         @endif
     </div>
-</div>
+</section>

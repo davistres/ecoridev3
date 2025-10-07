@@ -1,11 +1,11 @@
 <x-app-layout>
-    <div class="bg-gray-100 min-h-screen py-8">
+    <main class="bg-gray-100 min-h-screen py-8">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <!-- Header = message de confirmation -->
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <section aria-labelledby="confirmation-title" class="bg-white rounded-lg shadow-lg p-6 mb-6">
                 <div class="text-center">
-                    <h1 class="text-3xl font-bold text-gray-800 mb-4">
+                    <h1 id="confirmation-title" class="text-3xl font-bold text-gray-800 mb-4">
                         <i class="fas fa-check-circle text-green-500 mr-2"></i>
                         Confirmation de votre participation
                     </h1>
@@ -27,17 +27,16 @@
                         </p>
                     </div>
                 </div>
-            </div>
+            </section>
 
             <!-- Contenu principal (reprise de la modale) -->
-            <div
-                class="modal-container bg-white w-11/12 md:max-w-4xl mx-auto rounded-lg shadow-xl z-50 overflow-y-auto max-h-screen">
+            <article aria-labelledby="confirmation-title" class="modal-container bg-white w-11/12 md:max-w-4xl mx-auto rounded-lg shadow-xl z-50 overflow-y-auto max-h-screen">
                 <div class="modal-body p-6">
                     <div class="space-y-6">
 
                         <!-- Info du trajet -->
-                        <div class="trip-details-section">
-                            <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
+                        <section aria-labelledby="trip-info-title" class="trip-details-section">
+                            <h4 id="trip-info-title" class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
                                 <i class="fas fa-route mr-2 text-green-500"></i>Informations sur le trajet
                             </h4>
 
@@ -125,11 +124,11 @@
                                     </span>
                                 </div>
                             @endif
-                        </div>
+                        </section>
 
                         <!-- Info du conducteur -->
-                        <div class="driver-details-section">
-                            <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
+                        <section aria-labelledby="driver-info-title" class="driver-details-section">
+                            <h4 id="driver-info-title" class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
                                 <i class="fas fa-user mr-2 text-green-500"></i>Informations sur le conducteur
                             </h4>
 
@@ -166,12 +165,12 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </section>
 
                         <!-- Info du véhicule -->
                         @if ($voiture)
-                            <div class="vehicle-details-section">
-                                <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
+                            <section aria-labelledby="vehicle-info-title" class="vehicle-details-section">
+                                <h4 id="vehicle-info-title" class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
                                     <i class="fas fa-car mr-2 text-green-500"></i>Informations sur le véhicule
                                 </h4>
 
@@ -199,12 +198,12 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </section>
                         @endif
 
                         <!-- Avis sur le conducteur -->
-                        <div class="reviews-section" data-driver-id="{{ $conducteur->user_id }}">
-                            <h4 class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
+                        <section aria-labelledby="reviews-title" class="reviews-section" data-driver-id="{{ $conducteur->user_id }}">
+                            <h4 id="reviews-title" class="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
                                 <i class="fas fa-comments mr-2 text-green-500"></i>Avis sur le conducteur
                             </h4>
                             <div id="confirmation-reviews-list" class="space-y-4 max-h-64 overflow-y-auto">
@@ -215,13 +214,13 @@
                                     <p class="mt-4">Chargement des avis...</p>
                                 </div>
                             </div>
-                        </div>
+                        </section>
                     </div>
                 </div>
-            </div>
+            </article>
 
             <!-- Footer (btn) -->
-            <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
+            <footer class="bg-white rounded-lg shadow-lg p-6 mt-6">
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <a href="{{ route('covoiturage') }}"
                         class="px-8 py-3 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-lg transition-colors duration-300 text-center">
@@ -232,19 +231,19 @@
                         <i class="fas fa-check mr-2"></i>Confirmer ma participation
                     </button>
                 </div>
-            </div>
+            </footer>
         </div>
-    </div>
+    </main>
 
     <!-- Modale de paiement = 2éme confirmation !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
     <div class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center hidden z-50"
-        id="paymentModal">
+        id="paymentModal" role="dialog" aria-modal="true" aria-labelledby="payment-modal-title">
         <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
 
         <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded-lg shadow-xl z-50">
             <!-- Header -->
             <div class="modal-header flex justify-between items-center p-6 border-b border-gray-200">
-                <h3 class="text-xl font-bold text-gray-800">Valider la transaction</h3>
+                <h3 id="payment-modal-title" class="text-xl font-bold text-gray-800">Valider la transaction</h3>
                 <button class="modal-close text-gray-400 hover:text-gray-600 transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
