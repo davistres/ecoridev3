@@ -120,3 +120,24 @@
 .no-reviews {
     @apply text-center text-gray-500 py-8;
 }
+
+
+/* Styles pour les notifications de covoit ////////////////////////////////*/
+.trip-notification {
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    opacity: 0;
+}
+
+.trip-notification.show {
+    transform: translateX(0) !important;
+    opacity: 1;
+}
+
+.trip-notification .close-notification {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.trip-notification .close-notification:hover {
+    transform: scale(1.1);
+}

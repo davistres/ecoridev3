@@ -20,6 +20,9 @@ class DashboardController extends Controller
         $user = $request->user();
         $voitures = Voiture::where('user_id', $user->user_id)->get();
 
+        $now = \Carbon\Carbon::now();
+        $twoHoursAgo = $now->copy()->subHours(2);
+
         // Covoit proposé par l'utilisateur
         $covoiturages = Covoiturage::with('voiture')
             ->where('user_id', $user->user_id)
@@ -35,18 +38,47 @@ class DashboardController extends Controller
             // TODO: Creuser tout ça et trancher!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             ->orderBy('departure_date', 'asc')
             ->orderBy('departure_time', 'asc')
-            ->get();
+            ->get()
+            ->filter(function ($covoiturage) use ($twoHoursAgo) {
+                $departureDateTime = \Carbon\Carbon::parse($covoiturage->departure_date . ' ' . $covoiturage->departure_time);
+
+                if ($departureDateTime->lt($twoHoursAgo) && !$covoiturage->trip_started) {
+                    return false;
+                }
+
+                $oneHourBeforeDeparture = $departureDateTime->copy()->subHour();
+                if (\Carbon\Carbon::now()->gte($oneHourBeforeDeparture)) {
+                    $hasConfirmedPassengers = $covoiturage->confirmations()
+                        ->where('statut', 'En cours')
+                        ->exists();
+
+                    if (!$hasConfirmedPassengers) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
 
         // Covoit réservé
         $reservations = Confirmation::with(['covoiturage.user', 'covoiturage.voiture'])
             ->where('user_id', $user->user_id)
-            ->whereHas('covoiturage', function ($q) {
+            ->whereHas('covoiturage', function ($q) use ($twoHoursAgo) {
                 $q->where('trip_completed', 0)
-                    ->where('cancelled', 0)
-                    ->where('departure_date', '>=', now()->toDateString());
+                    ->where('cancelled', 0);
             })
             ->get()
-            ->unique('covoit_id');
+            ->unique('covoit_id')
+            ->filter(function ($reservation) use ($twoHoursAgo) {
+                $covoiturage = $reservation->covoiturage;
+                $departureDateTime = \Carbon\Carbon::parse($covoiturage->departure_date . ' ' . $covoiturage->departure_time);
+
+                if ($departureDateTime->lt($twoHoursAgo) && !$covoiturage->trip_started) {
+                    return false;
+                }
+
+                return $departureDateTime->gte($twoHoursAgo) || $covoiturage->trip_started;
+            });
 
         return view('dashboard', [
             'user' => $user,
@@ -74,5 +106,90 @@ class DashboardController extends Controller
             'success' => true,
             'new_balance' => $user->n_credit
         ]);
+    }
+
+    public function getTodayTrips(): JsonResponse
+    {
+        $user = Auth::user();
+        $today = \Carbon\Carbon::today();
+        $now = \Carbon\Carbon::now();
+        $twoHoursAgo = $now->copy()->subHours(2);
+        $trips = [];
+
+        $covoituragesAsDriver = Covoiturage::with('voiture')
+            ->where('user_id', $user->user_id)
+            ->where('trip_completed', 0)
+            ->where('cancelled', 0)
+            ->whereHas('voiture')
+            ->whereDate('departure_date', $today)
+            ->get()
+            ->filter(function ($covoiturage) use ($twoHoursAgo) {
+                $departureDateTime = \Carbon\Carbon::parse($covoiturage->departure_date . ' ' . $covoiturage->departure_time);
+
+                if ($departureDateTime->lt($twoHoursAgo) && !$covoiturage->trip_started) {
+                    return false;
+                }
+
+                $oneHourBeforeDeparture = $departureDateTime->copy()->subHour();
+                if (\Carbon\Carbon::now()->gte($oneHourBeforeDeparture)) {
+                    $hasConfirmedPassengers = $covoiturage->confirmations()
+                        ->where('statut', 'En cours')
+                        ->exists();
+
+                    if (!$hasConfirmedPassengers) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+
+        foreach ($covoituragesAsDriver as $covoiturage) {
+            $trips[] = [
+                'id' => $covoiturage->covoit_id,
+                'departure_date' => $covoiturage->departure_date,
+                'departure_time' => $covoiturage->departure_time,
+                'city_dep' => $covoiturage->city_dep,
+                'city_arr' => $covoiturage->city_arr,
+                'is_driver' => true,
+                'trip_started' => (bool) $covoiturage->trip_started,
+            ];
+        }
+
+        $reservations = Confirmation::with(['covoiturage.user', 'covoiturage.voiture'])
+            ->where('user_id', $user->user_id)
+            ->whereHas('covoiturage', function ($q) use ($today) {
+                $q->where('trip_completed', 0)
+                    ->where('cancelled', 0)
+                    ->whereDate('departure_date', $today);
+            })
+            ->get()
+            ->unique('covoit_id')
+            ->filter(function ($reservation) use ($twoHoursAgo) {
+                $covoiturage = $reservation->covoiturage;
+                $departureDateTime = \Carbon\Carbon::parse($covoiturage->departure_date . ' ' . $covoiturage->departure_time);
+
+                if ($departureDateTime->lt($twoHoursAgo) && !$covoiturage->trip_started) {
+                    return false;
+                }
+
+                return $departureDateTime->gte($twoHoursAgo) || $covoiturage->trip_started;
+            });
+
+        foreach ($reservations as $reservation) {
+            $covoiturage = $reservation->covoiturage;
+            $trips[] = [
+                'id' => $covoiturage->covoit_id,
+                'departure_date' => $covoiturage->departure_date,
+                'departure_time' => $covoiturage->departure_time,
+                'city_dep' => $covoiturage->city_dep,
+                'city_arr' => $covoiturage->city_arr,
+                'is_driver' => false,
+                'trip_started' => (bool) $covoiturage->trip_started,
+                'driver_name' => $covoiturage->user->name,
+            ];
+        }
+
+        return response()->json($trips);
     }
 }

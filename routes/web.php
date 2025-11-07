@@ -95,6 +95,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/user/voitures', function () {
         return response()->json(Auth::user()->voitures);
     })->name('api.user.voitures');
+
+    // Récupére les covoit du jour de l'utilisateur (pour les notif)
+    Route::get('/api/user/today-trips', [DashboardController::class, 'getTodayTrips'])->name('api.user.todayTrips');
+
+    // Marque un covoit comme terminé et envoyer les emails de satisfaction
+    Route::post('/api/covoiturage/complete', [CovoitController::class, 'completeTripAndSendSurveys'])->name('covoiturage.complete');
 });
 
 require __DIR__ . '/auth.php';

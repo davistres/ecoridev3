@@ -11,6 +11,7 @@ use App\Models\Satisfaction;
 use App\Models\User;
 use App\Models\Voiture;
 use App\Models\Flux;
+use App\Mail\SatisfactionSurveyMail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
@@ -18,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Mail;
 
 class CovoitController extends Controller
 {
@@ -82,11 +84,22 @@ class CovoitController extends Controller
                         ->where('postal_code_dep', str_replace(' ', '', $departurePostalCode))
                         ->where('postal_code_arr', str_replace(' ', '', $arrivalPostalCode))
                         ->where('cancelled', 0)
-                        ->where('trip_started', 0) // Sauf les trajets complets
+                        ->where('trip_started', 0)
                         ->where('departure_date', '>=', now()->toDateString());
 
                     // A la date demandée
-                    $tripsOnDate = (clone $query)->whereDate('departure_date', $data['date'])->with(['voiture', 'user'])->orderBy('departure_time')->get();
+                    $tripsOnDate = (clone $query)
+                        ->whereDate('departure_date', $data['date'])
+                        ->with(['voiture', 'user'])
+                        ->orderBy('departure_time')
+                        ->get()
+                        ->filter(function ($covoiturage) {
+                            $departureDateTime = \Carbon\Carbon::parse($covoiturage->departure_date . ' ' . $covoiturage->departure_time);
+                            $oneHourFromNow = \Carbon\Carbon::now()->addHour();
+
+                            return $departureDateTime->gte($oneHourFromNow);
+                        });
+
                     foreach ($tripsOnDate as $covoiturage) {
                         $covoiturage->user->average_rating = $covoiturage->user->averageRating();
                         $covoiturage->user->total_ratings = $covoiturage->user->totalRatings();
@@ -813,6 +826,79 @@ class CovoitController extends Controller
             Log::error('Erreur lors de la confirmation de participation: ' . $e->getMessage());
 
             return response()->json(['success' => false, 'message' => 'Une erreur technique est survenue. Veuillez réessayer.'], 500);
+        }
+    }
+
+    public function completeTripAndSendSurveys(Request $request): JsonResponse
+    {
+        try {
+            $covoiturageId = $request->input('covoiturage_id');
+            $user = Auth::user();
+
+            $covoiturage = Covoiturage::with(['user', 'confirmations.user'])
+                ->where('covoit_id', $covoiturageId)
+                ->where('user_id', $user->user_id)
+                ->first();
+
+            if (!$covoiturage) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Covoiturage non trouvé ou vous n\'êtes pas le conducteur.'
+                ], 404);
+            }
+
+            if ($covoiturage->trip_completed) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ce covoiturage est déjà marqué comme terminé.'
+                ], 400);
+            }
+
+            DB::beginTransaction();
+
+            $covoiturage->trip_completed = 1;
+            $covoiturage->save();
+
+            $confirmedPassengers = $covoiturage->confirmations()
+                ->where('statut', 'En cours')
+                ->with('user')
+                ->get();
+
+            $emailsSent = 0;
+            foreach ($confirmedPassengers as $confirmation) {
+                $passenger = $confirmation->user;
+
+                if ($passenger && $passenger->email) {
+                    try {
+                        Mail::to($passenger->email)->send(new SatisfactionSurveyMail(
+                            $passenger->name,
+                            $covoiturage->user->name,
+                            $covoiturage->city_dep,
+                            $covoiturage->city_arr,
+                            \Carbon\Carbon::parse($covoiturage->departure_date)->format('d/m/Y')
+                        ));
+                        $emailsSent++;
+                    } catch (\Exception $e) {
+                        Log::error('Erreur lors de l\'envoi de l\'email de satisfaction à ' . $passenger->email . ': ' . $e->getMessage());
+                    }
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Covoiturage terminé avec succès.',
+                'emails_sent' => $emailsSent
+            ]);
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error('Erreur lors de la finalisation du covoiturage: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Une erreur technique est survenue. Veuillez réessayer.'
+            ], 500);
         }
     }
 }

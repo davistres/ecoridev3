@@ -61,6 +61,24 @@ class ModifCovoitRequest extends FormRequest
             $newDepartureDateTime = \Carbon\Carbon::parse($this->input('departure_date') . ' ' . $this->input('departure_time'));
             $newArrivalDateTime = \Carbon\Carbon::parse($this->input('arrival_date') . ' ' . $this->input('arrival_time'));
 
+            // Validation: Si départ aujourd'hui, il doit être au minimum 6h après l'heure actuelle
+            $now = \Carbon\Carbon::now();
+            $today = $now->toDateString();
+
+            if ($this->input('departure_date') === $today) {
+                $minimumDepartureTime = $now->copy()->addHours(6);
+
+                if ($newDepartureDateTime->lt($minimumDepartureTime)) {
+                    $validator->errors()->add(
+                        'departure_time',
+                        'Pour un départ aujourd\'hui, l\'heure de départ doit être au minimum à ' .
+                            $minimumDepartureTime->format('H:i') .
+                            ' (au moins 6 heures après l\'heure actuelle).'
+                    );
+                    return;
+                }
+            }
+
             $existingCovoiturages = \App\Models\Covoiturage::where('user_id', $user->user_id)
                 ->where('covoit_id', '!=', $covoiturageIdToExclude)
                 ->where('cancelled', 0)

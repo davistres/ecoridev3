@@ -1,5 +1,6 @@
 <!-- Block du dashboard: covoiturage proposé -->
-<section aria-labelledby="covoiturages-proposes-title" class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl">
+<section aria-labelledby="covoiturages-proposes-title"
+    class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl">
     <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
         <h3 id="covoiturages-proposes-title" class="text-xl font-bold text-[#2c3e50]">Mes covoiturages proposés</h3>
         @if ($covoiturages->isNotEmpty())
@@ -31,7 +32,8 @@
                         $diffInDays = $departureDate->diffInDays($arrivalDate);
                         $isFull = $covoiturage->trip_started;
                     @endphp
-                    <article class="covoiturage-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col transition-transform duration-300 hover:transform hover:-translate-y-1 border @if ($isFull) border-red-500 hover:shadow-lg hover:shadow-red-300/50 @else border-slate-200 hover:shadow-xl @endif"
+                    <article
+                        class="covoiturage-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col transition-transform duration-300 hover:transform hover:-translate-y-1 border @if ($isFull) border-red-500 hover:shadow-lg hover:shadow-red-300/50 @else border-slate-200 hover:shadow-xl @endif"
                         data-covoiturage-id="{{ $covoiturage->covoit_id }}" data-city-dep="{{ $covoiturage->city_dep }}"
                         data-city-arr="{{ $covoiturage->city_arr }}"
                         data-departure-address="{{ $covoiturage->departure_address }}"
@@ -40,8 +42,8 @@
                         data-arrival-address="{{ $covoiturage->arrival_address }}"
                         data-add-arr-address="{{ $covoiturage->add_arr_address ?? '' }}"
                         data-postal-code-arr="{{ $covoiturage->postal_code_arr }}"
-                        data-departure-date="{{ $departureDate->format('d/m/Y') }}"
-                        data-arrival-date="{{ $arrivalDate->format('d/m/Y') }}"
+                        data-departure-date="{{ $covoiturage->departure_date }}"
+                        data-arrival-date="{{ $covoiturage->arrival_date }}"
                         data-departure-time="{{ \Carbon\Carbon::parse($covoiturage->departure_time)->format('H:i') }}"
                         data-arrival-time="{{ \Carbon\Carbon::parse($covoiturage->arrival_time)->format('H:i') }}"
                         data-max-travel-time="{{ $covoiturage->max_travel_time }}"

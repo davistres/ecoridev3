@@ -14,11 +14,12 @@
             <legend class="text-lg font-semibold text-gray-800 border-b pb-2 w-full">Lieu de départ</legend>
             <div class="space-y-4 mt-4">
                 <div>
-                    <label for="{{ $prefix }}_departure_address" class="block font-semibold text-gray-700">Adresse de
+                    <label for="{{ $prefix }}_departure_address" class="block font-semibold text-gray-700">Adresse
+                        de
                         départ*</label>
                     <div class="flex items-center">
-                        <input type="text" id="{{ $prefix }}_departure_address" name="departure_address" required
-                            maxlength="120" oninput="validateFirstChar(this)"
+                        <input type="text" id="{{ $prefix }}_departure_address" name="departure_address"
+                            required maxlength="120" oninput="validateFirstChar(this)"
                             class="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1">
                         <div class="tooltip ml-2">
                             <span class="text-gray-500">ⓘ</span>
@@ -27,11 +28,12 @@
                     </div>
                 </div>
                 <div>
-                    <label for="{{ $prefix }}_add_dep_address" class="block font-semibold text-gray-700">Complément
+                    <label for="{{ $prefix }}_add_dep_address"
+                        class="block font-semibold text-gray-700">Complément
                         d'adresse</label>
                     <div class="flex items-center">
-                        <input type="text" id="{{ $prefix }}_add_dep_address" name="add_dep_address" maxlength="120"
-                            oninput="validateFirstChar(this)"
+                        <input type="text" id="{{ $prefix }}_add_dep_address" name="add_dep_address"
+                            maxlength="120" oninput="validateFirstChar(this)"
                             class="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1">
                         <div class="tooltip ml-2">
                             <span class="text-gray-500">ⓘ</span>
@@ -48,7 +50,8 @@
                             class="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1">
                         <div class="tooltip ml-2">
                             <span class="text-gray-500">ⓘ</span>
-                            <span class="tooltiptext">Format: 12345 ou 12 345. Si 3ème caractère = espace, alors 6 chiffres
+                            <span class="tooltiptext">Format: 12345 ou 12 345. Si 3ème caractère = espace, alors 6
+                                chiffres
                                 total.</span>
                         </div>
                     </div>
@@ -97,13 +100,14 @@
                                 heures d’écart pour qu’il soit pris en compte !</span>
                         </div>
                     </div>
-                    <small id="{{ $prefix }}_departure-time-error" class="text-red-600 mt-2"></small>
+                    <small id="{{ $prefix }}_departure-time-error" class="text-red-600 mt-2 block"></small>
                 </div>
                 <div>
                     <label for="{{ $prefix }}_arrival_date" class="block font-semibold text-gray-700">Date
                         d'arrivée*</label>
                     <div class="flex items-center">
-                        <input type="date" id="{{ $prefix }}_arrival_date" name="arrival_date" required disabled
+                        <input type="date" id="{{ $prefix }}_arrival_date" name="arrival_date" required
+                            disabled
                             class="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1 bg-gray-200">
                         <div class="tooltip ml-2">
                             <span class="text-gray-500">ⓘ</span>
@@ -116,7 +120,8 @@
                     <label for="{{ $prefix }}_arrival_time" class="block font-semibold text-gray-700">Heure
                         d'arrivée*</label>
                     <div class="flex items-center">
-                        <input type="time" id="{{ $prefix }}_arrival_time" name="arrival_time" required disabled
+                        <input type="time" id="{{ $prefix }}_arrival_time" name="arrival_time" required
+                            disabled
                             class="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1 bg-gray-200">
                         <div class="tooltip ml-2">
                             <span class="text-gray-500">ⓘ</span>
@@ -126,14 +131,17 @@
                     <small id="{{ $prefix }}_arrival-time-error" class="text-red-600 mt-2"></small>
                 </div>
                 <div>
-                    <label for="{{ $prefix }}_max_travel_time" class="block font-semibold text-gray-700">Durée maximale
+                    <label for="{{ $prefix }}_max_travel_time" class="block font-semibold text-gray-700">Durée
+                        maximale
                         duvoyage*</label>
                     <div class="flex items-center">
-                        <input type="time" id="{{ $prefix }}_max_travel_time" name="max_travel_time" required
+                        <input type="time" id="{{ $prefix }}_max_travel_time" name="max_travel_time"
+                            required
                             class="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1">
                         <div class="tooltip ml-2">
                             <span class="text-gray-500">ⓘ</span>
-                            <span class="tooltiptext">Estimez la durée maximale de votre trajet en incluant les imprévus
+                            <span class="tooltiptext">Estimez la durée maximale de votre trajet en incluant les
+                                imprévus
                                 (bouchons, travaux, etc.).</span>
                         </div>
                     </div>
@@ -149,11 +157,12 @@
             <legend class="text-lg font-semibold text-gray-800 border-b pb-2 w-full">Lieu d'arrivée</legend>
             <div class="space-y-4 mt-4">
                 <div>
-                    <label for="{{ $prefix }}_arrival_address" class="block font-semibold text-gray-700">Adresse
+                    <label for="{{ $prefix }}_arrival_address"
+                        class="block font-semibold text-gray-700">Adresse
                         d'arrivée*</label>
                     <div class="flex items-center">
-                        <input type="text" id="{{ $prefix }}_arrival_address" name="arrival_address" required
-                            maxlength="120" oninput="validateFirstChar(this)"
+                        <input type="text" id="{{ $prefix }}_arrival_address" name="arrival_address"
+                            required maxlength="120" oninput="validateFirstChar(this)"
                             class="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1">
                         <div class="tooltip ml-2">
                             <span class="text-gray-500">ⓘ</span>
@@ -162,7 +171,8 @@
                     </div>
                 </div>
                 <div>
-                    <label for="{{ $prefix }}_add_arr_address" class="block font-semibold text-gray-700">Complément
+                    <label for="{{ $prefix }}_add_arr_address"
+                        class="block font-semibold text-gray-700">Complément
                         d'adresse</label>
                     <div class="flex items-center">
                         <input type="text" id="{{ $prefix }}_add_arr_address" name="add_arr_address"
@@ -178,22 +188,24 @@
                     <label for="{{ $prefix }}_postal_code_arr" class="block font-semibold text-gray-700">Code
                         postal*</label>
                     <div class="flex items-center">
-                        <input type="text" id="{{ $prefix }}_postal_code_arr" name="postal_code_arr" required
-                            maxlength="6" oninput="formatPostalCode(this)"
+                        <input type="text" id="{{ $prefix }}_postal_code_arr" name="postal_code_arr"
+                            required maxlength="6" oninput="formatPostalCode(this)"
                             class="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1">
                         <div class="tooltip ml-2">
                             <span class="text-gray-500">ⓘ</span>
-                            <span class="tooltiptext">Format: 12345 ou 12 345. Si 3ème caractère = espace, alors 6 chiffres
+                            <span class="tooltiptext">Format: 12345 ou 12 345. Si 3ème caractère = espace, alors 6
+                                chiffres
                                 total.</span>
                         </div>
                     </div>
                     <small id="{{ $prefix }}_postal_code_arr-error" class="text-red-600 mt-2"></small>
                 </div>
                 <div>
-                    <label for="{{ $prefix }}_city_arr" class="block font-semibold text-gray-700">Ville*</label>
+                    <label for="{{ $prefix }}_city_arr"
+                        class="block font-semibold text-gray-700">Ville*</label>
                     <div class="flex items-center">
-                        <input type="text" id="{{ $prefix }}_city_arr" name="city_arr" required maxlength="45"
-                            oninput="formatCityName(this)"
+                        <input type="text" id="{{ $prefix }}_city_arr" name="city_arr" required
+                            maxlength="45" oninput="formatCityName(this)"
                             class="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1">
                         <div class="tooltip ml-2">
                             <span class="text-gray-500">ⓘ</span>
@@ -208,7 +220,8 @@
             <legend class="text-lg font-semibold text-gray-800 border-b pb-2 w-full">Détails du trajet</legend>
             <div class="space-y-4 mt-4">
                 <div>
-                    <label for="{{ $prefix }}_voiture_id" class="block font-semibold text-gray-700">Véhicule*</label>
+                    <label for="{{ $prefix }}_voiture_id"
+                        class="block font-semibold text-gray-700">Véhicule*</label>
                     <div class="flex items-center">
                         <select name="voiture_id" id="{{ $prefix }}_voiture_id_select" required
                             class="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1">
@@ -227,7 +240,8 @@
                     </div>
                 </div>
                 <div>
-                    <label for="{{ $prefix }}_n_tickets" class="block font-semibold text-gray-700">Nombre de places
+                    <label for="{{ $prefix }}_n_tickets" class="block font-semibold text-gray-700">Nombre de
+                        places
                         proposées*</label>
                     <div class="flex items-center">
                         <input type="number" name="n_tickets" id="{{ $prefix }}_n_tickets_input" required
@@ -238,14 +252,16 @@
                     <small id="{{ $prefix }}_seats-helper" class="text-slate-500 mt-2"></small>
                 </div>
                 <div>
-                    <label for="{{ $prefix }}_price" class="block font-semibold text-gray-700">Prix par place*</label>
+                    <label for="{{ $prefix }}_price" class="block font-semibold text-gray-700">Prix par
+                        place*</label>
                     <div class="flex items-center">
                         <div class="relative w-full">
-                            <input type="number" id="{{ $prefix }}_price" name="price" required min="2"
-                                step="1"
+                            <input type="number" id="{{ $prefix }}_price" name="price" required
+                                min="2" step="1"
                                 onkeydown="if(['e', 'E', '+', '-'].includes(event.key)) { event.preventDefault(); }"
                                 class="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-md shadow-sm mt-1 pr-16">
-                            <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">crédits</span>
+                            <span
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">crédits</span>
                         </div>
                         <div class="w-4 ml-2"></div>
                     </div>

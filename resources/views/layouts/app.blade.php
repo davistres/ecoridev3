@@ -29,6 +29,35 @@
     @include('layouts.partials.mobile-menu')
 
     @stack('scripts')
+
+    @auth
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (window.TripNotificationManager) {
+                    fetch('{{ route('api.user.todayTrips') }}')
+                        .then(response => response.json())
+                        .then(trips => {
+                            const manager = new window.TripNotificationManager();
+                            manager.init(trips, {{ auth()->id() }});
+
+                            window.tripNotificationManager = manager;
+
+                            const logoutForms = document.querySelectorAll('form[action*="logout"]');
+                            logoutForms.forEach(form => {
+                                form.addEventListener('submit', function() {
+                                    if (window.tripNotificationManager) {
+                                        window.tripNotificationManager.clearClosedNotifications();
+                                    }
+                                });
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Erreur lors du chargement des notifications:', error);
+                        });
+                }
+            });
+        </script>
+    @endauth
 </body>
 
 </html>

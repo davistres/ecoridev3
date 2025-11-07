@@ -103,11 +103,13 @@
     @include('dashboard.partials.modif-covoit-modal')
     @include('dashboard.partials.covoiturage-avenir-modal')
     @include('dashboard.partials.my-trip-modal')
+    @include('dashboard.partials.confirm-early-start-modal')
+    @include('dashboard.partials.confirm-trip-end-modal')
 
     <!-- Recharge Modal -->
     <div id="recharge-modal" data-recharge-url="{{ route('credits.recharge') }}"
-        class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden"
-        role="dialog" aria-modal="true" aria-labelledby="recharge-modal-title">
+        class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden" role="dialog"
+        aria-modal="true" aria-labelledby="recharge-modal-title">
         <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4" onclick="event.stopPropagation()">
             <!-- Header -->
             <div class="flex justify-between items-center mb-4">
@@ -413,22 +415,67 @@
                         const buttonClicked = event.target.closest('button');
                         if (!buttonClicked) return;
 
-                        // Si clic sur "Démarrer" => btn "Modifier" est désactiver + btn "Démarrer" est caché + btn "Vous êtes arrivé ?" est visible
+                        // Si clic sur "Démarrer"
                         if (buttonClicked === startBtn) {
-                            modifierBtn.disabled = true;
-                            modifierBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                            startBtn.classList.add('hidden');
-                            endBtn.classList.remove('hidden');
-                            card.dataset.tripStarted = 'true';
+                            // Validation temporelle (code commenté dans trip-start-end-validation.js)
+                            if (window.validateTripStart && window.validateTripStart(card, startBtn,
+                                    endBtn,
+                                    modifierBtn)) {
+                                window.performTripStart(card, startBtn, endBtn, modifierBtn);
+                            }
                         } else if (buttonClicked === endBtn) {
-                            // Si clic sur "Vous êtes arrivé ?"...
-                            // TODO: la vraie logique!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            // Pour le moment=> on grise la card + on désactive les btns + on change le texte du btn "Vous êtes arrivé ?" en "Terminé"
-                            card.style.opacity = '0.6';
-                            card.style.pointerEvents = 'none';
-                            card.querySelectorAll('.card-footer .action-btn').forEach(btn => btn
-                                .disabled = true);
-                            buttonClicked.textContent = 'Terminé';
+                            // Si clic sur "Vous êtes arrivé ?"
+                            // Validation temporelle (code commenté dans trip-start-end-validation.js)
+                            if (window.validateTripEnd && window.validateTripEnd(card)) {
+                                // Affiche la modale de confirmation
+                                if (window.showTripEndConfirmation) {
+                                    window.showTripEndConfirmation(card, function() {
+                                        const covoiturageId = card.dataset.covoiturageId;
+
+                                        fetch('{{ route('covoiturage.complete') }}', {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                    'X-CSRF-TOKEN': document.querySelector(
+                                                            'meta[name="csrf-token"]')
+                                                        .getAttribute(
+                                                            'content')
+                                                },
+                                                body: JSON.stringify({
+                                                    covoiturage_id: covoiturageId
+                                                })
+                                            })
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if (data.success) {
+                                                    card.style.opacity = '0.6';
+                                                    card.style.pointerEvents = 'none';
+                                                    card.querySelectorAll(
+                                                            '.card-footer .action-btn')
+                                                        .forEach(btn => btn.disabled =
+                                                            true);
+                                                    buttonClicked.textContent = 'Terminé';
+
+                                                    if (data.emails_sent > 0) {
+                                                        console.log(
+                                                            `${data.emails_sent} email(s) de satisfaction envoyé(s)`
+                                                        );
+                                                    }
+                                                } else {
+                                                    alert('Erreur : ' + (data.message ||
+                                                        'Impossible de terminer le covoiturage.'
+                                                    ));
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error('Erreur:', error);
+                                                alert(
+                                                    'Une erreur est survenue lors de la finalisation du covoiturage.'
+                                                );
+                                            });
+                                    });
+                                }
+                            }
                         }
                     });
 
