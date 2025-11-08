@@ -118,8 +118,8 @@ class Flux extends Model
         $adminCredits = self::getAdminCredits();
         self::create([
             'conf_id' => $confId,
-            'user_id' => 15, // user_id pour l'admin => A CHANGER si je le met en ligne!!!!!!!! Mettre 1 est mieux!!! Donc, je dois supprimer le user_id 1.
-            'montant_init' => $adminCredits, // Crédits actuels de l'admin
+            'user_id' => 1,
+            'montant_init' => $adminCredits,
             'montant' => $partPlateforme->result,
             'result' => $adminCredits + $partPlateforme->result,
             'type' => 'paiement',
@@ -133,10 +133,9 @@ class Flux extends Model
         ];
     }
 
-    // On récupére adminCredits (le montant actuel des crédits de l'admin) => calcule la somme de tous les flux de type 'paiement' pour l'admin (pour le moment, user_id = 15)
     private static function getAdminCredits()
     {
-        return self::where('user_id', 15)
+        return self::where('user_id', 1)
             ->where('type', 'paiement')
             ->sum('montant');
     }

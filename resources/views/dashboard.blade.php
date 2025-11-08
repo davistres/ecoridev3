@@ -105,6 +105,7 @@
     @include('dashboard.partials.my-trip-modal')
     @include('dashboard.partials.confirm-early-start-modal')
     @include('dashboard.partials.confirm-trip-end-modal')
+    @include('dashboard.partials.satisfaction-form-modal')
 
     <!-- Recharge Modal -->
     <div id="recharge-modal" data-recharge-url="{{ route('credits.recharge') }}"
@@ -461,6 +462,38 @@
                                                             `${data.emails_sent} email(s) de satisfaction envoyé(s)`
                                                         );
                                                     }
+
+                                                    const event = new CustomEvent(
+                                                        'trip-completed', {
+                                                            detail: {
+                                                                tripId: covoiturageId
+                                                            }
+                                                        });
+                                                    document.dispatchEvent(event);
+
+                                                    if (window.tripNotificationManager) {
+                                                        window.tripNotificationManager
+                                                            .closeCurrentNotification();
+
+                                                        fetch(
+                                                                '{{ route('api.user.todayTrips') }}'
+                                                            )
+                                                            .then(response => response
+                                                                .json())
+                                                            .then(trips => {
+                                                                window
+                                                                    .tripNotificationManager
+                                                                    .userTrips = trips;
+                                                                window
+                                                                    .tripNotificationManager
+                                                                    .checkAndShowNotifications();
+                                                            })
+                                                            .catch(error => {
+                                                                console.error(
+                                                                    'Erreur lors du rafraîchissement des notifications:',
+                                                                    error);
+                                                            });
+                                                    }
                                                 } else {
                                                     alert('Erreur : ' + (data.message ||
                                                         'Impossible de terminer le covoiturage.'
@@ -506,6 +539,7 @@
                     reservationCards.forEach(card => {
                         card.addEventListener('click', function() {
                             // Récupére toutes les données directement depuis les attributs data
+                            const isTripCompleted = this.dataset.tripCompleted === '1';
                             const data = {
                                 user_name: this.dataset.userName,
                                 departure_date: this.dataset.departureDate,
@@ -547,6 +581,21 @@
 
                             // Ouverture de la modale
                             openModal('covoiturage-avenir-modal');
+
+                            // Si le trajet est terminé => Modif titre et masquer les éléments de la modale
+                            const modalTitle = document.getElementById('covoiturageAvenirModalTitle');
+                            const blueReminderBox = upcomingTripModal.querySelector('.bg-blue-50');
+                            const cancelButton = document.getElementById('modal-avenir-cancel-btn');
+
+                            if (isTripCompleted) {
+                                if (modalTitle) modalTitle.textContent = 'Trajet effectué';
+                                if (blueReminderBox) blueReminderBox.style.display = 'none';
+                                if (cancelButton) cancelButton.style.display = 'none';
+                            } else {
+                                if (modalTitle) modalTitle.textContent = 'Trajet planifié';
+                                if (blueReminderBox) blueReminderBox.style.display = 'block';
+                                if (cancelButton) cancelButton.style.display = 'inline-block';
+                            }
 
                             // Charger les avis dynamiquement
                             const reviewsContainer = document.getElementById(
@@ -637,5 +686,37 @@
 
         <!-- Script pour la modale "Mon covoiturage" -->
         @vite(['resources/js/my-trip-modal.js'])
+
+        <!-- Script pour le formulaire SATISFACTION -->
+        @vite(['resources/js/satisfaction-form.js'])
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                @if (isset($pendingSatisfactions) && $pendingSatisfactions->isNotEmpty())
+                    const firstSatisfaction = @json($pendingSatisfactions->first());
+
+                    if (firstSatisfaction && firstSatisfaction.covoiturage) {
+                        const driverName = firstSatisfaction.covoiturage.user ? firstSatisfaction.covoiturage.user
+                            .name : 'le conducteur';
+                        const tripDate = new Date(firstSatisfaction.covoiturage.departure_date).toLocaleDateString(
+                            'fr-FR');
+                        const tripRoute = firstSatisfaction.covoiturage.city_dep + ' → ' + firstSatisfaction.covoiturage
+                            .city_arr;
+
+                        setTimeout(function() {
+                            if (window.openSatisfactionForm) {
+                                window.openSatisfactionForm(
+                                    firstSatisfaction.satisfaction_id,
+                                    firstSatisfaction.covoit_id,
+                                    driverName,
+                                    tripDate,
+                                    tripRoute
+                                );
+                            }
+                        }, 500);
+                    }
+                @endif
+            });
+        </script>
     @endpush
 </x-app-layout>

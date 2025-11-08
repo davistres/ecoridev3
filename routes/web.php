@@ -5,9 +5,11 @@ use App\Http\Controllers\CovoitController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\VoitureController;
+use App\Http\Controllers\SatisfactionController;
 use App\Models\Voiture;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Mail;
 
 Route::get('/', function () {
     // Réinit la barre de recherche sur la page d'accueil
@@ -101,6 +103,38 @@ Route::middleware('auth')->group(function () {
 
     // Marque un covoit comme terminé et envoyer les emails de satisfaction
     Route::post('/api/covoiturage/complete', [CovoitController::class, 'completeTripAndSendSurveys'])->name('covoiturage.complete');
+
+    // Soumission du le formulaire SATISFACTION
+    Route::post('/satisfaction/store', [SatisfactionController::class, 'store'])->name('satisfaction.store');
+});
+
+Route::get('/test-email', function () {
+    try {
+        Mail::raw('Ceci est un email de test depuis EcoRide!', function ($message) {
+            $message->to('test@example.com')
+                ->subject('Test Email - EcoRide');
+        });
+
+        return 'Email envoyé avec succès! Vérifie http://localhost:8025';
+    } catch (\Exception $e) {
+        return 'Erreur: ' . $e->getMessage();
+    }
+});
+
+Route::get('/check-ride/{id}', function ($id) {
+    $ride = \App\Models\Covoiturage::find($id);
+    if (!$ride) {
+        return "Ride {$id} not found";
+    }
+    return [
+        'covoit_id' => $ride->covoit_id,
+        'user_id' => $ride->user_id,
+        'departure_date' => $ride->departure_date,
+        'departure_time' => $ride->departure_time,
+        'trip_started' => $ride->trip_started,
+        'trip_completed' => $ride->trip_completed,
+        'cancelled' => $ride->cancelled,
+    ];
 });
 
 require __DIR__ . '/auth.php';

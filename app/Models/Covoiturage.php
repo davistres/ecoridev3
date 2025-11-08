@@ -62,4 +62,20 @@ class Covoiturage extends Model
     {
         return $this->hasMany(Confirmation::class, 'covoit_id', 'covoit_id');
     }
+
+    /** Calcule le n place dispo des résa actives */
+    public function getAvailableSeatsAttribute()
+    {
+        $reservedSeats = $this->confirmations()
+            ->where('statut', 'En cours')
+            ->count();
+
+        return max(0, $this->n_tickets - $reservedSeats);
+    }
+
+    /** Le covoit a assez de place dispo? */
+    public function hasAvailableSeats($requestedSeats = 1)
+    {
+        return $this->available_seats >= $requestedSeats;
+    }
 }

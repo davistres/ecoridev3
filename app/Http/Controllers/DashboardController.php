@@ -6,6 +6,7 @@ use App\Http\Requests\RechargeRequest;
 use App\Models\Covoiturage;
 use App\Models\Voiture;
 use App\Models\Flux;
+use App\Models\Satisfaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -63,13 +64,13 @@ class DashboardController extends Controller
         // Covoit réservé
         $reservations = Confirmation::with(['covoiturage.user', 'covoiturage.voiture'])
             ->where('user_id', $user->user_id)
+            ->where('statut', 'En cours')
             ->whereHas('covoiturage', function ($q) use ($twoHoursAgo) {
-                $q->where('trip_completed', 0)
-                    ->where('cancelled', 0);
+                $q->where('cancelled', 0);
             })
             ->get()
             ->unique('covoit_id')
-            ->filter(function ($reservation) use ($twoHoursAgo) {
+            ->filter(function ($reservation) use ($twoHoursAgo, $user) {
                 $covoiturage = $reservation->covoiturage;
                 $departureDateTime = \Carbon\Carbon::parse($covoiturage->departure_date . ' ' . $covoiturage->departure_time);
 
@@ -77,14 +78,29 @@ class DashboardController extends Controller
                     return false;
                 }
 
+                if ($covoiturage->trip_completed) {
+                    $hasPendingSatisfaction = Satisfaction::where('user_id', $user->user_id)
+                        ->where('covoit_id', $covoiturage->covoit_id)
+                        ->whereNull('date')
+                        ->exists();
+
+                    return $hasPendingSatisfaction;
+                }
+
                 return $departureDateTime->gte($twoHoursAgo) || $covoiturage->trip_started;
             });
+
+        $pendingSatisfactions = Satisfaction::with('covoiturage.user')
+            ->where('user_id', $user->user_id)
+            ->whereNull('date')
+            ->get();
 
         return view('dashboard', [
             'user' => $user,
             'voitures' => $voitures,
             'covoiturages' => $covoiturages,
             'reservations' => $reservations,
+            'pendingSatisfactions' => $pendingSatisfactions,
         ]);
     }
 
@@ -158,6 +174,7 @@ class DashboardController extends Controller
 
         $reservations = Confirmation::with(['covoiturage.user', 'covoiturage.voiture'])
             ->where('user_id', $user->user_id)
+            ->where('statut', 'En cours')
             ->whereHas('covoiturage', function ($q) use ($today) {
                 $q->where('trip_completed', 0)
                     ->where('cancelled', 0)

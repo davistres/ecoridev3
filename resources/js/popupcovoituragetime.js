@@ -423,6 +423,15 @@ class TripNotificationManager {
                 this.closeCurrentNotification();
             }
         });
+
+        document.addEventListener('trip-completed', (e) => {
+            if (this.currentNotification && this.currentNotification.data.tripId === e.detail.tripId) {
+                this.closeCurrentNotification();
+            }
+
+            this.userTrips = this.userTrips.filter(trip => trip.id !== e.detail.tripId);
+            this.checkAndShowNotifications();
+        });
     }
 
     destroy() {

@@ -28,3 +28,4 @@ Thumbs.db
 ecoride.sql
 app.yaml
 .gcloudignore
+*.md

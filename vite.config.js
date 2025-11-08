@@ -17,7 +17,8 @@ export default defineConfig({
                 'resources/js/trip-filters.js',
                 'resources/js/trip-details-modal.js',
                 'resources/js/reviews-loader.js',
-                'resources/js/my-trip-modal.js'
+                'resources/js/my-trip-modal.js',
+                'resources/js/satisfaction-form.js'
             ],
             refresh: true,
             hotFile: '/var/www/html/public/hot',

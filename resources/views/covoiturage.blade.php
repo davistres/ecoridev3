@@ -316,6 +316,32 @@
 
         <section class="search-section bg-white rounded-xl shadow-lg p-6 md:p-8 max-w-4xl mx-auto mb-12"
             aria-labelledby="page-title">
+
+            <!-- Message en cas de formulaire SATISFACTION en attente -->
+            @if (isset($hasPendingSatisfaction) && $hasPendingSatisfaction)
+                <div id="pending-satisfaction-warning" class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-md"
+                    role="alert">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-bold text-red-800">Formulaire de satisfaction en attente</h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                <p>Vous devez remplir le formulaire de satisfaction en attente dans votre <a
+                                        href="{{ route('dashboard') }}"
+                                        class="font-bold underline hover:text-red-900">dashboard</a> avant de pouvoir
+                                    effectuer une nouvelle recherche de covoiturage.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Message d'erreur de validation -->
             @if (isset($errors) && !empty($errors))
                 <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md" role="alert">
@@ -365,7 +391,7 @@
                 </div>
             </div>
 
-            <form action="{{ route('covoiturage') }}" method="GET"
+            <form id="search-form" action="{{ route('covoiturage') }}" method="GET"
                 class="grid grid-cols-1 lg:grid-cols-10 gap-4 items-end">
 
 
@@ -557,8 +583,8 @@
                                 class="covoiturage-booking w-full md:w-1/4 p-6 bg-gray-50 border-t md:border-t-0 md:border-l border-gray-200 flex flex-col items-center justify-center">
                                 <div class="trip-seats text-gray-600 mb-4">
                                     <i class="fas fa-user-friends mr-2"></i>
-                                    {{ $covoiturage->n_tickets }}
-                                    {{ $covoiturage->n_tickets > 1 ? 'places disponibles' : 'place disponible' }}
+                                    {{ $covoiturage->available_seats }}
+                                    {{ $covoiturage->available_seats > 1 ? 'places disponibles' : 'place disponible' }}
                                 </div>
                                 <div class="trip-price text-center mb-4">
                                     <span
@@ -573,11 +599,19 @@
                                         data-id="{{ $covoiturage->covoit_id }}">
                                         Détails
                                     </a>
-                                    <a href="{{ $covoiturage->button_status['redirect_to'] }}"
-                                        class="btn-participate {{ $covoiturage->button_status['button_class'] }} text-white font-bold py-2 px-4 rounded text-center transition-colors duration-300"
-                                        data-id="{{ $covoiturage->covoit_id }}">
-                                        {{ $covoiturage->button_status['button_text'] }}
-                                    </a>
+                                    @if (isset($hasPendingSatisfaction) && $hasPendingSatisfaction)
+                                        <a href="{{ route('dashboard') }}"
+                                            class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded text-center transition-colors duration-300 flex items-center justify-center gap-2">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            Formulaire en attente
+                                        </a>
+                                    @else
+                                        <a href="{{ $covoiturage->button_status['redirect_to'] }}"
+                                            class="btn-participate {{ $covoiturage->button_status['button_class'] }} text-white font-bold py-2 px-4 rounded text-center transition-colors duration-300"
+                                            data-id="{{ $covoiturage->covoit_id }}">
+                                            {{ $covoiturage->button_status['button_text'] }}
+                                        </a>
+                                    @endif
                                 </div>
                             </div>
                         </article>
@@ -874,6 +908,28 @@
                 // Appliquer ses restrictions aux champs Départ et Arrivée
                 if (departureField) filterAddressInput(departureField);
                 if (arrivalField) filterAddressInput(arrivalField);
+
+                // Si l'utilisateur a un formulaire SATISFACTION en attente, on l'empêche de choisir un nouveau trajet
+                @if (isset($hasPendingSatisfaction) && $hasPendingSatisfaction)
+                    const searchForm = document.getElementById('search-form');
+                    if (searchForm) {
+                        searchForm.addEventListener('submit', function(e) {
+                            e.preventDefault();
+                            const warningDiv = document.getElementById('pending-satisfaction-warning');
+                            if (warningDiv) {
+                                warningDiv.scrollIntoView({
+                                    behavior: 'smooth',
+                                    block: 'center'
+                                });
+                                warningDiv.classList.add('animate-pulse');
+                                setTimeout(() => {
+                                    warningDiv.classList.remove('animate-pulse');
+                                }, 2000);
+                            }
+                            return false;
+                        });
+                    }
+                @endif
             });
         </script>
     @endpush

@@ -105,9 +105,9 @@ class CovoitController extends Controller
                         $covoiturage->user->total_ratings = $covoiturage->user->totalRatings();
                     }
 
-                    // Trajets parfaits (date et place)
+                    // Trajets parfaits (date et place dispo)
                     $perfectMatchTrips = $tripsOnDate->filter(function ($covoiturage) use ($data) {
-                        return $covoiturage->n_tickets >= ($data['seats'] ?? 1);
+                        return $covoiturage->hasAvailableSeats($data['seats'] ?? 1);
                     });
 
                     if ($perfectMatchTrips->isNotEmpty()) {
@@ -119,7 +119,9 @@ class CovoitController extends Controller
 
                         if ($tripsOnDate->isNotEmpty()) {
                             // 2: date OK mais n_place NON
-                            $totalSeatsOnDate = $tripsOnDate->sum('n_tickets');
+                            $totalSeatsOnDate = $tripsOnDate->sum(function ($covoiturage) {
+                                return $covoiturage->available_seats;
+                            });
 
                             if ($totalSeatsOnDate >= $requestedSeats) {
                                 // Place cumulable le même jour
@@ -193,11 +195,19 @@ class CovoitController extends Controller
             return $covoiturage;
         });
 
+        $hasPendingSatisfaction = false;
+        if (Auth::check()) {
+            $hasPendingSatisfaction = Satisfaction::where('user_id', Auth::id())
+                ->whereNull('date')
+                ->exists();
+        }
+
         return view('covoiturage', array_merge([
             'covoiturages' => $covoiturages,
             'searchPerformed' => $searchPerformed,
             'input' => $request->all(),
-            'errors' => $errors
+            'errors' => $errors,
+            'hasPendingSatisfaction' => $hasPendingSatisfaction
         ], $filterData));
     }
 
@@ -673,7 +683,7 @@ class CovoitController extends Controller
         }
 
         // On récupère le n place depuis la recherche (ou 1 par défaut)
-        $requestedSeats = request()->input('seats') ?? session('seats') ?? session('n_tickets') ?? 1;
+        $requestedSeats = request()->input('seats') ?? session('requested_seats') ?? session('seats') ?? session('n_tickets') ?? 1;
 
         // On conserve les paramètres de recherche en cas de retour sur la page covoiturage
         session()->put('n_tickets', $requestedSeats);
@@ -701,7 +711,11 @@ class CovoitController extends Controller
         // On calcul la note moyenne
         $notesMoyenne = $conducteur->averageRating();
         $totalRatings = $conducteur->totalRatings();
-        $placesRestantes = $covoiturage->n_tickets; // TODO: déduire les places réservées!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        $reservedSeats = Confirmation::where('covoit_id', $id)
+            ->where('statut', 'En cours')
+            ->count();
+        $placesRestantes = $covoiturage->n_tickets - $reservedSeats;
 
         return view('covoiturage-confirmation', [
             'covoiturage' => $covoiturage,
@@ -737,14 +751,19 @@ class CovoitController extends Controller
                 return response()->json(['success' => false, 'message' => 'Ce covoiturage n\'est plus disponible.'], 400);
             }
 
-            // L'utilisateur a-t-il déjà réservé?
-            $dejaReserve = Confirmation::where('covoit_id', $id)->where('user_id', $user->user_id)->exists();
+            // L'utilisateur a-t-il déjà réservé? (=> vérif les résa actives)
+            $dejaReserve = Confirmation::where('covoit_id', $id)
+                ->where('user_id', $user->user_id)
+                ->where('statut', 'En cours')
+                ->exists();
             if ($dejaReserve) {
                 return response()->json(['success' => false, 'message' => 'Vous avez déjà fait une réservation dans ce covoiturage.'], 400);
             }
 
-            // Assez de places?
-            $reservedSeats = Confirmation::where('covoit_id', $id)->count();
+            // Assez de places? (=> on compte seulement les résa actives)
+            $reservedSeats = Confirmation::where('covoit_id', $id)
+                ->where('statut', 'En cours')
+                ->count();
             $availableSeats = $covoiturage->n_tickets - $reservedSeats;
 
             if ($availableSeats < $requestedSeats) {
@@ -864,22 +883,37 @@ class CovoitController extends Controller
                 ->with('user')
                 ->get();
 
-            $emailsSent = 0;
-            foreach ($confirmedPassengers as $confirmation) {
-                $passenger = $confirmation->user;
+            $uniquePassengers = $confirmedPassengers->unique('user_id')->pluck('user');
 
-                if ($passenger && $passenger->email) {
-                    try {
-                        Mail::to($passenger->email)->send(new SatisfactionSurveyMail(
-                            $passenger->name,
-                            $covoiturage->user->name,
-                            $covoiturage->city_dep,
-                            $covoiturage->city_arr,
-                            \Carbon\Carbon::parse($covoiturage->departure_date)->format('d/m/Y')
-                        ));
-                        $emailsSent++;
-                    } catch (\Exception $e) {
-                        Log::error('Erreur lors de l\'envoi de l\'email de satisfaction à ' . $passenger->email . ': ' . $e->getMessage());
+            $emailsSent = 0;
+            $satisfactionsCreated = 0;
+
+            foreach ($uniquePassengers as $passenger) {
+                if ($passenger) {
+                    Satisfaction::create([
+                        'user_id' => $passenger->user_id,
+                        'covoit_id' => $covoiturage->covoit_id,
+                        'feeling' => null,
+                        'comment' => null,
+                        'review' => null,
+                        'note' => null,
+                        'date' => null,
+                    ]);
+                    $satisfactionsCreated++;
+
+                    if ($passenger->email) {
+                        try {
+                            Mail::to($passenger->email)->send(new SatisfactionSurveyMail(
+                                $passenger->name,
+                                $covoiturage->user->name,
+                                $covoiturage->city_dep,
+                                $covoiturage->city_arr,
+                                \Carbon\Carbon::parse($covoiturage->departure_date)->format('d/m/Y')
+                            ));
+                            $emailsSent++;
+                        } catch (\Exception $e) {
+                            Log::error('Erreur lors de l\'envoi de l\'email de satisfaction à ' . $passenger->email . ': ' . $e->getMessage());
+                        }
                     }
                 }
             }
@@ -889,7 +923,8 @@ class CovoitController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Covoiturage terminé avec succès.',
-                'emails_sent' => $emailsSent
+                'emails_sent' => $emailsSent,
+                'satisfactions_created' => $satisfactionsCreated
             ]);
         } catch (\Exception $e) {
             DB::rollback();
