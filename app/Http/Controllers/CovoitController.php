@@ -85,7 +85,9 @@ class CovoitController extends Controller
                         ->where('postal_code_arr', str_replace(' ', '', $arrivalPostalCode))
                         ->where('cancelled', 0)
                         ->where('trip_started', 0)
-                        ->where('departure_date', '>=', now()->toDateString());
+                        ->where('trip_completed', 0)
+                        ->where('departure_date', '>=', now()->toDateString())
+                        ->where('trip_started', 0); // Double vérif pour être sûr
 
                     // A la date demandée
                     $tripsOnDate = (clone $query)
@@ -289,6 +291,7 @@ class CovoitController extends Controller
             ->where('n_tickets', '>=', $requestedSeats)
             ->where('cancelled', 0)
             ->where('trip_started', 0) // Sauf les trajets complets
+            ->where('trip_completed', 0)
             ->where('departure_date', '>=', now()->toDateString());
 
         // Recherche dans les 7 jours avant/après (avec limite de 8*2)
@@ -365,17 +368,20 @@ class CovoitController extends Controller
             ->where('n_tickets', '>=', $requestedSeats)
             ->where('cancelled', 0)
             ->where('trip_started', 0) // Sauf les trajets complets
+            ->where('trip_completed', 0)
             ->where('departure_date', '>=', now()->toDateString());
 
         // Date la plus proche après 7 jours en moins
         $closestBefore = (clone $query)
             ->where('departure_date', '<', $dateMoins7)
+            ->where('trip_completed', 0)
             ->orderBy('departure_date', 'desc')
             ->first();
 
         // Date la plus proche APRÈS 7 jours en plus
         $closestAfter = (clone $query)
             ->where('departure_date', '>', $datePlus7)
+            ->where('trip_completed', 0)
             ->orderBy('departure_date', 'asc')
             ->first();
 
@@ -398,6 +404,7 @@ class CovoitController extends Controller
             ->where('postal_code_arr', str_replace(' ', '', $arrivalPostalCode))
             ->where('cancelled', 0)
             ->where('trip_started', 0) // Sauf les trajets complets
+            ->where('trip_completed', 0)
             ->where('departure_date', '>=', now()->toDateString()) // bien entendu => que les trajets futurs
             ->exists();
     }
@@ -468,6 +475,7 @@ class CovoitController extends Controller
                 ->whereDate('departure_date', $checkDate)
                 ->where('cancelled', 0)
                 ->where('trip_started', 0) // Sauf les trajets complets
+                ->where('trip_completed', 0)
                 ->sum('n_tickets');
 
             if ($totalSeats > 0) {
@@ -500,6 +508,7 @@ class CovoitController extends Controller
             ->where('n_tickets', '>=', $requestedSeats)
             ->where('cancelled', 0)
             ->where('trip_started', 0) // Sauf les trajets complets
+            ->where('trip_completed', 0)
             ->where('departure_date', '>=', now()->toDateString())
             ->orderBy('departure_date', 'desc')
             ->first();
@@ -512,6 +521,7 @@ class CovoitController extends Controller
             ->where('n_tickets', '>=', $requestedSeats)
             ->where('cancelled', 0)
             ->where('trip_started', 0) // Sauf les trajets complets
+            ->where('trip_completed', 0)
             ->where('departure_date', '>=', now()->toDateString())
             ->orderBy('departure_date', 'asc')
             ->first();
@@ -889,6 +899,8 @@ class CovoitController extends Controller
 
             DB::beginTransaction();
 
+            // trip_started doit aussi être à 1 quand on termine le trajet
+            $covoiturage->trip_started = 1;
             $covoiturage->trip_completed = 1;
             $covoiturage->save();
 

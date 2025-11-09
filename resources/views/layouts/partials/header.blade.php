@@ -1,4 +1,4 @@
-<header class="bg-white shadow-md sticky top-0 z-50">
+<header class="bg-white shadow-md sticky top-0 z-50" x-data="{ open: false }">
     <nav class="container mx-auto px-6 py-4">
         <div class="flex items-center justify-between">
             <!-- LOGO -->

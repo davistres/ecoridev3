@@ -7,6 +7,7 @@ use App\Models\Covoiturage;
 use App\Models\Satisfaction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class TripDetailsController extends Controller
 {
@@ -105,7 +106,7 @@ class TripDetailsController extends Controller
     public function getUserStatus($tripId): JsonResponse
     {
         try {
-            $user = auth()->user();
+            $user = Auth::user();
             $covoiturage = Covoiturage::where('covoit_id', $tripId)->first();
 
             if (!$covoiturage) {
@@ -143,10 +144,41 @@ class TripDetailsController extends Controller
             return response()->json([
                 'can_participate' => true,
                 'button_text' => 'Participer',
-                'redirect_to' => route('covoiturage') // TODO: créer ensuite la logique de double confirmation...
+                'redirect_to' => route('covoiturage')
             ]);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Erreur lors de la vérification du statut'], 500);
+        }
+    }
+
+    // Récupère les form satisfaction en cours des utilisateurs connectés
+    public function getPendingSatisfactions(): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+
+            if (!$user) {
+                return response()->json(['error' => 'Utilisateur non authentifié'], 401);
+            }
+
+            $pendingSatisfactions = Satisfaction::with('covoiturage.user')
+                ->where('user_id', $user->user_id)
+                ->whereNull('date')
+                ->get()
+                ->map(function ($satisfaction) {
+                    return [
+                        'satisfaction_id' => $satisfaction->satisfaction_id,
+                        'covoit_id' => $satisfaction->covoit_id,
+                        'driver_name' => $satisfaction->covoiturage->user->name,
+                        'trip_date' => \Carbon\Carbon::parse($satisfaction->covoiturage->departure_date)->format('d/m/Y'),
+                        'trip_route' => $satisfaction->covoiturage->city_dep . ' → ' . $satisfaction->covoiturage->city_arr,
+                    ];
+                });
+
+            return response()->json($pendingSatisfactions);
+        } catch (\Exception $e) {
+            Log::error('Erreur dans getPendingSatisfactions: ' . $e->getMessage());
+            return response()->json(['error' => 'Erreur lors de la récupération des satisfactions en attente'], 500);
         }
     }
 }

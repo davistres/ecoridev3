@@ -717,6 +717,44 @@
                     }
                 @endif
 
+                // Je viens d'apprendre ce qu'était un polling
+                // C'est une méthode pour vérifier régulièrement si des données ont changé en arrière-plan
+                // Ici, le polling sert à détecter les nouvelles satisfactions en attente
+                let lastPendingSatisfactionsCount = 0;
+                let pollingInterval;
+
+                function checkForNewPendingSatisfactions() {
+                    fetch('{{ route('api.user.pending-satisfactions') }}', {
+                            method: 'GET',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                    'content'),
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            const currentCount = data.length;
+                            if (currentCount > lastPendingSatisfactionsCount && currentCount > 0) {
+                                // Si une ouvelle satisfaction est détectée, la page se recharge
+                                window.location.reload();
+                            }
+                            lastPendingSatisfactionsCount = currentCount;
+                        })
+                        .catch(error => {
+                            console.error('Erreur lors de la vérification des satisfactions en attente:', error);
+                        });
+                }
+
+                // Polling toute les 10 secondes
+                pollingInterval = setInterval(checkForNewPendingSatisfactions, 10000);
+
+                // Le polling s'arrête quand l'utilisateur quitte la page
+                window.addEventListener('beforeunload', function() {
+                    if (pollingInterval) {
+                        clearInterval(pollingInterval);
+                    }
+                });
                 // addEventListener sur 'trip-completed' pour ouvrir automatiquement le formulaire SATISFACTION
                 document.addEventListener('trip-completed', function(event) {
                     const tripId = event.detail.tripId;

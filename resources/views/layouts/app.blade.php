@@ -17,7 +17,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="font-sans antialiased bg-gray-100 flex flex-col min-h-screen" x-data="{ open: false }">
+<body class="font-sans antialiased bg-gray-100 flex flex-col min-h-screen">
     @include('layouts.partials.header')
 
     <!-- Page Content -->
