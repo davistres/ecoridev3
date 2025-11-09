@@ -26,7 +26,6 @@
     </main>
 
     @include('layouts.partials.footer')
-    @include('layouts.partials.mobile-menu')
 
     @stack('scripts')
 
