@@ -893,11 +893,11 @@ class CovoitController extends Controller
                     Satisfaction::create([
                         'user_id' => $passenger->user_id,
                         'covoit_id' => $covoiturage->covoit_id,
-                        'feeling' => null,
+                        'feeling' => false, // Valeur par défaut pour éviter la contrainte NOT NULL
                         'comment' => null,
                         'review' => null,
                         'note' => null,
-                        'date' => null,
+                        'date' => now(), // Date actuelle pour éviter la contrainte NOT NULL
                     ]);
                     $satisfactionsCreated++;
 

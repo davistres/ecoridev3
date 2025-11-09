@@ -104,7 +104,7 @@ Route::middleware('auth')->group(function () {
     // Marque un covoit comme terminé et envoyer les emails de satisfaction
     Route::post('/api/covoiturage/complete', [CovoitController::class, 'completeTripAndSendSurveys'])->name('covoiturage.complete');
 
-    // Soumission du le formulaire SATISFACTION
+    // Soumission du formulaire SATISFACTION
     Route::post('/satisfaction/store', [SatisfactionController::class, 'store'])->name('satisfaction.store');
 });
 

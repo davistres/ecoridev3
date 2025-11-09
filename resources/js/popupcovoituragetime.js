@@ -242,7 +242,6 @@ class TripNotificationManager {
                 break;
             case 'passenger_late_20min':
                 borderColor = 'border-red-500';
-                canClose = false;
                 content = this.getPassengerLate20MinContent(data);
                 break;
         }
@@ -372,18 +371,21 @@ class TripNotificationManager {
     getPassengerLate20MinContent(data) {
         return `
             <div class="p-4">
-                <div class="flex items-start mb-3">
-                    <i class="fas fa-exclamation-triangle text-red-500 text-xl mr-2 mt-1"></i>
-                    <div class="flex-1">
-                        <h4 class="font-bold text-gray-800 mb-2">Retard important</h4>
-                        <p class="text-sm text-gray-700 mb-3">
-                            Le conducteur <strong>${data.driverName}</strong> n'a toujours pas démarré le trajet. Vous pouvez annuler votre participation si vous le souhaitez.
-                        </p>
-                        <button class="cancel-participation-btn w-full px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm font-semibold">
-                            Annuler ma participation
-                        </button>
+                <div class="flex justify-between items-start mb-2">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-xl mr-2"></i>
+                        <h4 class="font-bold text-gray-800">Retard important</h4>
                     </div>
+                    <button class="close-notification text-gray-400 hover:text-gray-600 transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
+                <p class="text-sm text-gray-700 mb-3">
+                    Le conducteur <strong>${data.driverName}</strong> n'a toujours pas démarré le trajet. Vous pouvez annuler votre participation si vous le souhaitez.
+                </p>
+                <button class="cancel-participation-btn w-full px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm font-semibold">
+                    Annuler ma participation
+                </button>
             </div>
         `;
     }

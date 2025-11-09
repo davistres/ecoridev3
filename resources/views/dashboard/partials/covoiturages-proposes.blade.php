@@ -30,7 +30,7 @@
                         $departureDate = \Carbon\Carbon::parse($covoiturage->departure_date);
                         $arrivalDate = \Carbon\Carbon::parse($covoiturage->arrival_date);
                         $diffInDays = $departureDate->diffInDays($arrivalDate);
-                        $isFull = $covoiturage->trip_started;
+                        $isFull = false; // Probléme!!! A cause de cela, je ne pouvais pas lancer des covoits full
                     @endphp
                     <article
                         class="covoiturage-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col transition-transform duration-300 hover:transform hover:-translate-y-1 border @if ($isFull) border-red-500 hover:shadow-lg hover:shadow-red-300/50 @else border-slate-200 hover:shadow-xl @endif"
