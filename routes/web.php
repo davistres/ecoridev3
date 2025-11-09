@@ -80,6 +80,7 @@ Route::middleware('auth')->group(function () {
     ]);
 
     Route::get('/covoiturages/{covoiturage}/details', [CovoitController::class, 'getDetails'])->name('covoiturages.details');
+    Route::get('/covoiturages/{covoiturage}/has-reservations', [CovoitController::class, 'hasReservations'])->name('covoiturages.hasReservations');
 
     // Route pour vérifier les covoits futurs d'une voiture
     Route::get('/voitures/{voiture}/has-future-carpools', function (Voiture $voiture) {

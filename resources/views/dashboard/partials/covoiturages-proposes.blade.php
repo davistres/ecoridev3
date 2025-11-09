@@ -30,7 +30,8 @@
                         $departureDate = \Carbon\Carbon::parse($covoiturage->departure_date);
                         $arrivalDate = \Carbon\Carbon::parse($covoiturage->arrival_date);
                         $diffInDays = $departureDate->diffInDays($arrivalDate);
-                        $isFull = false; // Probléme!!! A cause de cela, je ne pouvais pas lancer des covoits full
+                        $isFull = $covoiturage->available_seats == 0;
+                        $hasPassengers = $covoiturage->confirmations()->where('statut', 'En cours')->exists();
                     @endphp
                     <article
                         class="covoiturage-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col transition-transform duration-300 hover:transform hover:-translate-y-1 border @if ($isFull) border-red-500 hover:shadow-lg hover:shadow-red-300/50 @else border-slate-200 hover:shadow-xl @endif"
@@ -190,19 +191,19 @@
                                 class="btn-my-trip-details action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-slate-500 rounded-lg hover:bg-slate-600 transition-colors duration-300">Détails</button>
                             <button onclick="openModifModal(this)" data-covoiturage-id="{{ $covoiturage->covoit_id }}"
                                 class="action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-[#3498db] rounded-lg hover:bg-blue-600 transition-colors duration-300"
-                                @disabled($isFull)>Modifier</button>
+                                @if ($hasPassengers) onclick="alert('Vous ne pouvez plus modifier un covoiturage avec des réservations actives.'); return false;" @endif>Modifier</button>
                             <form action="{{ route('covoiturages.destroy', $covoiturage) }}" method="POST"
                                 onsubmit="return confirm('Êtes-vous sûr de vouloir annuler ce trajet ?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
                                     class="action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors duration-300"
-                                    @disabled($isFull)>Annuler</button>
+                                    @disabled($isFull && !$hasPassengers)>Annuler</button>
                             </form>
                             <div class="trip-status-toggle" data-trip-id="{{ $covoiturage->covoit_id }}">
                                 <button
                                     class="start-trip-btn action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-[#2ecc71] rounded-lg hover:bg-[#27ae60] transition-colors duration-300 {{ !empty($covoiturage->trip_started_at) ? 'hidden' : '' }}"
-                                    @disabled($isFull)>Démarrer</button>
+                                    @disabled(!$hasPassengers)>Démarrer</button>
                                 <button
                                     class="end-trip-btn action-btn w-full md:w-auto px-4 py-2 text-sm font-bold text-black bg-[#2ecc71] rounded-lg hover:bg-[#27ae60] transition-colors duration-300 {{ empty($covoiturage->trip_started_at) ? 'hidden' : '' }}">Vous
                                     êtes arrivé ?</button>

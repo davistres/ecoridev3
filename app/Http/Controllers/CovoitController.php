@@ -610,6 +610,20 @@ class CovoitController extends Controller
         return response()->json($covoiturage);
     }
 
+    public function hasReservations(Covoiturage $covoiturage)
+    {
+        // Check si l'user connecté est le propriétaire du covoit
+        if (Auth::id() !== $covoiturage->user_id) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $hasReservations = $covoiturage->confirmations()
+            ->where('statut', 'En cours')
+            ->exists();
+
+        return response()->json($hasReservations);
+    }
+
     // Le btn "Participer" en fonction de la situation
     public function getButtonStatus($covoiturage)
     {

@@ -716,6 +716,14 @@
                         }, 500);
                     }
                 @endif
+
+                // addEventListener sur 'trip-completed' pour ouvrir automatiquement le formulaire SATISFACTION
+                document.addEventListener('trip-completed', function(event) {
+                    const tripId = event.detail.tripId;
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1000);
+                });
             });
         </script>
     @endpush

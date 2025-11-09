@@ -7,49 +7,67 @@ window.openModifModal = function(button) {
         return;
     }
 
-    fetch(`/covoiturages/${covoiturageId}/details`)
+    // Check si y a des résa
+    fetch(`/covoiturages/${covoiturageId}/has-reservations`)
         .then(response => {
             if (!response.ok) throw new Error('Erreur réseau.');
             return response.json();
         })
-        .then(data => {
-            const modal = document.getElementById('modif-covoit-modal');
-            if (!modal) return;
-            const form = modal.querySelector('#modifCovoitForm');
+        .then(hasReservations => {
+            if (hasReservations) {
+                alert('Vous ne pouvez plus modifier un covoiturage avec des réservations actives.');
+                return;
+            }
 
-            form.querySelector('[name="departure_address"]').value = data.departure_address || '';
-            form.querySelector('[name="add_dep_address"]').value = data.add_dep_address || '';
-            form.querySelector('[name="postal_code_dep"]').value = data.postal_code_dep || '';
-            form.querySelector('[name="city_dep"]').value = data.city_dep || '';
-            form.querySelector('[name="arrival_address"]').value = data.arrival_address || '';
-            form.querySelector('[name="add_arr_address"]').value = data.add_arr_address || '';
-            form.querySelector('[name="postal_code_arr"]').value = data.postal_code_arr || '';
-            form.querySelector('[name="city_arr"]').value = data.city_arr || '';
-            form.querySelector('[name="departure_date"]').value = data.departure_date ? data.departure_date.split('T')[0] : '';
-            form.querySelector('[name="departure_time"]').value = data.departure_time ? data.departure_time.substring(0, 5) : '';
-            form.querySelector('[name="arrival_date"]').value = data.arrival_date ? data.arrival_date.split('T')[0] : '';
-            form.querySelector('[name="arrival_time"]').value = data.arrival_time ? data.arrival_time.substring(0, 5) : '';
-            form.querySelector('[name="max_travel_time"]').value = data.max_travel_time ? data.max_travel_time.substring(0, 5) : '';
-            form.querySelector('[name="voiture_id"]').value = data.voiture_id || '';
-            form.querySelector('[name="n_tickets"]').value = data.n_tickets || '';
-            form.querySelector('[name="price"]').value = data.price || '';
-            form.querySelector('#covoiturage_id').value = data.covoit_id || '';
+            // Si pas de résa => ouverture de la modale
+            fetch(`/covoiturages/${covoiturageId}/details`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Erreur réseau.');
+                    return response.json();
+                })
+                .then(data => {
+                    const modal = document.getElementById('modif-covoit-modal');
+                    if (!modal) return;
+                    const form = modal.querySelector('#modifCovoitForm');
 
-            let actionBase = form.dataset.actionBase;
-            form.setAttribute('action', actionBase.replace('__COVOITURAGE_ID__', data.covoit_id));
+                    form.querySelector('[name="departure_address"]').value = data.departure_address || '';
+                    form.querySelector('[name="add_dep_address"]').value = data.add_dep_address || '';
+                    form.querySelector('[name="postal_code_dep"]').value = data.postal_code_dep || '';
+                    form.querySelector('[name="city_dep"]').value = data.city_dep || '';
+                    form.querySelector('[name="arrival_address"]').value = data.arrival_address || '';
+                    form.querySelector('[name="add_arr_address"]').value = data.add_arr_address || '';
+                    form.querySelector('[name="postal_code_arr"]').value = data.postal_code_arr || '';
+                    form.querySelector('[name="city_arr"]').value = data.city_arr || '';
+                    form.querySelector('[name="departure_date"]').value = data.departure_date ? data.departure_date.split('T')[0] : '';
+                    form.querySelector('[name="departure_time"]').value = data.departure_time ? data.departure_time.substring(0, 5) : '';
+                    form.querySelector('[name="arrival_date"]').value = data.arrival_date ? data.arrival_date.split('T')[0] : '';
+                    form.querySelector('[name="arrival_time"]').value = data.arrival_time ? data.arrival_time.substring(0, 5) : '';
+                    form.querySelector('[name="max_travel_time"]').value = data.max_travel_time ? data.max_travel_time.substring(0, 5) : '';
+                    form.querySelector('[name="voiture_id"]').value = data.voiture_id || '';
+                    form.querySelector('[name="n_tickets"]').value = data.n_tickets || '';
+                    form.querySelector('[name="price"]').value = data.price || '';
+                    form.querySelector('#covoiturage_id').value = data.covoit_id || '';
 
-            const arrivalDateInput = form.querySelector('[name="arrival_date"]');
-            const arrivalTimeInput = form.querySelector('[name="arrival_time"]');
-            arrivalDateInput.disabled = false;
-            arrivalDateInput.classList.remove('bg-gray-200');
-            arrivalTimeInput.disabled = false;
-            arrivalTimeInput.classList.remove('bg-gray-200');
+                    let actionBase = form.dataset.actionBase;
+                    form.setAttribute('action', actionBase.replace('__COVOITURAGE_ID__', data.covoit_id));
 
-            openModal('modif-covoit-modal');
+                    const arrivalDateInput = form.querySelector('[name="arrival_date"]');
+                    const arrivalTimeInput = form.querySelector('[name="arrival_time"]');
+                    arrivalDateInput.disabled = false;
+                    arrivalDateInput.classList.remove('bg-gray-200');
+                    arrivalTimeInput.disabled = false;
+                    arrivalTimeInput.classList.remove('bg-gray-200');
+
+                    openModal('modif-covoit-modal');
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('Une erreur est survenue.');
+                });
         })
         .catch(error => {
             console.error('Erreur:', error);
-            alert('Une erreur est survenue.');
+            alert('Une erreur est survenue lors de la vérification des réservations.');
         });
 }
 
