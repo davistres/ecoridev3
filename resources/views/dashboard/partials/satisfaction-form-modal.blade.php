@@ -1,13 +1,17 @@
-<div id="satisfaction-form-modal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden"
-    role="dialog" aria-modal="true" aria-labelledby="satisfactionFormModalTitle" onclick="closeModal('satisfaction-form-modal')">
+<div id="satisfaction-form-modal"
+    class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden" role="dialog"
+    aria-modal="true" aria-labelledby="satisfactionFormModalTitle" onclick="closeModal('satisfaction-form-modal')">
     <div class="bg-white rounded-lg p-8 max-w-2xl w-full mx-4 overflow-y-auto max-h-screen"
         onclick="event.stopPropagation()">
-        <div class="flex justify-between items-center mb-6 border-b pb-4">
-            <h2 id="satisfactionFormModalTitle" class="text-2xl font-bold text-gray-800">Votre avis nous intéresse</h2>
-            <button onclick="closeModal('satisfaction-form-modal')"
-                class="text-gray-500 hover:text-gray-800 text-3xl leading-none">&times;</button>
+        <div class="border-b  mb-6 pb-4">
+            <div class="flex justify-between items-center">
+                <h2 id="satisfactionFormModalTitle" class="text-2xl font-bold text-gray-800">Formulaire de satisfaction
+                </h2>
+                <button onclick="closeModal('satisfaction-form-modal')"
+                    class="text-gray-500 hover:text-gray-800 text-3xl leading-none">&times;</button>
+            </div>
+            <p class="text-sm text-gray-500 text-center mt-4">Le remplissage de ce formulaire est obligatoire.</p>
         </div>
-
         <form id="satisfactionForm" data-submit-url="{{ route('satisfaction.store') }}">
             @csrf
             <input type="hidden" id="satisfaction_id" name="satisfaction_id" value="">
@@ -19,11 +23,12 @@
                 <ul class="list-disc list-inside"></ul>
             </div>
 
-            <div class="mb-6">
+            <div class="mb-6 text-center">
                 <p class="text-lg text-gray-700 mb-4">
-                    Vous avez récemment participé au covoiturage de <strong id="driver-name-display"></strong> 
+                    Vous avez récemment participé au covoiturage de <strong id="driver-name-display"></strong>
                     le <strong id="trip-date-display"></strong> de <strong id="trip-route-display"></strong>.
                 </p>
+                <p class="text-sm text-red-500 mb-4">Les champs marqués d'un astérisque (*) sont obligatoires.</p>
             </div>
 
             <div class="mb-6">
@@ -69,11 +74,16 @@
                     Note <span id="note-required-indicator" class="text-red-500 hidden">*</span>
                 </label>
                 <div class="flex gap-2" id="star-rating">
-                    <i class="far fa-star text-4xl text-gray-300 cursor-pointer hover:text-yellow-400 transition-colors duration-200" data-rating="1"></i>
-                    <i class="far fa-star text-4xl text-gray-300 cursor-pointer hover:text-yellow-400 transition-colors duration-200" data-rating="2"></i>
-                    <i class="far fa-star text-4xl text-gray-300 cursor-pointer hover:text-yellow-400 transition-colors duration-200" data-rating="3"></i>
-                    <i class="far fa-star text-4xl text-gray-300 cursor-pointer hover:text-yellow-400 transition-colors duration-200" data-rating="4"></i>
-                    <i class="far fa-star text-4xl text-gray-300 cursor-pointer hover:text-yellow-400 transition-colors duration-200" data-rating="5"></i>
+                    <i class="far fa-star text-4xl text-gray-300 cursor-pointer hover:text-yellow-400 transition-colors duration-200"
+                        data-rating="1"></i>
+                    <i class="far fa-star text-4xl text-gray-300 cursor-pointer hover:text-yellow-400 transition-colors duration-200"
+                        data-rating="2"></i>
+                    <i class="far fa-star text-4xl text-gray-300 cursor-pointer hover:text-yellow-400 transition-colors duration-200"
+                        data-rating="3"></i>
+                    <i class="far fa-star text-4xl text-gray-300 cursor-pointer hover:text-yellow-400 transition-colors duration-200"
+                        data-rating="4"></i>
+                    <i class="far fa-star text-4xl text-gray-300 cursor-pointer hover:text-yellow-400 transition-colors duration-200"
+                        data-rating="5"></i>
                 </div>
                 <input type="hidden" id="note" name="note" value="">
             </div>
@@ -91,4 +101,3 @@
         </form>
     </div>
 </div>
-

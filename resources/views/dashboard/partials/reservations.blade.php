@@ -19,7 +19,7 @@
                             : null;
                     @endphp
                     <div
-                        class="flex flex-col sm:flex-row gap-0 {{ $hasPendingSatisfaction ? 'shadow-[0_10px_15px_-3px_rgba(239,68,68,0.3),0_4px_6px_-4px_rgba(239,68,68,0.3)] rounded-lg' : '' }}">
+                        class="flex flex-col sm:flex-row gap-0 {{ $hasPendingSatisfaction ? 'shadow-[0_10px_15px_-3px_rgba(239,68,68,0.8),0_4px_6px_-4px_rgba(239,68,68,0.3)] rounded-lg' : '' }}">
                         <article
                             class="reservation-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col sm:flex-row transition-transform duration-300 hover:transform hover:-translate-y-1 hover:shadow-xl border border-slate-200 cursor-pointer {{ $hasPendingSatisfaction ? 'flex-grow' : 'w-full' }}"
                             data-confirmation-id="{{ $reservation->conf_id }}" data-user-name="{{ Auth::user()->name }}"
@@ -83,7 +83,7 @@
 
                         @if ($hasPendingSatisfaction && $pendingSatisfaction)
                             <button
-                                class="satisfaction-btn bg-red-500 hover:bg-red-600 text-white font-bold px-4 py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 sm:w-auto h-auto sm:h-full min-h-[80px]"
+                                class="satisfaction-btn bg-red-500 hover:bg-red-600 text-white font-bold px-4 py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 sm:w-auto h-auto"
                                 data-satisfaction-id="{{ $pendingSatisfaction->satisfaction_id }}"
                                 data-covoit-id="{{ $reservation->covoiturage->covoit_id }}"
                                 data-driver-name="{{ $reservation->covoiturage->user->name }}"
