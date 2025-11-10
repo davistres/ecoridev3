@@ -382,7 +382,7 @@
                     window.resetRechargeModal = function() {
                         // Désélectionner les options de crédit
                         creditOptions.forEach(opt => opt.classList.remove('border-[#2ecc71]', 'bg-green-50',
-                            'ring-2', 'ring-green-300'));
+                            'ring-2', 'ring-300'));
 
                         // Réinit la variable selectedAmount
                         selectedAmount = null;
@@ -396,138 +396,6 @@
                         }
                     }
                 }
-
-                // Logique pour les covoit cards
-                const covoiturageCards = document.querySelectorAll('.covoiturage-card');
-                covoiturageCards.forEach(card => {
-                    const tripToggles = card.querySelector('.trip-status-toggle');
-                    const modifierBtn = card.querySelector('button[onclick^="openModifModal"]');
-                    const annulerForm = card.querySelector('form input[name="_method"][value="DELETE"]')
-                        ?.closest('form');
-                    const startBtn = card.querySelector('.start-trip-btn');
-                    const endBtn = card.querySelector('.end-trip-btn');
-
-                    if (!tripToggles || !modifierBtn || !annulerForm || !startBtn || !endBtn) return;
-
-                    // On annule l'anciennne logique SIMPLE du btn "Annuler" (avec onsubmit) pour lui attribuer deux comportements différents
-                    annulerForm.removeAttribute('onsubmit');
-
-                    tripToggles.addEventListener('click', function(event) {
-                        const buttonClicked = event.target.closest('button');
-                        if (!buttonClicked) return;
-
-                        // Si clic sur "Démarrer"
-                        if (buttonClicked === startBtn) {
-                            // Validation temporelle (code commenté dans trip-start-end-validation.js)
-                            if (window.validateTripStart && window.validateTripStart(card, startBtn,
-                                    endBtn,
-                                    modifierBtn)) {
-                                window.performTripStart(card, startBtn, endBtn, modifierBtn);
-                            }
-                        } else if (buttonClicked === endBtn) {
-                            // Si clic sur "Vous êtes arrivé ?"
-                            // Validation temporelle (code commenté dans trip-start-end-validation.js)
-                            if (window.validateTripEnd && window.validateTripEnd(card)) {
-                                // Affiche la modale de confirmation
-                                if (window.showTripEndConfirmation) {
-                                    window.showTripEndConfirmation(card, function() {
-                                        const covoiturageId = card.dataset.covoiturageId;
-
-                                        fetch('{{ route('covoiturage.complete') }}', {
-                                                method: 'POST',
-                                                headers: {
-                                                    'Content-Type': 'application/json',
-                                                    'X-CSRF-TOKEN': document.querySelector(
-                                                            'meta[name="csrf-token"]')
-                                                        .getAttribute(
-                                                            'content')
-                                                },
-                                                body: JSON.stringify({
-                                                    covoiturage_id: covoiturageId
-                                                })
-                                            })
-                                            .then(response => response.json())
-                                            .then(data => {
-                                                if (data.success) {
-                                                    card.style.opacity = '0.6';
-                                                    card.style.pointerEvents = 'none';
-                                                    card.querySelectorAll(
-                                                            '.card-footer .action-btn')
-                                                        .forEach(btn => btn.disabled =
-                                                            true);
-                                                    buttonClicked.textContent = 'Terminé';
-
-                                                    if (data.emails_sent > 0) {
-                                                        console.log(
-                                                            `${data.emails_sent} email(s) de satisfaction envoyé(s)`
-                                                        );
-                                                    }
-
-                                                    const event = new CustomEvent(
-                                                        'trip-completed', {
-                                                            detail: {
-                                                                tripId: covoiturageId
-                                                            }
-                                                        });
-                                                    document.dispatchEvent(event);
-
-                                                    if (window.tripNotificationManager) {
-                                                        window.tripNotificationManager
-                                                            .closeCurrentNotification();
-
-                                                        fetch(
-                                                                '{{ route('api.user.todayTrips') }}'
-                                                            )
-                                                            .then(response => response
-                                                                .json())
-                                                            .then(trips => {
-                                                                window
-                                                                    .tripNotificationManager
-                                                                    .userTrips = trips;
-                                                                window
-                                                                    .tripNotificationManager
-                                                                    .checkAndShowNotifications();
-                                                            })
-                                                            .catch(error => {
-                                                                console.error(
-                                                                    'Erreur lors du rafraîchissement des notifications:',
-                                                                    error);
-                                                            });
-                                                    }
-                                                } else {
-                                                    alert('Erreur : ' + (data.message ||
-                                                        'Impossible de terminer le covoiturage.'
-                                                    ));
-                                                }
-                                            })
-                                            .catch(error => {
-                                                console.error('Erreur:', error);
-                                                alert(
-                                                    'Une erreur est survenue lors de la finalisation du covoiturage.'
-                                                );
-                                            });
-                                    });
-                                }
-                            }
-                        }
-                    });
-
-                    // Si clic sur "Annuler" => on check si le trajet a commencé ou pas. Si oui => on réinit la card. Si non => on demande confirmation de suppression
-                    annulerForm.addEventListener('submit', function(event) {
-                        event.preventDefault();
-                        if (card.dataset.tripStarted === 'true') {
-                            modifierBtn.disabled = false;
-                            modifierBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                            startBtn.classList.remove('hidden');
-                            endBtn.classList.add('hidden');
-                            delete card.dataset.tripStarted;
-                        } else {
-                            if (confirm('Êtes-vous sûr de vouloir annuler ce trajet ?')) {
-                                annulerForm.submit();
-                            }
-                        }
-                    });
-                });
 
                 // Modale des covoit à venir
                 const upcomingTripModal = document.getElementById('covoiturage-avenir-modal');
@@ -692,76 +560,167 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                @if (isset($pendingSatisfactions) && $pendingSatisfactions->isNotEmpty())
-                    const firstSatisfaction = @json($pendingSatisfactions->first());
+                // NOUVELLE LOGIQUE POUR LES ACTIONS DU CONDUCTEUR////////////////////////////////////////////////////////////////////
+                const covoiturageCards = document.querySelectorAll('.covoiturage-card');
+                covoiturageCards.forEach(card => {
+                    const covoiturageId = card.dataset.covoiturageId;
+                    const preStartActions = card.querySelector('.trip-actions-pre-start');
+                    const startedActions = card.querySelector('.trip-actions-started');
 
-                    if (firstSatisfaction && firstSatisfaction.covoiturage) {
-                        const driverName = firstSatisfaction.covoiturage.user ? firstSatisfaction.covoiturage.user
-                            .name : 'le conducteur';
-                        const tripDate = new Date(firstSatisfaction.covoiturage.departure_date).toLocaleDateString(
-                            'fr-FR');
-                        const tripRoute = firstSatisfaction.covoiturage.city_dep + ' → ' + firstSatisfaction.covoiturage
-                            .city_arr;
+                    const startBtn = card.querySelector('.start-trip-btn');
+                    const cancelStartBtn = card.querySelector('.cancel-start-btn');
+                    const endBtn = card.querySelector('.end-trip-btn');
 
-                        setTimeout(function() {
-                            if (window.openSatisfactionForm) {
-                                window.openSatisfactionForm(
-                                    firstSatisfaction.satisfaction_id,
-                                    firstSatisfaction.covoit_id,
-                                    driverName,
-                                    tripDate,
-                                    tripRoute
-                                );
-                            }
-                        }, 500);
+                    // Démarrer le trajet
+                    if (startBtn) {
+                        startBtn.addEventListener('click', function() {
+                            fetch(`/api/covoiturage/${covoiturageId}/start`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector(
+                                        'meta[name="csrf-token"]').getAttribute('content'),
+                                    'Accept': 'application/json'
+                                }
+                            }).then(response => response.json()).then(data => {
+                                if (data.success) {
+                                    preStartActions.classList.add('hidden');
+                                    startedActions.classList.remove('hidden');
+                                    if (window.showSuccessNotification) {
+                                        window.showSuccessNotification('Trajet démarré !');
+                                    }
+                                } else {
+                                    alert(data.message || 'Une erreur est survenue.');
+                                }
+                            }).catch(err => console.error(err));
+                        });
                     }
-                @endif
+
+                    // Annuler le démarrage
+                    if (cancelStartBtn) {
+                        cancelStartBtn.addEventListener('click', function() {
+                            fetch(`/api/covoiturage/${covoiturageId}/cancel-start`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector(
+                                        'meta[name="csrf-token"]').getAttribute('content'),
+                                    'Accept': 'application/json'
+                                }
+                            }).then(response => response.json()).then(data => {
+                                if (data.success) {
+                                    startedActions.classList.add('hidden');
+                                    preStartActions.classList.remove('hidden');
+                                } else {
+                                    alert(data.message || 'Une erreur est survenue.');
+                                }
+                            }).catch(err => console.error(err));
+                        });
+                    }
+
+                    // Terminer le trajet
+                    if (endBtn) {
+                        endBtn.addEventListener('click', function() {
+                            if (window.showTripEndConfirmation) {
+                                window.showTripEndConfirmation(card, function() {
+                                    fetch(`/api/covoiturage/${covoiturageId}/complete`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'X-CSRF-TOKEN': document.querySelector(
+                                                    'meta[name="csrf-token"]')
+                                                .getAttribute('content'),
+                                            'Accept': 'application/json'
+                                        }
+                                    }).then(response => response.json()).then(data => {
+                                        if (data.success) {
+                                            card.style.transition =
+                                                'opacity 0.5s ease, transform 0.5s ease';
+                                            card.style.opacity = '0';
+                                            card.style.transform = 'scale(0.95)';
+                                            setTimeout(() => card.remove(), 500);
+
+                                            if (window.showSuccessNotification) {
+                                                window.showSuccessNotification(
+                                                    'Trajet terminé !');
+                                            }
+                                            console.log(
+                                                `${data.emails_sent} email(s) de satisfaction envoyé(s)`
+                                                );
+                                        } else {
+                                            alert(data.message ||
+                                                'Impossible de terminer le covoiturage.'
+                                                );
+                                        }
+                                    }).catch(error => {
+                                        console.error('Erreur:', error);
+                                        alert(
+                                            'Une erreur est survenue lors de la finalisation.');
+                                    });
+                                });
+                            }
+                        });
+                    }
+                });
 
                 // Je viens d'apprendre ce qu'était un polling
                 // C'est une méthode pour vérifier régulièrement si des données ont changé en arrière-plan
                 // Ici, le polling sert à détecter les nouvelles satisfactions en attente
-                let lastPendingSatisfactionsCount = 0;
-                let pollingInterval;
+                // Nouvelle logique de polling pour les passagers
+                const isPassenger = document.querySelector('.reservation-card') !== null;
+                if (isPassenger) {
+                    let processedSatisfactionIds = new Set();
+                    let pollingInterval;
 
-                function checkForNewPendingSatisfactions() {
-                    fetch('{{ route('api.user.pending-satisfactions') }}', {
-                            method: 'GET',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                                    'content'),
-                                'Accept': 'application/json'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            const currentCount = data.length;
-                            if (currentCount > lastPendingSatisfactionsCount && currentCount > 0) {
-                                // Si une ouvelle satisfaction est détectée, la page se recharge
-                                window.location.reload();
-                            }
-                            lastPendingSatisfactionsCount = currentCount;
-                        })
-                        .catch(error => {
-                            console.error('Erreur lors de la vérification des satisfactions en attente:', error);
-                        });
-                }
+                    function fetchPassengerUpdates() {
+                        fetch('{{ route('passenger.tripUpdates') }}', {
+                                method: 'GET',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                        'content'),
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data && data.length > 0) {
+                                    data.forEach(satisfaction => {
+                                        if (!processedSatisfactionIds.has(satisfaction.satisfaction_id)) {
+                                            processedSatisfactionIds.add(satisfaction.satisfaction_id);
 
-                // Polling toute les 10 secondes
-                pollingInterval = setInterval(checkForNewPendingSatisfactions, 10000);
+                                            const tripDate = new Date(satisfaction.departure_date)
+                                                .toLocaleDateString('fr-FR');
+                                            const tripRoute = satisfaction.city_dep + ' → ' + satisfaction
+                                                .city_arr;
 
-                // Le polling s'arrête quand l'utilisateur quitte la page
-                window.addEventListener('beforeunload', function() {
-                    if (pollingInterval) {
-                        clearInterval(pollingInterval);
+                                            if (window.openSatisfactionForm) {
+                                                // On ouvre le formulaire pour la première nouvelle satisfaction trouvée
+                                                window.openSatisfactionForm(
+                                                    satisfaction.satisfaction_id,
+                                                    satisfaction.covoit_id,
+                                                    satisfaction.driver_name,
+                                                    tripDate,
+                                                    tripRoute
+                                                );
+                                            }
+                                            // On arrête après pour ne pas spammer
+                                            return;
+                                        }
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Erreur lors de la vérification des mises à jour de trajet:', error);
+                            });
                     }
-                });
-                // addEventListener sur 'trip-completed' pour ouvrir automatiquement le formulaire SATISFACTION
-                document.addEventListener('trip-completed', function(event) {
-                    const tripId = event.detail.tripId;
-                    setTimeout(function() {
-                        window.location.reload();
-                    }, 1000);
-                });
+
+                    // Polling toute les 10 secondes
+                    pollingInterval = setInterval(fetchPassengerUpdates, 10000);
+
+                    // Le polling s'arrête quand l'utilisateur quitte la page
+                    window.addEventListener('beforeunload', function() {
+                        if (pollingInterval) {
+                            clearInterval(pollingInterval);
+                        }
+                    });
+                }
             });
         </script>
     @endpush

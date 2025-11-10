@@ -187,25 +187,40 @@
                         <!-- Footer card (btn) -->
                         <div
                             class="card-footer p-4 bg-slate-50 border-t border-slate-200 grid grid-cols-2 md:flex md:flex-wrap items-center justify-center md:justify-end gap-3">
+
                             <button
                                 class="btn-my-trip-details action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-slate-500 rounded-lg hover:bg-slate-600 transition-colors duration-300">Détails</button>
-                            <button onclick="openModifModal(this)" data-covoiturage-id="{{ $covoiturage->covoit_id }}"
-                                class="action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-[#3498db] rounded-lg hover:bg-blue-600 transition-colors duration-300"
-                                @if ($hasPassengers) onclick="alert('Vous ne pouvez plus modifier un covoiturage avec des réservations actives.'); return false;" @endif>Modifier</button>
-                            <form action="{{ route('covoiturages.destroy', $covoiturage) }}" method="POST"
-                                onsubmit="return confirm('Êtes-vous sûr de vouloir annuler ce trajet ?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit"
-                                    class="action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors duration-300"
-                                    @disabled($isFull && !$hasPassengers)>Annuler</button>
-                            </form>
-                            <div class="trip-status-toggle" data-trip-id="{{ $covoiturage->covoit_id }}">
+
+                            <!-- Quand le trajet n'a pas commencé -->
+                            <div
+                                class="trip-actions-pre-start flex flex-wrap items-center justify-center md:justify-end gap-3 {{ $covoiturage->trip_started ? 'hidden' : '' }}">
+                                <button onclick="openModifModal(this)"
+                                    data-covoiturage-id="{{ $covoiturage->covoit_id }}"
+                                    class="action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-[#3498db] rounded-lg hover:bg-blue-600 transition-colors duration-300"
+                                    @if ($hasPassengers) onclick="alert('Vous ne pouvez plus modifier un covoiturage avec des réservations actives.'); return false;" @endif>Modifier</button>
+
+                                <form action="{{ route('covoiturages.destroy', $covoiturage) }}" method="POST"
+                                    onsubmit="return confirm('Êtes-vous sûr de vouloir annuler ce trajet ?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                        class="action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors duration-300"
+                                        @disabled($isFull && !$hasPassengers)>Annuler Trajet</button>
+                                </form>
+
                                 <button
-                                    class="start-trip-btn action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-[#2ecc71] rounded-lg hover:bg-[#27ae60] transition-colors duration-300 {{ !empty($covoiturage->trip_started_at) ? 'hidden' : '' }}"
+                                    class="start-trip-btn action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-[#2ecc71] rounded-lg hover:bg-[#27ae60] transition-colors duration-300"
                                     @disabled(!$hasPassengers)>Démarrer</button>
+                            </div>
+
+                            <!-- Quand le trajet a commencé -->
+                            <div
+                                class="trip-actions-started flex flex-wrap items-center justify-center md:justify-end gap-3 {{ !$covoiturage->trip_started ? 'hidden' : '' }}">
                                 <button
-                                    class="end-trip-btn action-btn w-full md:w-auto px-4 py-2 text-sm font-bold text-black bg-[#2ecc71] rounded-lg hover:bg-[#27ae60] transition-colors duration-300 {{ empty($covoiturage->trip_started_at) ? 'hidden' : '' }}">Vous
+                                    class="cancel-start-btn action-btn w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors duration-300">Annuler
+                                    Début</button>
+                                <button
+                                    class="end-trip-btn action-btn w-full md:w-auto px-4 py-2 text-sm font-bold text-black bg-[#2ecc71] rounded-lg hover:bg-[#27ae60] transition-colors duration-300">Vous
                                     êtes arrivé ?</button>
                             </div>
                         </div>

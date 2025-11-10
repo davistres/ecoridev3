@@ -509,7 +509,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // La validation a réussi et le covoit est créé
                 window.temporaryVehicleId = null; // Le véhicule n'est plus temporaire
                 closeModal('create-covoit-modal');
-                location.reload(); // Recharger la page pour voir le nouveau covoit
+                window.showSuccessNotification('Votre covoiturage a été créé avec succès !');
             })
             .catch(errorData => {
                 // 4. Gérer les erreurs (validation ou serveur)

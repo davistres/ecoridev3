@@ -81,7 +81,8 @@ class DashboardController extends Controller
                 if ($covoiturage->trip_completed) {
                     $hasPendingSatisfaction = Satisfaction::where('user_id', $user->user_id)
                         ->where('covoit_id', $covoiturage->covoit_id)
-                        ->whereNull('date')
+                        ->where('feeling', 0)
+                        ->whereNull('comment')
                         ->exists();
 
                     return $hasPendingSatisfaction;
@@ -92,7 +93,8 @@ class DashboardController extends Controller
 
         $pendingSatisfactions = Satisfaction::with('covoiturage.user')
             ->where('user_id', $user->user_id)
-            ->whereNull('date')
+            ->where('feeling', 0)
+            ->whereNull('comment')
             ->get();
 
         return view('dashboard', [
@@ -208,5 +210,29 @@ class DashboardController extends Controller
         }
 
         return response()->json($trips);
+    }
+
+    public function getPassengerTripUpdates(): JsonResponse
+    {
+        $user = Auth::user();
+
+        $pendingSatisfactions = Satisfaction::with(['covoiturage.user', 'covoiturage'])
+            ->where('user_id', $user->user_id)
+            ->where('feeling', 0)
+            ->whereNull('comment')
+            ->get();
+
+        $updates = $pendingSatisfactions->map(function ($satisfaction) {
+            return [
+                'satisfaction_id' => $satisfaction->satisfaction_id,
+                'covoit_id' => $satisfaction->covoit_id,
+                'city_dep' => $satisfaction->covoiturage->city_dep,
+                'city_arr' => $satisfaction->covoiturage->city_arr,
+                'driver_name' => $satisfaction->covoiturage->user->name,
+                'departure_date' => $satisfaction->covoiturage->departure_date,
+            ];
+        });
+
+        return response()->json($updates);
     }
 }

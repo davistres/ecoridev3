@@ -103,7 +103,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/user/today-trips', [DashboardController::class, 'getTodayTrips'])->name('api.user.todayTrips');
 
     // Marque un covoit comme terminé et envoyer les emails de satisfaction
-    Route::post('/api/covoiturage/complete', [CovoitController::class, 'completeTripAndSendSurveys'])->name('covoiturage.complete');
+    Route::post('/api/covoiturage/{covoiturage}/complete', [CovoitController::class, 'completeTripAndSendSurveys'])->name('covoiturage.complete');
+
+    // Le conducteur démarre un covoit
+    Route::post('/api/covoiturage/{covoiturage}/start', [CovoitController::class, 'startTrip'])->name('covoiturage.start');
+
+    // Si le conducteur annule le départ d'un covoit
+    Route::post('/api/covoiturage/{covoiturage}/cancel-start', [CovoitController::class, 'cancelTripStart'])->name('covoiturage.cancelStart');
+
+    // Un formulaire de satisfaction est attendu quand un trajet est terminé (=> pour les passagers).
+    Route::get('/api/passenger/trip-updates', [DashboardController::class, 'getPassengerTripUpdates'])->name('passenger.tripUpdates');
 
     // Soumission du formulaire SATISFACTION
     Route::post('/satisfaction/store', [SatisfactionController::class, 'store'])->name('satisfaction.store');

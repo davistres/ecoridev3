@@ -872,61 +872,44 @@ class CovoitController extends Controller
         }
     }
 
-    public function completeTripAndSendSurveys(Request $request): JsonResponse
+    public function completeTripAndSendSurveys(Covoiturage $covoiturage): JsonResponse
     {
         try {
-            $covoiturageId = $request->input('covoiturage_id');
-            $user = Auth::user();
-
-            $covoiturage = Covoiturage::with(['user', 'confirmations.user'])
-                ->where('covoit_id', $covoiturageId)
-                ->where('user_id', $user->user_id)
-                ->first();
-
-            if (!$covoiturage) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Covoiturage non trouvé ou vous n\'êtes pas le conducteur.'
-                ], 404);
+            // 1. l'user connecté est bien le chauffeur?
+            if (Auth::id() !== $covoiturage->user_id) {
+                return response()->json(['success' => false, 'message' => 'Action non autorisée.'], 403);
             }
 
+            // 2. Le trajet n'est pas terminé?
             if ($covoiturage->trip_completed) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Ce covoiturage est déjà marqué comme terminé.'
-                ], 400);
+                return response()->json(['success' => false, 'message' => 'Ce covoiturage est déjà marqué comme terminé.'], 400);
             }
 
             DB::beginTransaction();
 
-            // trip_started doit aussi être à 1 quand on termine le trajet
-            $covoiturage->trip_started = 1;
+            // 3. Maj statut du covoit
             $covoiturage->trip_completed = 1;
             $covoiturage->save();
 
-            $confirmedPassengers = $covoiturage->confirmations()
-                ->where('statut', 'En cours')
-                ->with('user')
-                ->get();
-
+            // 4. Récupérer les passagers et créer les form de satisfaction
+            $confirmedPassengers = $covoiturage->confirmations()->where('statut', 'En cours')->with('user')->get();
             $uniquePassengers = $confirmedPassengers->unique('user_id')->pluck('user');
 
             $emailsSent = 0;
-            $satisfactionsCreated = 0;
-
             foreach ($uniquePassengers as $passenger) {
                 if ($passenger) {
+                    // En attente => champs nuls
                     Satisfaction::create([
                         'user_id' => $passenger->user_id,
                         'covoit_id' => $covoiturage->covoit_id,
-                        'feeling' => false, // Valeur par défaut pour éviter la contrainte NOT NULL
+                        'feeling' => 0,
                         'comment' => null,
                         'review' => null,
                         'note' => null,
-                        'date' => now(), // Date actuelle pour éviter la contrainte NOT NULL
+                        'date' => now()->toDateString(),
                     ]);
-                    $satisfactionsCreated++;
 
+                    // 5. => e-mail d'invitation
                     if ($passenger->email) {
                         try {
                             Mail::to($passenger->email)->send(new SatisfactionSurveyMail(
@@ -950,16 +933,36 @@ class CovoitController extends Controller
                 'success' => true,
                 'message' => 'Covoiturage terminé avec succès.',
                 'emails_sent' => $emailsSent,
-                'satisfactions_created' => $satisfactionsCreated
             ]);
         } catch (\Exception $e) {
             DB::rollback();
             Log::error('Erreur lors de la finalisation du covoiturage: ' . $e->getMessage());
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Une erreur technique est survenue. Veuillez réessayer.'
-            ], 500);
+            return response()->json(['success' => false, 'message' => 'Une erreur technique est survenue.'], 500);
         }
+    }
+
+    public function startTrip(Covoiturage $covoiturage): JsonResponse
+    {
+        if (Auth::id() !== $covoiturage->user_id) {
+            return response()->json(['success' => false, 'message' => 'Action non autorisée.'], 403);
+        }
+
+        $covoiturage->trip_started = 1;
+        $covoiturage->save();
+
+        return response()->json(['success' => true, 'message' => 'Trajet démarré.']);
+    }
+
+    public function cancelTripStart(Covoiturage $covoiturage): JsonResponse
+    {
+        if (Auth::id() !== $covoiturage->user_id) {
+            return response()->json(['success' => false, 'message' => 'Action non autorisée.'], 403);
+        }
+
+        $covoiturage->trip_started = 0;
+        $covoiturage->save();
+
+        return response()->json(['success' => true, 'message' => 'Démarrage du trajet annulé.']);
     }
 }
