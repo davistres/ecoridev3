@@ -659,6 +659,21 @@ class CovoitController extends Controller
             ];
         }
 
+        // Check si l'user a un avis en attente
+        $hasPendingSatisfaction = Satisfaction::where('user_id', $user->user_id)
+            ->where('feeling', 0)
+            ->whereNull('comment')
+            ->exists();
+
+        if ($hasPendingSatisfaction) {
+            return [
+                'can_participate' => false,
+                'button_text' => 'Avis en attente',
+                'redirect_to' => route('dashboard'),
+                'button_class' => 'bg-red-600 hover:bg-red-700'
+            ];
+        }
+
         // On récupére le n place demandé lors de la recherche
         $requestedSeats = session('requested_seats', 1);
         $totalCost = $covoiturage->price * $requestedSeats;

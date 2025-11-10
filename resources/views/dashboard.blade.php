@@ -583,8 +583,8 @@
                                 }
                             }).then(response => response.json()).then(data => {
                                 if (data.success) {
-                                    preStartActions.classList.add('hidden');
-                                    startedActions.classList.remove('hidden');
+                                    preStartActions.style.display = 'none';
+                                    startedActions.style.display = '';
                                     if (window.showSuccessNotification) {
                                         window.showSuccessNotification('Trajet démarré !');
                                     }
@@ -607,8 +607,8 @@
                                 }
                             }).then(response => response.json()).then(data => {
                                 if (data.success) {
-                                    startedActions.classList.add('hidden');
-                                    preStartActions.classList.remove('hidden');
+                                    startedActions.style.display = 'none';
+                                    preStartActions.style.display = '';
                                 } else {
                                     alert(data.message || 'Une erreur est survenue.');
                                 }

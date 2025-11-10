@@ -40,7 +40,7 @@ class SatisfactionController extends Controller
             ], 404);
         }
 
-        if ($satisfaction->date !== null && $satisfaction->feeling !== null) {
+        if (!($satisfaction->feeling == 0 && $satisfaction->comment === null)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Ce formulaire a déjà été complété.'
