@@ -17,6 +17,11 @@
             <input type="hidden" id="satisfaction_id" name="satisfaction_id" value="">
             <input type="hidden" id="covoit_id" name="covoit_id" value="">
 
+            <!-- Le champs Honeypot -->
+            <div style="position: absolute; left: -5000px;" aria-hidden="true">
+                <input type="text" name="user_nickname" tabindex="-1" value="">
+            </div>
+
             <div id="satisfaction-errors" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4"
                 role="alert">
                 <p class="font-bold">Des erreurs ont été détectées :</p>

@@ -17,6 +17,43 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let selectedRating = 0;
 
+    // Nouvelle logique de validation
+    // handleFirstCharValidation sert à valider le premier caractère des champs de commentaires et avis
+    function handleFirstCharValidation(event) {
+        const textarea = event.target;
+        let value = textarea.value;
+        const errorMsgContainer = textarea.nextElementSibling; // Vise l'élément <small>
+        // Regex incluant les lettres, chiffres et accents spécifiés. Le flag 'u' est pour le support Unicode.
+        // Regex étant une séquence de caractères qui spécifie un modèle de correspondance dans un texte
+        const regex = /^[a-zA-Z0-9éèàêç]/u;
+
+        if (value.length > 0 && !regex.test(value)) {
+            // Si le 1er caractère est invalide
+            textarea.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+            textarea.classList.remove('focus:border-green-500', 'focus:ring-green-500');
+            if (errorMsgContainer && !errorMsgContainer.dataset.originalText) {
+                errorMsgContainer.dataset.originalText = errorMsgContainer.textContent;
+                errorMsgContainer.textContent = 'Le premier caractère doit être une lettre, un chiffre ou un accent (é, è, à, ê, ç).';
+                errorMsgContainer.classList.add('text-red-500');
+            }
+            // Suppr immédiatement le caractère invalide
+            textarea.value = value.substring(1);
+        } else {
+            // Si le 1ercaractère est valide ou si le champ est vide
+            textarea.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+            textarea.classList.add('focus:border-green-500', 'focus:ring-green-500');
+            if (errorMsgContainer && errorMsgContainer.dataset.originalText) {
+                errorMsgContainer.textContent = errorMsgContainer.dataset.originalText;
+                errorMsgContainer.classList.remove('text-red-500');
+                delete errorMsgContainer.dataset.originalText;
+            }
+        }
+    }
+
+    commentTextarea.addEventListener('input', handleFirstCharValidation);
+    reviewTextarea.addEventListener('input', handleFirstCharValidation);
+
+
     feelingRadios.forEach(radio => {
         radio.addEventListener('change', function () {
             if (this.value === '0') {
@@ -77,37 +114,56 @@ document.addEventListener('DOMContentLoaded', function () {
             errorsContainer.classList.add('hidden');
             errorsList.innerHTML = '';
 
+            let customErrors = [];
             const formData = new FormData(satisfactionForm);
             const data = {
                 satisfaction_id: formData.get('satisfaction_id'),
+                covoit_id: formData.get('covoit_id'),
                 feeling: formData.get('feeling') === '1' ? 1 : 0,
                 comment: formData.get('comment') || null,
                 review: formData.get('review') || null,
                 note: formData.get('note') || null,
+                user_nickname: formData.get('user_nickname'), // Honeypot
             };
 
             if (data.feeling === 0 && !data.comment) {
-                showErrors(['Le commentaire est obligatoire si vous n\'êtes pas satisfait.']);
-                return;
+                customErrors.push('Le commentaire est obligatoire si vous n\'êtes pas satisfait.');
             }
 
             if (data.review && !data.note) {
-                showErrors(['La note est obligatoire si vous laissez un avis.']);
+                customErrors.push('La note est obligatoire si vous laissez un avis.');
+            }
+
+            if (customErrors.length > 0) {
+                showErrors(customErrors);
                 return;
             }
 
             const submitUrl = satisfactionForm.getAttribute('data-submit-url');
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const csrfToken = document.querySelector('input[name="_token"]').value;
 
             fetch(submitUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: JSON.stringify(data)
             })
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 422) {
+                        return response.json().then(result => {
+                            if (result.errors) {
+                                const errorMessages = Object.values(result.errors).flat();
+                                showErrors(errorMessages);
+                            }
+                            throw new Error('Validation failed');
+                        });
+                    }
+                    return response.json();
+                })
                 .then(result => {
                     if (result.success) {
                         closeModal('satisfaction-form-modal');
@@ -133,18 +189,15 @@ document.addEventListener('DOMContentLoaded', function () {
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500);
-                    } else {
-                        if (result.errors) {
-                            const errorMessages = Object.values(result.errors).flat();
-                            showErrors(errorMessages);
-                        } else {
-                            showErrors([result.message || 'Une erreur est survenue.']);
-                        }
+                    } else if (result.message) {
+                        showErrors([result.message]);
                     }
                 })
                 .catch(error => {
-                    console.error('Erreur:', error);
-                    showErrors(['Une erreur réseau est survenue. Veuillez réessayer.']);
+                    if (error.message !== 'Validation failed') {
+                        console.error('Erreur:', error);
+                        showErrors(['Une erreur réseau est survenue. Veuillez réessayer.']);
+                    }
                 });
         });
     }
@@ -167,6 +220,9 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('trip-route-display').textContent = tripRoute;
 
         satisfactionForm.reset();
+        // Réinit les messages d'erreur potentiels lors de l'ouverture
+        handleFirstCharValidation({ target: commentTextarea });
+        handleFirstCharValidation({ target: reviewTextarea });
         selectedRating = 0;
         updateStars(0);
         errorsContainer.classList.add('hidden');

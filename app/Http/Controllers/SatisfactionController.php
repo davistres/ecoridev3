@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreSatisfactionRequest;
 use App\Models\Satisfaction;
 use App\Models\Covoiturage;
 use App\Models\Litige;
@@ -13,24 +14,13 @@ use Carbon\Carbon;
 
 class SatisfactionController extends Controller
 {
-    public function store(Request $request): JsonResponse
+    public function store(StoreSatisfactionRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'satisfaction_id' => 'required|exists:satisfaction,satisfaction_id',
-            'feeling' => 'required|boolean',
-            'comment' => 'nullable|string',
-            'review' => 'nullable|string|max:1200',
-            'note' => 'nullable|integer|min:1|max:5',
-        ]);
+        // La validation est maintenant gérée automatiquement par StoreSatisfactionRequest.
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
+        $validated = $request->validated();
 
-        $satisfaction = Satisfaction::where('satisfaction_id', $request->satisfaction_id)
+        $satisfaction = Satisfaction::where('satisfaction_id', $validated['satisfaction_id'])
             ->where('user_id', Auth::id())
             ->first();
 
@@ -48,28 +38,14 @@ class SatisfactionController extends Controller
             ], 400);
         }
 
-        if ($request->feeling == 0 && empty($request->comment)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Le commentaire est obligatoire si vous n\'êtes pas satisfait.'
-            ], 422);
-        }
-
-        if (!empty($request->review) && empty($request->note)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'La note est obligatoire si vous laissez un avis.'
-            ], 422);
-        }
-
-        $satisfaction->feeling = $request->feeling;
-        $satisfaction->comment = $request->comment;
-        $satisfaction->review = $request->review;
-        $satisfaction->note = $request->note;
+        $satisfaction->feeling = $validated['feeling'];
+        $satisfaction->comment = $validated['comment'] ?? null;
+        $satisfaction->review = $validated['review'] ?? null;
+        $satisfaction->note = $validated['note'] ?? null;
         $satisfaction->date = Carbon::now()->toDateString();
 
         // Dans le formulaire de satisfaction, si l'utilisateur indique "feeling" = 0 (insatisfait) => création d'un litige
-        if ($request->feeling == 0) {
+        if ($validated['feeling'] == 0) {
             Litige::create([
                 'satisfaction_id' => $satisfaction->satisfaction_id,
                 'date_Create' => now(),
@@ -77,7 +53,7 @@ class SatisfactionController extends Controller
                     [
                         'auteur_id' => Auth::id(),
                         'auteur_role' => Auth::user()->role,
-                        'message' => $request->comment,
+                        'message' => $validated['comment'],
                         'date' => now(),
                     ]
                 ],

@@ -243,3 +243,4 @@ class Flux extends Model
             }
         });
     }
+}
