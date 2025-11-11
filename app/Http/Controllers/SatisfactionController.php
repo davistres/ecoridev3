@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Satisfaction;
 use App\Models\Covoiturage;
+use App\Models\Litige;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
@@ -66,7 +67,29 @@ class SatisfactionController extends Controller
         $satisfaction->review = $request->review;
         $satisfaction->note = $request->note;
         $satisfaction->date = Carbon::now()->toDateString();
+
+        // Dans le formulaire de satisfaction, si l'utilisateur indique "feeling" = 0 (insatisfait) => création d'un litige
+        if ($request->feeling == 0) {
+            Litige::create([
+                'satisfaction_id' => $satisfaction->satisfaction_id,
+                'date_Create' => now(),
+                'conversation' => [
+                    [
+                        'auteur_id' => Auth::id(),
+                        'auteur_role' => Auth::user()->role,
+                        'message' => $request->comment,
+                        'date' => now(),
+                    ]
+                ],
+                'statut_litige' => 'En cours',
+                'date_end' => null,
+            ]);
+        }
+
         $satisfaction->save();
+
+        // Check le paiement du conducteur
+        \App\Models\Flux::processDriverPaymentForCarpool($satisfaction->covoiturage);
 
         return response()->json([
             'success' => true,
@@ -74,4 +97,3 @@ class SatisfactionController extends Controller
         ]);
     }
 }
-
