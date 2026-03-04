@@ -1,0 +1,49 @@
+{
+  "resources/css/app.css": {
+    "file": "assets/app-CDCdXvia.css",
+    "src": "resources/css/app.css",
+    "isEntry": true,
+    "names": [
+      "app.css"
+    ]
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-E36i5I2X.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "imports": [
+      "resources/js/reviews-loader.js"
+    ]
+  },
+  "resources/js/my-trip-modal.js": {
+    "file": "assets/my-trip-modal-CKoumfvS.js",
+    "name": "my-trip-modal",
+    "src": "resources/js/my-trip-modal.js",
+    "isEntry": true
+  },
+  "resources/js/reviews-loader.js": {
+    "file": "assets/reviews-loader-9EwvHmLK.js",
+    "name": "reviews-loader",
+    "src": "resources/js/reviews-loader.js",
+    "isEntry": true
+  },
+  "resources/js/satisfaction-form.js": {
+    "file": "assets/satisfaction-form-RleKZnQ0.js",
+    "name": "satisfaction-form",
+    "src": "resources/js/satisfaction-form.js",
+    "isEntry": true
+  },
+  "resources/js/trip-details-modal.js": {
+    "file": "assets/trip-details-modal-l1BpYvTj.js",
+    "name": "trip-details-modal",
+    "src": "resources/js/trip-details-modal.js",
+    "isEntry": true
+  },
+  "resources/js/trip-filters.js": {
+    "file": "assets/trip-filters-CPuWYQ-_.js",
+    "name": "trip-filters",
+    "src": "resources/js/trip-filters.js",
+    "isEntry": true
+  }
+}
