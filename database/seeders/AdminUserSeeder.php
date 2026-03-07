@@ -8,15 +8,12 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminUserSeeder extends Seeder
 {
-    // Créer user_id admin pour la table FLUX
-    // PROBLEME: J'ai déjà un user_id = 1 dans la table users et je ne peux pas le supprimer car il a des covoits... Donc, j'ai mis user_id = 15 pour l'admin (à changer si je le met en ligne)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     public function run(): void
     {
-        $adminExists = DB::table('users')->where('user_id', 1)->exists();
+        $admin = DB::table('users')->where('email', 'admin@ecoride.fr')->first();
 
-        if (!$adminExists) {
-            DB::table('users')->insert([
-                'user_id' => 1,
+        if (!$admin) {
+            $data = [
                 'name' => 'ADMIN',
                 'email' => 'admin@ecoride.fr',
                 'password' => Hash::make('Admin@EcoRide2024!'),
@@ -27,14 +24,28 @@ class AdminUserSeeder extends Seeder
                 'pref_smoke' => null,
                 'pref_pet' => null,
                 'pref_libre' => null,
-            ]);
+            ];
 
-            $this->command->info('Utilisateur admin créé avec succès !');
-            $this->command->info('User ID: 1');
+            $adminId = null;
+
+            if (!DB::table('users')->where('user_id', 1)->exists()) {
+                $data['user_id'] = 1;
+                DB::table('users')->insert($data);
+                $adminId = 1;
+            } else {
+                $adminId = DB::table('users')->insertGetId($data, 'user_id');
+            }
+
+            $this->command->info('Utilisateur admin cree avec succes !');
+            $this->command->info('User ID: ' . $adminId);
             $this->command->info('Email: admin@ecoride.fr');
             $this->command->info('Mot de passe: Admin@EcoRide2024!');
         } else {
-            $this->command->info('L\'utilisateur admin existe déjà.');
+            DB::table('users')
+                ->where('email', 'admin@ecoride.fr')
+                ->update(['role' => 'Admin']);
+
+            $this->command->info('L\'utilisateur admin existe deja.');
         }
     }
 }

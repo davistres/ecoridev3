@@ -81,6 +81,8 @@ class Flux extends Model
     // Flux de type 'reservation' et ses flux enfants => résa d'un covoit
     public static function createReservation($confId, $userId, $montantInit, $totalCost, $nSeats)
     {
+        $adminUserId = self::getAdminUserId();
+
         // 1. Flux parent 'reservation'
         $reservation = self::create([
             'conf_id' => $confId,
@@ -115,10 +117,10 @@ class Flux extends Model
         ]);
 
         // 4. Flux enfant 'paiement' pour l'admin (= plateforme)
-        $adminCredits = self::getAdminCredits();
+        $adminCredits = self::getAdminCredits($adminUserId);
         self::create([
             'conf_id' => $confId,
-            'user_id' => 1,
+            'user_id' => $adminUserId,
             'montant_init' => $adminCredits,
             'montant' => $partPlateforme->result,
             'result' => $adminCredits + $partPlateforme->result,
@@ -133,10 +135,26 @@ class Flux extends Model
         ];
     }
 
-    private static function getAdminCredits()
+    private static function getAdminCredits(?int $adminUserId = null)
     {
-        return self::where('user_id', 1)
+        $adminUserId ??= self::getAdminUserId();
+
+        return self::where('user_id', $adminUserId)
             ->where('type', 'paiement')
             ->sum('montant');
+    }
+
+    private static function getAdminUserId(): int
+    {
+        $admin = User::query()
+            ->where('role', 'Admin')
+            ->orderBy('user_id')
+            ->first();
+
+        if (!$admin) {
+            throw new \RuntimeException('Admin user not found.');
+        }
+
+        return (int) $admin->user_id;
     }
 }
