@@ -112,8 +112,14 @@
                     </p>
                 </div>
                 <div class="w-full md:w-1/2 px-6 mt-6 md:mt-0">
-                    <img src="{{ asset('images/covoit_smile.jpg') }}" alt="Des gens souriants en covoiturage"
-                        class="rounded-lg shadow-lg">
+                    <picture>
+                        <source srcset="{{ asset('images/covoit_smile.webp') }}" type="image/webp">
+                        <img src="{{ asset('images/covoit_smile_opt.jpg') }}"
+                            alt="Des gens souriants en covoiturage"
+                            class="rounded-lg shadow-lg w-full h-auto"
+                            width="1200" height="800"
+                            loading="lazy">
+                    </picture>
                 </div>
             </article>
 
