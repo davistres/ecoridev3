@@ -31,8 +31,9 @@
             @csrf
             <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();"
                 class="block py-2 px-4 text-sm hover:bg-green-600 hover:font-bold hover:shadow-lg transition duration-300 ease-in-out">
-                D+®connexion
+                DÃ©connexion
             </a>
         </form>
     @endauth
 </div>
+

@@ -55,7 +55,7 @@
 
                 @auth
                     <!-- TODO: lien vers dashboards -->
-                    <!-- Ne pas oubli+® les employ+®s -->
+                    <!-- Ne pas oublier les employes -->
                     <a href="{{ route('dashboard') }}"
                         class="nav-link relative {{ Request::is('dashboard') ? 'font-bold after:scale-x-100' : '' }} text-gray-800 after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-full after:bg-green-500 after:transform after:scale-x-0 after:transition-transform after:duration-300 after:ease-in-out hover:after:scale-x-100 pb-1">
                         @if (auth()->user()->isAdmin())
@@ -65,12 +65,12 @@
                         @endif
                     </a>
                     <!-- TODO: le panier si je l'utilise -->
-                    <!-- Chercher un logo de panier pour que les utilisateurs retrouvent les trajets qu'ils ont s+®lectionn+®s. -->
+                    <!-- Chercher un logo de panier pour que les utilisateurs retrouvent les trajets qu'ils ont selectionnes. -->
                     <form method="POST" action="{{ route('logout') }}" class="flex items-center">
                         @csrf
                         <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();"
                             class="nav-link relative text-gray-800 after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-full after:bg-green-500 after:transform after:scale-x-0 after:transition-transform after:duration-300 after:ease-in-out hover:after:scale-x-100 pb-1">
-                            D+®connexion
+                            DÃ©connexion
                         </a>
                     </form>
                 @endauth
@@ -80,3 +80,4 @@
 
     </nav>
 </header>
+
